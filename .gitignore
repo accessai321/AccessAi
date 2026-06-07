@@ -1,0 +1,12 @@
+backend/venv/
+backend/__pycache__/
+backend/.pytest_cache/
+
+accessai-frontend/node_modules/
+accessai-frontend/build/
+
+.env
+.DS_Store
+
+serviceAccountKey.json
+backend/serviceAccountKey.jsonbackend/serviceAccountKey.json
