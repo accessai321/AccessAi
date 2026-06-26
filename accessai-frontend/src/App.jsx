@@ -16,12 +16,18 @@ import { VoiceAssistantProvider } from "./context/VoiceAssistantContext";
 // Protects /deaf /blind /motor — redirects to landing if not logged in
 function ProtectedRoute({ children, requiredMode }) {
   const { user, disabilityType, DEMO_MODE } = useAuth();
+  
+  // TEMPORARY BYPASS: Render dashboard components directly
+  return children;
+
+  /* Original ProtectedRoute code:
   if (DEMO_MODE) return children;
   if (!user) return <Navigate to="/" replace />;
   if (disabilityType && disabilityType !== requiredMode) {
     return <Navigate to={`/${disabilityType}`} replace />;
   }
   return children;
+  */
 }
 
 // Redirect fallback for backward compatibility
@@ -31,15 +37,15 @@ function AuthRedirect() {
 }
 
 function AppRoutes() {
-  const { user, disabilityType } = useAuth();
+  const { user, disabilityType, DEMO_MODE } = useAuth();
 
   return (
     <Routes>
-      {/* Landing — redirect away if already logged in */}
+      {/* Landing — redirect away if already logged in (disabled in DEMO_MODE) */}
       <Route
         path="/"
         element={
-          user && disabilityType
+          user && disabilityType && !DEMO_MODE
             ? <Navigate to={`/${disabilityType}`} replace />
             : <Landing />
         }

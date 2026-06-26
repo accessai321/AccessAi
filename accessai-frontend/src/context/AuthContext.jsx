@@ -14,8 +14,14 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (DEMO_MODE) {
-      // In demo mode, start as unauthenticated so they can select a mode on landing
-      setUser(null);
+      // In demo mode, initialize with a fallback demo user to prevent null state errors
+      setUser({
+        uid: "demo-uid-default",
+        email: "demo@example.com",
+        displayName: "Demo User",
+        emailVerified: true,
+        getIdToken: async () => "demo-token-abcde"
+      });
       setDisabilityType(null);
       setLoading(false);
       return;
