@@ -233,13 +233,26 @@ export default function MotorLogin() {
       const elements = Array.from(document.querySelectorAll("[data-switchable]"));
       clickableElementsRef.current = elements;
       if (elements.length > 0) {
-        elements[focusedIndex % elements.length]?.focus();
+        const targetEl = elements[focusedIndex % elements.length];
+        if (targetEl && document.activeElement !== targetEl) {
+          targetEl.focus();
+        }
       }
     };
 
     gatherElements();
     const observer = new MutationObserver(gatherElements);
     observer.observe(document.body, { childList: true, subtree: true });
+
+    const handleFocusIn = (e) => {
+      const elements = clickableElementsRef.current;
+      const idx = elements.indexOf(e.target);
+      if (idx >= 0) {
+        setFocusedIndex(idx);
+      }
+    };
+
+    window.addEventListener("focusin", handleFocusIn);
 
     const handleKeyDown = (e) => {
       const elements = clickableElementsRef.current;
@@ -259,6 +272,7 @@ export default function MotorLogin() {
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("focusin", handleFocusIn);
       observer.disconnect();
       clearInterval(dwellIntervalRef.current);
       clearTimeout(dwellTimerRef.current);

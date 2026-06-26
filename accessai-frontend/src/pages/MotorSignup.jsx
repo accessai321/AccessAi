@@ -529,13 +529,26 @@ export default function MotorSignup() {
       const elements = Array.from(document.querySelectorAll("[data-switchable]"));
       clickableElementsRef.current = elements;
       if (elements.length > 0) {
-        elements[focusedIndex % elements.length]?.focus();
+        const targetEl = elements[focusedIndex % elements.length];
+        if (targetEl && document.activeElement !== targetEl) {
+          targetEl.focus();
+        }
       }
     };
 
     gatherElements();
     const observer = new MutationObserver(gatherElements);
     observer.observe(document.body, { childList: true, subtree: true });
+
+    const handleFocusIn = (e) => {
+      const elements = clickableElementsRef.current;
+      const idx = elements.indexOf(e.target);
+      if (idx >= 0) {
+        setFocusedIndex(idx);
+      }
+    };
+
+    window.addEventListener("focusin", handleFocusIn);
 
     const handleKeyDown = (e) => {
       const elements = clickableElementsRef.current;
@@ -555,6 +568,7 @@ export default function MotorSignup() {
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("focusin", handleFocusIn);
       observer.disconnect();
       clearInterval(dwellIntervalRef.current);
       clearTimeout(dwellTimerRef.current);
@@ -565,6 +579,13 @@ export default function MotorSignup() {
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
+    }
+    if (phone) {
+      const cleanedPhone = phone.replace(/\D/g, "");
+      if (cleanedPhone.length !== 10) {
+        setError("Mobile number must be exactly 10 digits.");
+        return;
+      }
     }
     setLoading(true);
     setError("");
@@ -1026,8 +1047,8 @@ export default function MotorSignup() {
     // ── Step-specific Input Processing ──────────────────
     if (activeStep === MOTOR_STEP_SIGNUP_PHONE) {
       const normalizedPhone = normalizeSpokenDigits(spokenText);
-      if (!normalizedPhone) {
-        speakText("I couldn't understand that phone number. Please say it digit by digit.", resumeVoiceListening);
+      if (!normalizedPhone || normalizedPhone.length !== 10) {
+        speakText("Mobile number must be exactly ten digits. Please say it digit by digit.", resumeVoiceListening);
         return;
       }
       setPhone(normalizedPhone);

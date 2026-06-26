@@ -21,6 +21,13 @@ export default function DeafSignup() {
       setError("Passwords do not match.");
       return;
     }
+    if (phone) {
+      const cleanedPhone = phone.replace(/\D/g, "");
+      if (cleanedPhone.length !== 10) {
+        setError("Mobile number must be exactly 10 digits.");
+        return;
+      }
+    }
     setLoading(true);
     setError("");
     try {

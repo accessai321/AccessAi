@@ -35,6 +35,13 @@ function normalizeSegment(text) {
 
   // Strip all whitespaces
   cleaned = cleaned.replace(/\s+/g, "");
+
+  // Strip invalid characters for email (only allow a-z, 0-9, ., _, -, +, @)
+  cleaned = cleaned.replace(/[^a-z0-9._\-+@]/g, "");
+
+  // Strip leading and trailing dots (RFC email format violation and sentence punctuation)
+  cleaned = cleaned.replace(/^\.+|\.+$/g, "");
+
   return cleaned;
 }
 

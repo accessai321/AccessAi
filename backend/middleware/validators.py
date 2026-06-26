@@ -37,6 +37,11 @@ def validate_register(data: dict) -> str | None:
     if str(data["disabilityType"]).strip().lower() not in ALLOWED_MODES:
         return f"'disabilityType' must be one of: {', '.join(sorted(ALLOWED_MODES))}"
 
+    if "phone" in data and data["phone"]:
+        phone_digits = re.sub(r"\D", "", str(data["phone"]))
+        if len(phone_digits) != 10:
+            return "Mobile number must be exactly 10 digits"
+
     return None
 
 

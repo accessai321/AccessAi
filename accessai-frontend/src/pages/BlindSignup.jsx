@@ -913,8 +913,8 @@ export default function BlindSignup() {
     // ── Step-specific Input Processing ──────────────────
     if (activeStep === BLIND_STEP_SIGNUP_PHONE) {
       const normalizedPhone = normalizeSpokenDigits(spokenText);
-      if (!normalizedPhone) {
-        speakText("I couldn't understand that phone number. Please say it digit by digit.", resumeVoiceListening);
+      if (!normalizedPhone || normalizedPhone.length !== 10) {
+        speakText("Mobile number must be exactly ten digits. Please say it digit by digit.", resumeVoiceListening);
         return;
       }
       setPhone(normalizedPhone);
@@ -1061,6 +1061,13 @@ export default function BlindSignup() {
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
+    }
+    if (phone) {
+      const cleanedPhone = phone.replace(/\D/g, "");
+      if (cleanedPhone.length !== 10) {
+        setError("Mobile number must be exactly 10 digits.");
+        return;
+      }
     }
     setLoading(true);
     setError("");
