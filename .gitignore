@@ -1,38 +1,40 @@
+# Dependencies
+node_modules/
+accessai-frontend/node_modules/
+
+# Production builds
+build/
+dist/
+accessai-frontend/build/
+accessai-frontend/dist/
+
+# Virtual environments
+venv/
+venv_win/
 backend/venv/
+backend/backend/venv_win/
 backend/venv_win/
+
+# Python cache and testing
+__pycache__/
+*.pyc
+.pytest_cache/
 backend/__pycache__/
 backend/.pytest_cache/
-
-accessai-frontend/node_modules/
-accessai-frontend/build/
-
-.env
-.DS_Store
-
-
-backend/serviceAccountKey.json
-
-
-# React
-accessai-frontend/node_modules
-accessai-frontend/build
-accessai-frontend/dist
-
-# Python
-backend/venv
-backend/__pycache__
-backend/*.pyc
-
-# Firebase
-backend/serviceAccountKey.json
 
 # Environment files
 .env
 *.env
+.env.local
+.env.*.local
 
-# VS Code
-.vscode
+# Firebase credentials (CRITICAL: Do not upload credentials to GitHub)
+serviceAccountKey.json
+backend/serviceAccountKey.json
 
-# OS
+# IDE / VS Code
+.vscode/
+
+# System / OS files
 .DS_Store
 Thumbs.db
