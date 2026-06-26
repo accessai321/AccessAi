@@ -9,5 +9,30 @@ accessai-frontend/build/
 .env
 .DS_Store
 
-serviceAccountKey.json
+
 backend/serviceAccountKey.json
+
+
+# React
+accessai-frontend/node_modules
+accessai-frontend/build
+accessai-frontend/dist
+
+# Python
+backend/venv
+backend/__pycache__
+backend/*.pyc
+
+# Firebase
+backend/serviceAccountKey.json
+
+# Environment files
+.env
+*.env
+
+# VS Code
+.vscode
+
+# OS
+.DS_Store
+Thumbs.db
