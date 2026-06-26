@@ -3,7 +3,101 @@ import { useAuth } from "../context/AuthContext";
 import API from "../services/api";
 import { useVoiceAssistant } from "../hooks/useVoice";
 
-// ── TTS ───────────────────────────────────────────────────────────────────────
+// ── MOCK DATA MATCHING PLATFORM ──
+const MOCK_COURSES = [
+  {
+    id: "course-1",
+    title: "American Sign Language Alphabet",
+    description: "Learn to spell your name and master the basic letters (A-Z) in American Sign Language.",
+    video: "5K69_tq-0pQ",
+    category: "language",
+    instructor: "Sarah Jenkins, ASL Specialist",
+    duration: "1h 15m",
+    level: "Beginner",
+    rating: 4.8,
+    badge: "Motor-Friendly",
+    lessons: [
+      { id: "les-1-1", title: "Introduction to Fingerspelling", content: "Fingerspelling is the manual representation of letters. Start by keeping your wrist stable and your elbow near your body.", duration: "12 mins", video: "5K69_tq-0pQ" },
+      { id: "les-1-2", title: "Letters A to J Practice", content: "Master A, B, C, D, E, F, G, H, I, and J. Note the shape differences between A, E, and S which are common finger spelling pitfalls.", duration: "20 mins", video: "5K69_tq-0pQ" },
+      { id: "les-1-3", title: "Letters K to T Practice", content: "Practice letters K to T. Keep check of how K uses the thumb on the middle finger and P is just a downward-facing K.", duration: "20 mins", video: "5K69_tq-0pQ" },
+      { id: "les-1-4", title: "Letters U to Z & Double Letters", content: "Complete the alphabet. Z is traced in the air with your index finger. When spelling double letters, bounce or slide slightly outward.", duration: "23 mins", video: "5K69_tq-0pQ" }
+    ],
+    quiz: {
+      question: "Which letter in ASL is signed by tracing the shape of the letter in the air with your index finger?",
+      options: ["A", "J", "X", "Z"],
+      answer: "Z"
+    }
+  },
+  {
+    id: "course-2",
+    title: "Basic ASL Sentences & Greetings",
+    description: "Essential greetings, common expressions, and simple conversational starters in sign language.",
+    video: "ianCxd71Uzg",
+    category: "language",
+    instructor: "Sarah Jenkins, ASL Specialist",
+    duration: "2h 30m",
+    level: "Beginner",
+    rating: 4.9,
+    badge: "Interactive Guide",
+    lessons: [
+      { id: "les-2-1", title: "Meeting People & Basic Greetings", content: "Learn 'Hello', 'Good Morning', 'What's your name?', and 'Nice to meet you'. Remember to smile as facial expressions carry grammatical weight.", duration: "30 mins", video: "ianCxd71Uzg" },
+      { id: "les-2-2", title: "Expressing Emotions & Feelings", content: "Sign 'Happy', 'Sad', 'Tired', 'Fine', and 'Excited'. Facial expressions are critical—they form the vocal inflection of ASL.", duration: "45 mins", video: "ianCxd71Uzg" },
+      { id: "les-2-3", title: "Simple Inquiries & Question Shapes", content: "Asking questions in ASL requires specific eyebrow movements. Lower eyebrows for Wh-questions (Who, What, Where) and raise them for Yes/No questions.", duration: "45 mins", video: "ianCxd71Uzg" },
+      { id: "les-2-4", title: "Practice Dialogue & Handshapes", content: "Interactive review. Tie all vocabulary together in a simple greeting dialogue. Make sure to establish a signing space.", duration: "30 mins", video: "ianCxd71Uzg" }
+    ],
+    quiz: {
+      question: "What eyebrow shape is grammatically correct when signing a WH-question in ASL?",
+      options: ["Eyebrows raised", "Eyebrows lowered/furrowed", "Eyebrows held neutral", "One eyebrow raised, one lowered"],
+      answer: "Eyebrows lowered/furrowed"
+    }
+  },
+  {
+    id: "course-3",
+    title: "Sign Language: Numbers & Colors",
+    description: "Learn the fundamentals of counting, expressions, and identifying colors in ASL.",
+    video: "Raa0IvPnPhg",
+    category: "vocabulary",
+    instructor: "David Vance, Deaf Educator",
+    duration: "1h 45m",
+    level: "Intermediate",
+    rating: 4.7,
+    badge: "Visual Cues",
+    lessons: [
+      { id: "les-3-1", title: "Numbers 1-10 in Sign", duration: "25 mins", content: "Learn to sign numbers 1 to 10. Note that for numbers 1 to 5, your palm faces inward towards your body.", video: "Raa0IvPnPhg" },
+      { id: "les-3-2", title: "Numbers 11-20 & Counting Patterns", duration: "30 mins", content: "Flicking and tapping motions for numbers 11 through 20. Palm orientation flips outward for numbers starting from 11.", video: "Raa0IvPnPhg" },
+      { id: "les-3-3", title: "Visual Spectrum: Colors in Sign", duration: "25 mins", content: "Signing 'Red', 'Blue', 'Yellow', 'Green', 'Purple'. Colors often involve shaking the initial letter handshape.", video: "Raa0IvPnPhg" }
+    ],
+    quiz: {
+      question: "Which way should your palm face when signing the numbers 1 through 5 in ASL?",
+      options: ["Facing outward towards the listener", "Facing inward towards yourself", "Facing sideways to the right", "Facing sideways to the left"],
+      answer: "Facing inward towards yourself"
+    }
+  },
+  {
+    id: "course-4",
+    title: "Advanced Conversational Sign Language",
+    description: "Improve your signing speed, sentence syntax, and understand advanced non-manual markers.",
+    video: "0FcwzLiXpNY",
+    category: "syntax",
+    instructor: "David Vance, Deaf Educator",
+    duration: "3h 10m",
+    level: "Advanced",
+    rating: 4.6,
+    badge: "Syntax Intensive",
+    lessons: [
+      { id: "les-4-1", title: "Non-Manual Signs & Facial Expressions", duration: "45 mins", content: "Learn to communicate structure and urgency. Learn mouth morphemes like 'cha' (large) and 'oo' (small).", video: "0FcwzLiXpNY" },
+      { id: "les-4-2", title: "ASL Grammar: Topic-Comment Structure", duration: "50 mins", content: "Understand subject-object syntax. In ASL, the topic is stated first with raised eyebrows, followed by the comment.", video: "0FcwzLiXpNY" },
+      { id: "les-4-3", title: "Directional Verbs & Classifiers", duration: "55 mins", content: "Show action visually using directional signs like 'help' or 'give' where the movement direction indicates who is giving/helping whom.", video: "0FcwzLiXpNY" }
+    ],
+    quiz: {
+      question: "How is the topic established in an ASL Topic-Comment sentence structure?",
+      options: ["Signing it last", "Signing it first with lowered eyebrows", "Signing it first with raised eyebrows", "Spelling it letter-by-letter"],
+      answer: "Signing it first with raised eyebrows"
+    }
+  }
+];
+
+// ── Text-to-Speech Engine ──
 function useTTS() {
   const { speak, stop, agentState } = useVoiceAssistant();
   const speaking = agentState === "SPEAKING";
@@ -15,14 +109,13 @@ function useTTS() {
   return { speak: speakText, stop, speaking };
 }
 
-// ── Dwell-click engine ────────────────────────────────────────────────────────
-// User hovers a button for DWELL_MS ms → auto-clicks it
+// ── Dwell-click Engine ──
 const DWELL_MS = 1400;
 
 function useDwell(enabled, onActivate) {
-  const timerRef    = useRef(null);
+  const timerRef = useRef(null);
   const progressRef = useRef(null);
-  const [dwellEl, setDwellEl]   = useState(null);
+  const [dwellEl, setDwellEl] = useState(null);
   const [progress, setProgress] = useState(0);
 
   const start = useCallback((el, cb) => {
@@ -33,7 +126,7 @@ function useDwell(enabled, onActivate) {
     progressRef.current = setInterval(() => {
       const pct = Math.min(100, ((Date.now() - start) / DWELL_MS) * 100);
       setProgress(pct);
-    }, 30);
+    }, 25);
     timerRef.current = setTimeout(() => {
       clearInterval(progressRef.current);
       setDwellEl(null);
@@ -52,7 +145,7 @@ function useDwell(enabled, onActivate) {
   return { start, cancel, dwellEl, progress };
 }
 
-// ── Voice commands ────────────────────────────────────────────────────────────
+// ── Voice Commands Engine ──
 function useVoiceCommands(commands, active) {
   const { registerContext, transcript, listening, setTranscript } = useVoiceAssistant();
   const commandsRef = useRef(commands);
@@ -63,14 +156,12 @@ function useVoiceCommands(commands, active) {
   }, [commands]);
 
   useEffect(() => {
-    const unregister = registerContext(contextIdRef.current, (spokenText, confidence) => {
+    const unregister = registerContext(contextIdRef.current, (spokenText) => {
       setTranscript(spokenText);
       const text = spokenText.toLowerCase().trim();
-      let matched = false;
       for (const [pattern, handler] of Object.entries(commandsRef.current)) {
         if (text.includes(pattern)) {
           handler(spokenText);
-          matched = true;
           break;
         }
       }
@@ -81,14 +172,64 @@ function useVoiceCommands(commands, active) {
   return { listening, transcript };
 }
 
-// ── Big dwell button ──────────────────────────────────────────────────────────
-function DwellButton({ label, sublabel, icon, onClick, color = "#2563eb", bg = "#eff6ff", size = "normal", dwellEnabled, dwell, speak, disabled = false }) {
-  const id      = useRef(Math.random().toString(36).slice(2));
+// ── Switch scanning hook (SPACE or TAB to scan focus) ──
+function useSwitchScan(enabled, containerRef, focusedIndex, setFocusedIndex) {
+  useEffect(() => {
+    if (!enabled || !containerRef.current) return;
+    const getFocusable = () => Array.from(
+      containerRef.current.querySelectorAll('button:not([disabled]), input, select, [tabindex="0"]')
+    );
+    const onKey = (e) => {
+      if (e.key === " " || e.key === "Tab") {
+        e.preventDefault();
+        const els = getFocusable();
+        if (!els.length) return;
+        const nextIdx = (focusedIndex + 1) % els.length;
+        setFocusedIndex(nextIdx);
+        els[nextIdx].focus();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const els = getFocusable();
+        if (els[focusedIndex]) {
+          els[focusedIndex].click();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [enabled, containerRef, focusedIndex, setFocusedIndex]);
+}
+
+// ── DwellButton (Dark Premium SaaS styled) ──
+function DwellButton({ label, sublabel, icon, onClick, active = false, color = "indigo", size = "normal", dwellEnabled, dwell, speak, disabled = false }) {
+  const id = useRef(Math.random().toString(36).slice(2));
   const isLarge = size === "large";
 
   const handleEnter = () => {
     if (disabled) return;
+    if (speak) speak(`${label}. ${sublabel || ""}`);
     dwell.start(id.current, onClick);
+  };
+
+  const ringColorMap = {
+    indigo: "border-indigo-500/40 hover:border-indigo-400 bg-indigo-550/10 text-indigo-300",
+    cyan: "border-cyan-500/40 hover:border-cyan-400 bg-cyan-550/10 text-cyan-300",
+    green: "border-green-500/40 hover:border-green-400 bg-green-550/10 text-green-300",
+    red: "border-red-500/40 hover:border-red-400 bg-red-550/10 text-red-300"
+  };
+
+  const activeColorMap = {
+    indigo: "bg-indigo-600 text-white border-indigo-400 shadow-lg shadow-indigo-600/15",
+    cyan: "bg-cyan-600 text-white border-cyan-400 shadow-lg shadow-cyan-600/15",
+    green: "bg-green-600 text-white border-green-400 shadow-lg shadow-green-600/15",
+    red: "bg-red-600 text-white border-red-400 shadow-lg shadow-red-600/15"
+  };
+
+  const overlayMap = {
+    indigo: "bg-indigo-500/20",
+    cyan: "bg-cyan-500/20",
+    green: "bg-green-500/20",
+    red: "bg-red-500/20"
   };
 
   return (
@@ -97,581 +238,1187 @@ function DwellButton({ label, sublabel, icon, onClick, color = "#2563eb", bg = "
       onClick={!dwellEnabled ? onClick : undefined}
       onMouseEnter={handleEnter}
       onMouseLeave={dwell.cancel}
-      onFocus={() => speak && speak(`${label}. ${sublabel || ""}`.trim())}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      aria-label={`${label}${sublabel ? ". " + sublabel : ""}`}
-      style={{
-        position: "relative", overflow: "hidden",
-        width: "100%",
-        padding: isLarge ? "28px 20px" : "20px 16px",
-        background: disabled ? "#f3f4f6" : bg,
-        border: `2px solid ${disabled ? "#e5e7eb" : color}`,
-        borderRadius: "16px",
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        gap: "10px", cursor: disabled ? "not-allowed" : "pointer",
-        transition: "transform 0.12s, box-shadow 0.12s",
-        outline: "none",
-        fontFamily: "inherit",
-        minHeight: isLarge ? "140px" : "100px",
-      }}
-      onMouseDown={e => { if (!disabled) e.currentTarget.style.transform = "scale(0.97)"; }}
-      onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+      onFocus={() => speak && speak(`${label}. ${sublabel || ""}`)}
+      data-switchable
+      className={`w-full flex flex-col items-center justify-center gap-2 rounded-2xl border-2 transition-all duration-200 outline-none text-left relative overflow-hidden select-none ${
+        disabled 
+          ? "bg-slate-900/20 border-slate-800 text-slate-600 cursor-not-allowed" 
+          : active 
+            ? activeColorMap[color] 
+            : `bg-slate-900/50 backdrop-blur border-slate-800 text-slate-300 hover:text-white ${ringColorMap[color]}`
+      } ${isLarge ? "py-6 px-5 min-h-[120px]" : "py-4 px-4 min-h-[80px]"}`}
     >
-      {/* Dwell progress ring */}
+      {/* Visual dwell progress */}
       {dwellEnabled && dwell.dwellEl === id.current && (
-        <svg style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none" }}
-          viewBox="0 0 100 100" preserveAspectRatio="none">
-          <rect x="0" y="0" width={dwell.progress} height="100" fill={color} opacity="0.12" />
-        </svg>
+        <div 
+          className={`absolute left-0 top-0 bottom-0 transition-all duration-[25ms] ease-linear z-0 ${overlayMap[color]}`}
+          style={{ width: `${dwell.progress}%` }}
+        />
       )}
 
-      {/* Icon */}
-      {icon && <div style={{ fontSize: isLarge ? "32px" : "24px", lineHeight: 1 }}>{icon}</div>}
+      {/* Button contents */}
+      <div className="relative z-10 flex flex-col items-center gap-1.5 text-center w-full">
+        {icon && <span className="material-symbols-outlined !text-2xl">{icon}</span>}
+        <span className="text-sm font-bold tracking-wide">{label}</span>
+        {sublabel && <span className="text-[10px] opacity-75 font-medium">{sublabel}</span>}
+      </div>
 
-      {/* Label */}
-      <span style={{ fontSize: isLarge ? "18px" : "15px", fontWeight: "700", color: disabled ? "#9ca3af" : color, textAlign: "center", lineHeight: 1.2 }}>
-        {label}
-      </span>
-
-      {/* Sublabel */}
-      {sublabel && (
-        <span style={{ fontSize: "12px", color: disabled ? "#d1d5db" : `${color}99`, textAlign: "center", lineHeight: 1.4 }}>
-          {sublabel}
-        </span>
-      )}
-
-      {/* Dwell timer arc */}
+      {/* Dwell timer countdown visual bar */}
       {dwellEnabled && dwell.dwellEl === id.current && (
-        <div style={{
-          position: "absolute", bottom: "6px", left: "50%", transform: "translateX(-50%)",
-          width: `${dwell.progress}%`, height: "3px", background: color,
-          borderRadius: "999px", transition: "width 0.03s linear", maxWidth: "80%",
-        }} />
+        <div className="absolute bottom-1 left-4 right-4 h-1 bg-white/10 rounded-full overflow-hidden z-10">
+          <div 
+            className="h-full bg-cyan-400 rounded-full" 
+            style={{ width: `${dwell.progress}%`, transition: "width 0.03s linear" }}
+          />
+        </div>
       )}
     </button>
   );
 }
 
-// ── Switch scanner (space/enter cycles focus) ─────────────────────────────────
-function useSwitchScan(enabled, containerRef) {
-  useEffect(() => {
-    if (!enabled || !containerRef.current) return;
-    const getFocusable = () => Array.from(
-      containerRef.current.querySelectorAll('button:not([disabled]), [tabindex="0"]')
-    );
-    let idx = 0;
-    const onKey = (e) => {
-      if (e.key === " " || e.key === "Tab") {
-        e.preventDefault();
-        const els = getFocusable();
-        if (!els.length) return;
-        idx = (idx + 1) % els.length;
-        els[idx].focus();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [enabled, containerRef]);
-}
-
-// ── Course player ─────────────────────────────────────────────────────────────
-function CoursePlayer({ course, index, progress, onClose, onSave, speak, stop, dwellEnabled, dwell, speaking }) {
-  const pct = progress?.completion ?? 0;
-  const sections = [
-    { title: "Introduction", content: `Welcome to ${course.title}. ${course.description}. This lesson uses large controls — no small clicks needed.` },
-    { title: "Core content",  content: `Let us explore ${course.title} together. Take all the time you need. There are no time limits here.` },
-    { title: "Practice",      content: `Practice time. Apply what you have learned about ${course.title}. Use voice or the large buttons to navigate.` },
-    { title: "Summary",       content: `Great work completing ${course.title}. Press the complete button or say mark complete when ready.` },
-  ];
-  const [si, setSi] = useState(0);
-
-  useEffect(() => {
-    speak(`Course player. ${course.title}. Section ${si + 1} of ${sections.length}: ${sections[si].title}. ${sections[si].content}`, true);
-  }, [si]); // eslint-disable-line
-
-  useEffect(() => () => stop(), []); // eslint-disable-line
-
-  const { listening } = useVoiceCommands({
-    "next":     () => setSi(i => Math.min(i + 1, sections.length - 1)),
-    "previous": () => setSi(i => Math.max(i - 1, 0)),
-    "back":     () => setSi(i => Math.max(i - 1, 0)),
-    "repeat":   () => speak(sections[si].content, true),
-    "complete": () => { onSave(course.id, 100); onClose(); },
-    "close":    () => { stop(); onClose(); },
-    "exit":     () => { stop(); onClose(); },
-  }, !speaking);
-
-  return (
-    <div style={{ minHeight: "100vh", background: "#f0f9ff", fontFamily: "'DM Sans', sans-serif", padding: "24px" }}>
-      {/* Top bar */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
-        <div>
-          <p style={{ fontSize: "13px", color: "#0284c7", fontWeight: "600", margin: "0 0 4px" }}>
-            COURSE {index + 1} · {si + 1} / {sections.length}
-          </p>
-          <h2 style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: "700", color: "#0c4a6e", margin: 0 }}>
-            {course.title}
-          </h2>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          {listening && (
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#dcfce7", padding: "6px 12px", borderRadius: "999px" }}>
-              <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#16a34a", animation: "pulse 1.2s infinite" }} />
-              <span style={{ fontSize: "12px", color: "#15803d", fontWeight: "600" }}>Listening</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Section progress */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
-        {sections.map((s, i) => (
-          <div key={i} style={{ flex: 1, height: "6px", borderRadius: "999px", background: i <= si ? "#0284c7" : "#bae6fd", transition: "background 0.3s" }} />
-        ))}
-      </div>
-
-      {/* Content */}
-      <div style={{ background: "#fff", border: "2px solid #bae6fd", borderRadius: "20px", padding: "32px", marginBottom: "28px", minHeight: "160px" }}>
-        <p style={{ fontSize: "13px", color: "#0284c7", fontWeight: "600", margin: "0 0 12px" }}>{sections[si].title}</p>
-        <p style={{ fontSize: "clamp(16px, 2.5vw, 20px)", color: "#0c4a6e", lineHeight: 1.8, margin: 0 }}>
-          {sections[si].content}
-        </p>
-      </div>
-
-      {/* Navigation buttons — oversized */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
-        <DwellButton
-          label="◀ Previous"
-          sublabel='say "previous"'
-          onClick={() => setSi(i => Math.max(i - 1, 0))}
-          disabled={si === 0}
-          color="#0284c7" bg="#f0f9ff"
-          size="large"
-          dwellEnabled={dwellEnabled} dwell={dwell} speak={speak}
-        />
-        <DwellButton
-          label="Next ▶"
-          sublabel='say "next"'
-          onClick={() => setSi(i => Math.min(i + 1, sections.length - 1))}
-          disabled={si === sections.length - 1}
-          color="#0284c7" bg="#f0f9ff"
-          size="large"
-          dwellEnabled={dwellEnabled} dwell={dwell} speak={speak}
-        />
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
-        <DwellButton
-          label="↺ Repeat"
-          sublabel='say "repeat"'
-          onClick={() => speak(sections[si].content, true)}
-          color="#7c3aed" bg="#faf5ff"
-          size="large"
-          dwellEnabled={dwellEnabled} dwell={dwell} speak={speak}
-        />
-        <DwellButton
-          label="✓ Mark complete"
-          sublabel='say "complete"'
-          onClick={() => { onSave(course.id, 100); onClose(); }}
-          color="#15803d" bg="#f0fdf4"
-          size="large"
-          dwellEnabled={dwellEnabled} dwell={dwell} speak={speak}
-        />
-      </div>
-
-      <DwellButton
-        label="✕ Close course"
-        sublabel='say "close"'
-        onClick={() => { stop(); onClose(); }}
-        color="#dc2626" bg="#fef2f2"
-        dwellEnabled={dwellEnabled} dwell={dwell} speak={speak}
-      />
-
-      {/* Save partial progress */}
-      <div style={{ marginTop: "20px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
-        <span style={{ fontSize: "13px", color: "#64748b" }}>Save progress:</span>
-        {[25, 50, 75].map(p => (
-          <DwellButton
-            key={p}
-            label={`${p}%`}
-            onClick={() => onSave(course.id, p)}
-            color="#0284c7" bg={pct >= p ? "#e0f2fe" : "#f8fafc"}
-            dwellEnabled={dwellEnabled} dwell={dwell} speak={speak}
-          />
-        ))}
-      </div>
-
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}`}</style>
-    </div>
-  );
-}
-
-// ── Main dashboard ────────────────────────────────────────────────────────────
 export default function MotorDashboard() {
-  const { user, logout }              = useAuth();
-  const { speak, stop, speaking }               = useTTS();
-  const [courses, setCourses]         = useState([]);
-  const [progress, setProgress]       = useState({});
-  const [loading, setLoading]         = useState(true);
-  const [openCourse, setOpenCourse]   = useState(null);
-  const [openIndex, setOpenIndex]     = useState(null);
-  const [dwellEnabled, setDwell]      = useState(false);
-  const [switchEnabled, setSwitch]    = useState(false);
-  const [voiceActive, setVoice]       = useState(true);
-  const [view, setView]               = useState("courses"); // courses | settings
-  const [statusMsg, setStatusMsg]     = useState("");
-  const containerRef                  = useRef(null);
-  const announcedRef                  = useRef(false);
-  const dwell                         = useDwell(dwellEnabled, () => {});
+  const { user, logout, DEMO_MODE } = useAuth();
+  const { speak, stop, speaking } = useTTS();
 
-  useSwitchScan(switchEnabled, containerRef);
+  // Dashboard state tabs
+  const [activeTab, setActiveTab] = useState("home"); // home, courses, my-learning, ai-tutor, activity, profile, settings
+  const [selectedCourse, setSelectedCourse] = useState(null); // Course detail overlay
+  const [activeCoursePlay, setActiveCoursePlay] = useState(null); // Player view
+  const [currentLessonIdx, setCurrentLessonIdx] = useState(0);
 
-  // Load data
+  // Search and lists
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
+  const [difficulty, setDifficulty] = useState("all");
+  const [courses, setCourses] = useState(MOCK_COURSES);
+  const [purchasedIds, setPurchasedIds] = useState(["course-1", "course-2"]);
+  const [progress, setProgress] = useState({
+    "course-1": { completion: 75 },
+    "course-2": { completion: 25 }
+  });
+
+  // AI Tutor chat states
+  const [chatMessages, setChatMessages] = useState([
+    { sender: "ai", text: "Hello! I am your AccessAI Motor-Adaptive Tutor. Click on prompt cards or type using voice assistant to discuss grammar and generate quizzes!" }
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [aiTutorTab, setAiTutorTab] = useState("chat"); // chat, homework, quiz-gen
+  const [isVoiceChatActive, setIsVoiceChatActive] = useState(false);
+
+  // Settings states
+  const [dwellEnabled, setDwellEnabled] = useState(true);
+  const [switchEnabled, setSwitchEnabled] = useState(false);
+  const [voiceActive, setVoiceActive] = useState(true);
+  const [cursorSize, setCursorSize] = useState("xl"); // normal, xl, xxl
+  const [fontSize, setFontSize] = useState("large"); // medium, large, x-large
+
+  // Eye-tracking simulator calibration
+  const [eyeTrackingState, setEyeTrackingState] = useState("calibrated"); // disabled, calibrating, calibrated
+  const [calibrationProgress, setCalibrationProgress] = useState(0);
+  const [cursorSimPos, setCursorSimPos] = useState({ x: 100, y: 100 });
+
+  // Switch scan index tracker
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const containerRef = useRef(null);
+  const announcedRef = useRef(false);
+
+  // Hooks setup
+  const dwell = useDwell(dwellEnabled, () => {});
+  useSwitchScan(switchEnabled, containerRef, focusedIndex, setFocusedIndex);
+
+  // Load backend data if not in demo mode
   useEffect(() => {
-    const load = async () => {
+    if (DEMO_MODE) return;
+    const fetchDB = async () => {
       try {
         const [cRes, pRes] = await Promise.all([
           API.get("/courses"),
-          API.get(`/progress/${user.uid}`),
+          API.get(`/progress/${user?.uid}`)
         ]);
-        setCourses(cRes.data.courses);
-        const pMap = {};
-        pRes.data.progress.forEach(p => { pMap[p.courseId] = p; });
-        setProgress(pMap);
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
+        if (cRes.data?.courses?.length > 0) setCourses(cRes.data.courses);
+        if (pRes.data?.progress) {
+          const pMap = {};
+          pRes.data.progress.forEach(p => { pMap[p.courseId] = p; });
+          setProgress(pMap);
+        }
+      } catch (e) {
+        console.warn("Could not load backend courses. Using mock datasets.", e);
+      }
     };
-    load();
-  }, [user.uid]);
+    fetchDB();
+  }, [user?.uid, DEMO_MODE]);
 
-  // Welcome
+  // Voice greeting on first render
   useEffect(() => {
-    if (!loading && !announcedRef.current) {
+    if (!announcedRef.current) {
       announcedRef.current = true;
-      setTimeout(() => speak(
-        `Welcome to AccessAI, ${user.displayName?.split(" ")[0] || "there"}. Motor mode active. You have ${courses.length} courses. All buttons are large and keyboard friendly. Say open course followed by a number, or say help for all commands.`,
-        true
-      ), 600);
+      setTimeout(() => {
+        speak(`Welcome to your AccessAI learning dashboard, Aman. All inputs support motor-dwell click timers. Switch scanning is available. Say help at any time to list verbal shortcuts.`, true);
+      }, 800);
     }
-  }, [loading]); // eslint-disable-line
+  }, [speak]);
 
-  const saveProgress = useCallback(async (courseId, completion) => {
-    try {
-      await API.post("/progress", { userId: user.uid, courseId, completion });
-      setProgress(prev => ({ ...prev, [courseId]: { courseId, completion } }));
-      speak(`Progress saved. ${completion} percent.`, true);
-      setStatusMsg(`Progress saved — ${completion}%`);
-      setTimeout(() => setStatusMsg(""), 3000);
-    } catch (e) { console.error(e); }
-  }, [user.uid, speak]);
+  // Calibration sequence simulation
+  const startCalibration = () => {
+    setEyeTrackingState("calibrating");
+    setCalibrationProgress(0);
+    let cur = 0;
+    const interval = setInterval(() => {
+      cur += 20;
+      setCalibrationProgress(cur);
+      if (cur >= 100) {
+        clearInterval(interval);
+        setEyeTrackingState("calibrated");
+        speak("Eye tracking calibration completed successfully.");
+      }
+    }, 400);
+  };
 
-  const openCourseHandler = useCallback((course, idx) => {
-    stop();
-    setOpenCourse(course);
-    setOpenIndex(idx);
-  }, [stop]);
+  // Cursor overlay simulation
+  useEffect(() => {
+    const handleMove = (e) => {
+      setCursorSimPos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, []);
 
-  const closeCourse = useCallback(() => {
-    setOpenCourse(null);
-    setOpenIndex(null);
-    setTimeout(() => speak(`Back to dashboard. ${courses.length} courses available.`, true), 300);
-  }, [courses.length, speak]);
+  // Marketplace actions
+  const handleBuyCourse = (courseId) => {
+    if (purchasedIds.includes(courseId)) return;
+    setPurchasedIds(prev => [...prev, courseId]);
+    setProgress(prev => ({ ...prev, [courseId]: { completion: 0 } }));
+    speak("Course enrolled. You can now start learning.");
+  };
 
-  // Voice commands
+  const updateProgress = (courseId, pct) => {
+    setProgress(prev => ({
+      ...prev,
+      [courseId]: { ...prev[courseId], completion: pct }
+    }));
+  };
+
+  // AI Tutor operations
+  const handleSendMessage = () => {
+    if (!chatInput.trim()) return;
+    const userMsg = { sender: "user", text: chatInput };
+    setChatMessages(prev => [...prev, userMsg]);
+    setChatInput("");
+
+    setTimeout(() => {
+      let responseText = "Understood. The motor adaptive framework translates complex wrist triggers into binary switch scanning sequences.";
+      if (chatInput.toLowerCase().includes("alphabet") || chatInput.toLowerCase().includes("letters")) {
+        responseText = "Fingerspelling can be visual. If motor adjustments are difficult, AccessAI supports verbal spelling translations.";
+      } else if (chatInput.toLowerCase().includes("calibration") || chatInput.toLowerCase().includes("eye")) {
+        responseText = "Eye-tracking is configured with a 1.4 second dwell. You can shorten this dwell duration in your Accessibility Settings tab.";
+      } else if (chatInput.toLowerCase().includes("quiz")) {
+        responseText = "Let's begin. Question: Which button scans keyboard items in sequence? Answer options are Dwell, Switch key, or TTS.";
+      }
+      setChatMessages(prev => [...prev, { sender: "ai", text: responseText }]);
+      speak(responseText);
+    }, 1000);
+  };
+
+  const handleQuickQuestion = (qText) => {
+    setChatInput(qText);
+    setTimeout(() => handleSendMessage(), 150);
+  };
+
+  // Filters catalog
+  const filteredCourses = courses.filter(c => {
+    const matchesSearch = c.title.toLowerCase().includes(search.toLowerCase()) || 
+                          c.description.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = category === "all" || c.category === category;
+    const matchesDifficulty = difficulty === "all" || c.level.toLowerCase() === difficulty;
+    return matchesSearch && matchesCategory && matchesDifficulty;
+  });
+
+  // Global voice shortcuts
   const { listening, transcript } = useVoiceCommands({
-    "open course": (txt) => {
-      const n = parseInt(txt.match(/\d+/)?.[0]) - 1;
-      if (n >= 0 && n < courses.length) openCourseHandler(courses[n], n);
-      else speak("Course not found. Say list courses to hear all options.", true);
-    },
-    "list courses": () => {
-      const list = courses.map((c, i) => `Course ${i + 1}: ${c.title}`).join(". ");
-      speak(list || "No courses available.", true);
-    },
-    "my progress": () => {
-      const done = Object.values(progress).filter(p => p.completion === 100).length;
-      speak(`${done} course${done !== 1 ? "s" : ""} completed.`, true);
-    },
-    "turn on dwell":  () => { setDwell(true);  speak("Dwell click enabled. Hover over a button for 1.4 seconds to activate it.", true); },
-    "turn off dwell": () => { setDwell(false); speak("Dwell click disabled.", true); },
-    "turn on switch": () => { setSwitch(true); speak("Switch navigation enabled. Press space to cycle buttons.", true); },
-    "settings":       () => { setView("settings"); speak("Settings panel open.", true); },
-    "courses":        () => { setView("courses");  speak("Courses panel open.", true); },
-    "stop":           () => stop(),
-    "repeat":         () => speak(`Motor dashboard. ${courses.length} courses. Say open course followed by a number.`, true),
-    "sign out":       () => { speak("Signing out.", true); setTimeout(logout, 1500); },
-    "help": () => speak(
-      "Commands: open course 1 through " + courses.length + ". List courses. My progress. Turn on dwell. Turn off dwell. Turn on switch. Settings. Stop. Sign out.",
-      true
-    ),
-  }, voiceActive && !openCourse && !speaking);
-
-  if (openCourse) {
-    return (
-      <CoursePlayer
-        course={openCourse} index={openIndex}
-        progress={progress[openCourse.id]}
-        onClose={closeCourse} onSave={saveProgress}
-        speak={speak} stop={stop}
-        dwellEnabled={dwellEnabled} dwell={dwell}
-        speaking={speaking}
-      />
-    );
-  }
+    "go to home": () => { setActiveTab("home"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Home Dashboard."); },
+    "go to courses": () => { setActiveTab("courses"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Courses."); },
+    "go to learning": () => { setActiveTab("my-learning"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Enrolled Courses."); },
+    "go to tutor": () => { setActiveTab("ai-tutor"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to AI Tutor."); },
+    "go to activity": () => { setActiveTab("activity"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Activity Dashboard."); },
+    "go to profile": () => { setActiveTab("profile"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Profile."); },
+    "go to settings": () => { setActiveTab("settings"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Accessibility Settings."); },
+    "turn on dwell": () => { setDwellEnabled(true); speak("Dwell click timers activated."); },
+    "turn off dwell": () => { setDwellEnabled(false); speak("Dwell click timers deactivated."); },
+    "turn on switch": () => { setSwitchEnabled(true); speak("Switch navigation activated."); },
+    "turn off switch": () => { setSwitchEnabled(false); speak("Switch navigation deactivated."); },
+    "sign out": () => { speak("Logging you out. Redirecting to landing page."); setTimeout(logout, 1200); },
+    "help": () => speak("Shortcuts: go to home, go to courses, go to learning, go to tutor, go to settings, turn on dwell, turn off switch, sign out.")
+  }, voiceActive && !speaking);
 
   return (
-    <div ref={containerRef} style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "'DM Sans', sans-serif" }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <div 
+      ref={containerRef}
+      className={`min-h-screen bg-[#090d16] text-[#e2e8f0] font-sans flex relative overflow-hidden ${
+        fontSize === "x-large" ? "text-lg" : fontSize === "large" ? "text-base" : "text-sm"
+      }`}
+    >
+      {/* SaaS background blur design elements */}
+      <div className="absolute top-10 left-10 w-[450px] h-[450px] bg-indigo-500/5 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-20 right-20 w-[450px] h-[450px] bg-cyan-500/5 rounded-full blur-[140px] pointer-events-none" />
 
-      {/* ARIA live region */}
-      <div aria-live="assertive" aria-atomic="true" style={{ position: "absolute", left: "-9999px" }}>{statusMsg}</div>
-
-      {/* Skip link */}
-      <a href="#main" style={{ position: "absolute", left: "-9999px" }}
-        onFocus={e => { e.target.style.left = "16px"; e.target.style.zIndex = "9999"; }}
-        onBlur={e => { e.target.style.left = "-9999px"; }}
-      >Skip to content</a>
-
-      {/* ── Navbar ── */}
-      <nav style={{
-        background: "#fff", borderBottom: "2px solid #e2e8f0",
-        padding: "0 24px", height: "72px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        position: "sticky", top: 0, zIndex: 50,
-      }}>
-        {/* Logo */}
-        <span style={{ fontSize: "24px", fontWeight: "700", letterSpacing: "-0.5px", color: "#0f172a" }}>
-          Access<span style={{ color: "#0284c7" }}>AI</span>
-        </span>
-
-        {/* Mode pill */}
-        <span style={{ background: "#e0f2fe", color: "#0284c7", fontSize: "12px", fontWeight: "600", padding: "4px 12px", borderRadius: "999px", display: "inline-flex", alignItems: "center", gap: "5px" }}>
-          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#0284c7" }} />
-          motor mode
-        </span>
-
-        {/* Voice status */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          {voiceActive && listening && (
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#dcfce7", padding: "6px 14px", borderRadius: "999px" }}>
-              <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#16a34a", animation: "pulse 1.2s infinite" }} />
-              <span style={{ fontSize: "13px", color: "#15803d", fontWeight: "600" }}>Listening</span>
-            </div>
-          )}
-          <button
-            onClick={() => { setVoice(v => !v); }}
-            aria-pressed={voiceActive}
-            style={{ padding: "10px 18px", borderRadius: "10px", border: "2px solid", borderColor: voiceActive ? "#0284c7" : "#e2e8f0", background: voiceActive ? "#e0f2fe" : "#f8fafc", color: voiceActive ? "#0284c7" : "#94a3b8", fontSize: "14px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", minHeight: "46px" }}
-          >
-            {voiceActive ? "🎤 Voice ON" : "🎤 Voice OFF"}
-          </button>
+      {/* Simulated Eye-Tracking Cursor follow dot */}
+      {eyeTrackingState === "calibrated" && cursorSize !== "normal" && (
+        <div 
+          className={`fixed pointer-events-none rounded-full bg-cyan-400/25 border border-cyan-400/80 z-[9999] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-transform duration-100 ${
+            cursorSize === "xxl" ? "w-16 h-16" : "w-10 h-10"
+          }`}
+          style={{ left: cursorSimPos.x, top: cursorSimPos.y }}
+        >
+          <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full" />
         </div>
-      </nav>
+      )}
 
-      {/* ── Main ── */}
-      <main id="main" style={{ maxWidth: "960px", margin: "0 auto", padding: "32px 20px 60px" }}>
+      {/* ── LEFT SIDEBAR: LARGE ACCESSIBLE TARGETS ── */}
+      <aside className="w-80 border-r border-white/5 flex flex-col justify-between sticky top-0 h-screen z-50 backdrop-blur-xl bg-[#0a0f1d]/75">
+        <div className="p-6 flex flex-col gap-8">
+          {/* Logo & Mode pill */}
+          <div 
+            onClick={() => { setActiveTab("home"); setSelectedCourse(null); setActiveCoursePlay(null); }}
+            className="flex flex-col gap-2 cursor-pointer"
+          >
+            <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">AccessAI</span>
+            <span className="self-start text-[10px] font-bold uppercase tracking-wider bg-cyan-500/10 text-cyan-300 border border-cyan-500/25 px-3 py-1 rounded-full flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              Motor Mode
+            </span>
+          </div>
 
-        {/* Voice transcript */}
+          {/* Large sidebar targets */}
+          <nav className="flex flex-col gap-3">
+            {[
+              { id: "home", label: "Home Dashboard", icon: "home", sub: 'say "go to home"' },
+              { id: "courses", label: "Course Library", icon: "grid_view", sub: 'say "go to courses"' },
+              { id: "my-learning", label: "My Enrolled", icon: "menu_book", sub: 'say "go to learning"' },
+              { id: "ai-tutor", label: "AI Tutor Support", icon: "smart_toy", sub: 'say "go to tutor"' },
+              { id: "activity", label: "Study Progress", icon: "analytics", sub: 'say "go to activity"' },
+              { id: "profile", label: "Profile & Badges", icon: "account_circle", sub: 'say "go to profile"' },
+              { id: "settings", label: "Settings Adaptive", icon: "tune", sub: 'say "go to settings"' }
+            ].map(item => (
+              <DwellButton
+                key={item.id}
+                label={item.label}
+                sublabel={item.sub}
+                icon={item.icon}
+                active={activeTab === item.id && !selectedCourse && !activeCoursePlay}
+                color="cyan"
+                dwellEnabled={dwellEnabled}
+                dwell={dwell}
+                speak={speak}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setSelectedCourse(null);
+                  setActiveCoursePlay(null);
+                }}
+              />
+            ))}
+          </nav>
+        </div>
+
+        {/* Footer profile & logout */}
+        <div className="p-6 border-t border-white/5 flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center font-bold text-white text-sm">
+              AH
+            </div>
+            <div>
+              <p className="text-xs font-semibold">Aman Halkude</p>
+              <p className="text-[10px] text-slate-500">Adaptive User</p>
+            </div>
+          </div>
+          <DwellButton
+            label="Sign Out"
+            sublabel='say "sign out"'
+            icon="logout"
+            color="red"
+            dwellEnabled={dwellEnabled}
+            dwell={dwell}
+            speak={speak}
+            onClick={logout}
+          />
+        </div>
+      </aside>
+
+      {/* ── MAIN CONTENT AREA ── */}
+      <main className="flex-1 min-h-screen overflow-y-auto p-8 relative z-10 flex flex-col gap-6">
+        
+        {/* Top Navbar Status indicators */}
+        <div className="flex justify-between items-center bg-[#121b2d]/35 border border-white/5 p-4 rounded-2xl backdrop-blur-md">
+          <div className="flex gap-4 items-center">
+            {voiceActive && listening && (
+              <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-bold">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                Mic Listening
+              </div>
+            )}
+            {eyeTrackingState === "calibrated" ? (
+              <div className="flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 px-3 py-1.5 rounded-xl text-xs font-bold">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                Eye Tracker Calibrated
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-3 py-1.5 rounded-xl text-xs font-bold">
+                Eye Tracker Disconnected
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setVoiceActive(v => !v)}
+              className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${
+                voiceActive ? "bg-cyan-600 border-cyan-500 text-white" : "bg-slate-900 border-white/5 text-slate-400"
+              }`}
+            >
+              {voiceActive ? "Voice Assistant: ON" : "Voice Assistant: OFF"}
+            </button>
+            <button
+              onClick={() => setDwellEnabled(d => !d)}
+              className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${
+                dwellEnabled ? "bg-cyan-600 border-cyan-500 text-white" : "bg-slate-900 border-white/5 text-slate-400"
+              }`}
+            >
+              {dwellEnabled ? "Dwell Clicks: ON" : "Dwell Clicks: OFF"}
+            </button>
+          </div>
+        </div>
+
         {voiceActive && transcript && (
-          <div style={{ background: "#f0fdf4", border: "2px solid #86efac", borderRadius: "12px", padding: "12px 18px", marginBottom: "20px", fontSize: "14px", color: "#15803d", fontWeight: "500" }}>
-            Heard: "{transcript}"
+          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl text-xs font-semibold">
+            Heard Command: "{transcript}"
           </div>
         )}
 
-        {/* ── Tab nav — big buttons ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "32px" }}>
-          {[
-            { id: "courses",  label: "📚 Courses",  cmd: '"courses"' },
-            { id: "settings", label: "⚙️ Settings", cmd: '"settings"' },
-            { id: "help",     label: "❓ Help",      cmd: '"help"'    },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                if (tab.id === "help") {
-                  speak("Commands: open course, list courses, my progress, turn on dwell, turn off dwell, turn on switch, settings, stop, sign out.", true);
-                } else {
-                  setView(tab.id);
-                  speak(`${tab.label} selected.`, true);
-                }
-              }}
-              aria-pressed={view === tab.id}
-              aria-label={`${tab.label}. Say ${tab.cmd}`}
-              style={{
-                padding: "18px 16px", borderRadius: "14px",
-                border: `2px solid ${view === tab.id ? "#0284c7" : "#e2e8f0"}`,
-                background: view === tab.id ? "#e0f2fe" : "#fff",
-                color: view === tab.id ? "#0284c7" : "#64748b",
-                fontSize: "15px", fontWeight: "700", cursor: "pointer",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: "4px",
-                fontFamily: "inherit", minHeight: "72px", transition: "all 0.15s",
-              }}
-            >
-              {tab.label}
-              <span style={{ fontSize: "11px", fontWeight: "400", opacity: 0.7 }}>say {tab.cmd}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* ── Courses view ── */}
-        {view === "courses" && (
-          <>
-            <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: "700", color: "#0f172a", margin: "0 0 6px", letterSpacing: "-0.5px" }}>
-              Your courses
-            </h1>
-            <p style={{ fontSize: "14px", color: "#64748b", margin: "0 0 28px" }}>
-              All buttons are large. Hover to dwell-click. Say "open course" followed by a number.
-            </p>
-
-            {/* Stats */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "28px" }}>
-              {[
-                { label: "Total courses", value: courses.length,    color: "#0284c7", bg: "#e0f2fe" },
-                { label: "In progress",   value: Object.values(progress).filter(p => p.completion > 0 && p.completion < 100).length, color: "#d97706", bg: "#fef3c7" },
-                { label: "Completed",     value: Object.values(progress).filter(p => p.completion === 100).length, color: "#16a34a", bg: "#dcfce7" },
-              ].map(s => (
-                <div key={s.label} style={{ background: s.bg, borderRadius: "12px", padding: "16px 20px" }}>
-                  <div style={{ fontSize: "28px", fontWeight: "700", color: s.color }}>{s.value}</div>
-                  <div style={{ fontSize: "13px", color: "#64748b" }}>{s.label}</div>
+        {/* 1. HOME DASHBOARD VIEW */}
+        {activeTab === "home" && !selectedCourse && !activeCoursePlay && (
+          <div className="flex flex-col gap-8 animate-fadeIn">
+            {/* Greeting card banner */}
+            <div className="bg-gradient-to-r from-cyan-950/40 to-indigo-950/20 border border-white/5 p-8 rounded-3xl backdrop-blur relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="flex flex-col gap-2 max-w-xl">
+                <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-350 bg-clip-text text-transparent">Welcome, Aman!</h1>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Start your lessons effortlessly. Every element reacts when you rest your gaze or hover. Need help? Say "help" to activate speech controls.
+                </p>
+              </div>
+              <div className="flex gap-4">
+                <div className="bg-slate-900/60 border border-white/5 px-6 py-4 rounded-2xl flex flex-col items-center">
+                  <span className="text-2xl font-bold text-yellow-400">7🔥</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase mt-1">Study Streak</span>
                 </div>
-              ))}
+                <div className="bg-slate-900/60 border border-white/5 px-6 py-4 rounded-2xl flex flex-col items-center">
+                  <span className="text-2xl font-bold text-cyan-400">25m</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase mt-1">Today</span>
+                </div>
+              </div>
             </div>
 
-            {/* Course list */}
-            {loading ? (
-              <div style={{ textAlign: "center", padding: "60px", color: "#94a3b8", fontSize: "16px" }}>Loading courses...</div>
-            ) : courses.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "60px", color: "#94a3b8", fontSize: "16px" }}>No courses available yet.</div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                {courses.map((course, i) => {
-                  const pct = progress[course.id]?.completion ?? 0;
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-3">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                  <span className="material-symbols-outlined text-cyan-400">workspace_premium</span>
+                  Daily Progress
+                </h3>
+                <div className="flex justify-between text-xs font-bold text-slate-200">
+                  <span>Goal: 30 minutes</span>
+                  <span>83%</span>
+                </div>
+                <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-cyan-500" style={{ width: "83%" }} />
+                </div>
+              </div>
+
+              <div className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-3">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                  <span className="material-symbols-outlined text-green-400">task_alt</span>
+                  Course Progress
+                </h3>
+                <div className="flex justify-between text-xs font-bold text-slate-200">
+                  <span>2 Owned Courses</span>
+                  <span>50% average</span>
+                </div>
+                <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-green-500" style={{ width: "50%" }} />
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-indigo-950/40 to-slate-950/30 border border-indigo-500/10 p-6 rounded-2xl flex flex-col justify-between gap-4">
+                <div>
+                  <h4 className="text-xs font-bold text-indigo-400 uppercase flex items-center gap-1.5">
+                    <span className="material-symbols-outlined !text-base">smart_toy</span> AI Tutor Help
+                  </h4>
+                  <p className="text-[11px] text-slate-400 mt-1">Generate a quiz verbally or upload code.</p>
+                </div>
+                <DwellButton
+                  label="Launch AI Tutor"
+                  color="indigo"
+                  dwellEnabled={dwellEnabled}
+                  dwell={dwell}
+                  onClick={() => setActiveTab("ai-tutor")}
+                />
+              </div>
+            </div>
+
+            {/* Resume Learning section */}
+            <div className="flex flex-col gap-4">
+              <h2 className="text-xl font-bold tracking-tight">Continue Learning</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {courses.filter(c => purchasedIds.includes(c.id)).map(course => {
+                  const pct = progress[course.id]?.completion || 0;
                   return (
-                    <div key={course.id} style={{ background: "#fff", border: "2px solid #e2e8f0", borderRadius: "18px", padding: "24px", display: "flex", gap: "20px", alignItems: "center" }}>
-                      {/* Number badge */}
-                      <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: "#e0f2fe", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", fontWeight: "700", color: "#0284c7", flexShrink: 0 }}>
-                        {i + 1}
+                    <div key={course.id} className="bg-slate-900/40 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-6">
+                      <div>
+                        <span className="text-[9px] uppercase font-bold px-2 py-0.5 bg-cyan-500/10 text-cyan-300 rounded border border-cyan-500/20">{course.level}</span>
+                        <h3 className="text-base font-bold mt-2">{course.title}</h3>
+                        <p className="text-xs text-slate-400 mt-1 line-clamp-2">{course.description}</p>
                       </div>
-
-                      {/* Info */}
-                      <div style={{ flex: 1 }}>
-                        <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#0f172a", margin: "0 0 4px" }}>{course.title}</h3>
-                        <p style={{ fontSize: "13px", color: "#64748b", margin: "0 0 10px", lineHeight: 1.5 }}>{course.description}</p>
-                        {pct > 0 && (
-                          <div>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                              <span style={{ fontSize: "12px", color: "#94a3b8" }}>Progress</span>
-                              <span style={{ fontSize: "12px", fontWeight: "600", color: "#0284c7" }}>{pct}%</span>
-                            </div>
-                            <div style={{ height: "6px", background: "#e2e8f0", borderRadius: "999px", overflow: "hidden" }}>
-                              <div style={{ height: "100%", width: `${pct}%`, background: "#0284c7", borderRadius: "999px" }} />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Big open button */}
-                      <div style={{ width: "160px", flexShrink: 0 }}>
+                      <div>
+                        <div className="flex justify-between text-xs mb-1.5">
+                          <span className="text-slate-500">Completion</span>
+                          <span className="text-cyan-400 font-bold">{pct}%</span>
+                        </div>
+                        <div className="h-2 bg-slate-800 rounded-full overflow-hidden mb-4">
+                          <div className="h-full bg-cyan-500" style={{ width: `${pct}%` }} />
+                        </div>
                         <DwellButton
-                          label={pct > 0 ? `Continue\n${pct}%` : "Start"}
-                          sublabel={`say "open course ${i + 1}"`}
-                          onClick={() => openCourseHandler(course, i)}
-                          color="#0284c7" bg="#e0f2fe"
-                          size="large"
-                          dwellEnabled={dwellEnabled} dwell={dwell} speak={speak}
+                          label="Resume Course"
+                          color="cyan"
+                          dwellEnabled={dwellEnabled}
+                          dwell={dwell}
+                          onClick={() => { setActiveCoursePlay(course); setCurrentLessonIdx(0); }}
                         />
                       </div>
                     </div>
                   );
                 })}
               </div>
-            )}
+            </div>
 
-            {/* Sign out — always at bottom */}
-            <div style={{ marginTop: "32px" }}>
-              <DwellButton
-                label="Sign out"
-                sublabel='say "sign out"'
-                onClick={() => { speak("Signing out.", true); setTimeout(logout, 1500); }}
-                color="#dc2626" bg="#fef2f2"
-                dwellEnabled={dwellEnabled} dwell={dwell} speak={speak}
+            {/* Recommendations & Calibration section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-slate-900/30 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
+                <h3 className="text-sm font-bold">Recommended for you</h3>
+                <div className="flex flex-col gap-3">
+                  {courses.filter(c => !purchasedIds.includes(c.id)).slice(0, 2).map(course => (
+                    <div 
+                      key={course.id}
+                      onClick={() => setSelectedCourse(course)}
+                      className="p-3 bg-slate-900/60 hover:bg-slate-850 border border-white/5 hover:border-cyan-500/25 rounded-xl flex justify-between items-center cursor-pointer transition-all"
+                    >
+                      <div>
+                        <h4 className="text-xs font-bold line-clamp-1">{course.title}</h4>
+                        <p className="text-[10px] text-slate-500 mt-0.5">{course.instructor} · {course.duration}</p>
+                      </div>
+                      <span className="material-symbols-outlined text-cyan-400">arrow_forward</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Calibration card helper */}
+              <div className="bg-slate-900/30 border border-white/5 p-6 rounded-2xl flex flex-col justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-bold flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-cyan-400">face</span> Eye Tracking Simulation
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-2">
+                    Simulate eye tracking calibration. Clicking starts eye tracking overlays.
+                  </p>
+                </div>
+
+                {eyeTrackingState === "calibrating" ? (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between text-xs">
+                      <span>Calibrating gaze metrics...</span>
+                      <span>{calibrationProgress}%</span>
+                    </div>
+                    <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-cyan-500" style={{ width: `${calibrationProgress}%` }} />
+                    </div>
+                  </div>
+                ) : (
+                  <DwellButton
+                    label="Calibrate Gazepoint Tracker"
+                    color="cyan"
+                    dwellEnabled={dwellEnabled}
+                    dwell={dwell}
+                    onClick={startCalibration}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 2. COURSE LIBRARY VIEW */}
+        {activeTab === "courses" && !selectedCourse && !activeCoursePlay && (
+          <div className="flex flex-col gap-8 animate-fadeIn">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Explore Course Catalog</h1>
+              <p className="text-xs text-slate-400">Oversized dwell cards enable easy course discovery and enrollment.</p>
+            </div>
+
+            {/* Categories filter boxes - NOT small dropdowns */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-900/30 border border-white/5 p-4 rounded-2xl">
+              {[
+                { id: "all", label: "📚 All Classes" },
+                { id: "language", label: "🤟 ASL Language" },
+                { id: "vocabulary", label: "💬 ASL Vocab" },
+                { id: "syntax", label: "✍️ ASL Grammar" }
+              ].map(cat => (
+                <DwellButton
+                  key={cat.id}
+                  label={cat.label}
+                  active={category === cat.id}
+                  color="cyan"
+                  dwellEnabled={dwellEnabled}
+                  dwell={dwell}
+                  onClick={() => setCategory(cat.id)}
+                />
+              ))}
+            </div>
+
+            {/* Search target */}
+            <div className="bg-slate-900/40 border border-white/5 p-4 rounded-xl flex items-center gap-3">
+              <span className="material-symbols-outlined text-slate-500">search</span>
+              <input 
+                type="text" 
+                placeholder="Search courses..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="flex-1 bg-transparent text-sm outline-none border-none placeholder-slate-500"
               />
             </div>
-          </>
+
+            {/* Catalog list */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {filteredCourses.map(course => {
+                const isOwned = purchasedIds.includes(course.id);
+                return (
+                  <div 
+                    key={course.id}
+                    className="bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden hover:border-cyan-500/25 transition-all flex flex-col justify-between"
+                  >
+                    <div className="p-6 flex flex-col gap-3">
+                      <span className="self-start text-[9px] uppercase font-bold px-2 py-0.5 bg-indigo-500/15 text-indigo-300 rounded border border-indigo-500/20">{course.badge}</span>
+                      <h3 className="text-base font-bold leading-snug">{course.title}</h3>
+                      <p className="text-xs text-slate-400 line-clamp-2">{course.description}</p>
+                      <div className="flex justify-between text-[10px] font-bold text-slate-500 pt-2 border-t border-white/5">
+                        <span>Lvl: {course.level}</span>
+                        <span>Rating: ⭐ {course.rating}</span>
+                      </div>
+                    </div>
+                    <div className="p-6 bg-slate-955/20 border-t border-white/5 flex flex-col gap-2">
+                      <DwellButton
+                        label="View Syllabus Details"
+                        color="cyan"
+                        dwellEnabled={dwellEnabled}
+                        dwell={dwell}
+                        onClick={() => setSelectedCourse(course)}
+                      />
+                      {!isOwned && (
+                        <DwellButton
+                          label="Enroll ($9.99)"
+                          color="green"
+                          dwellEnabled={dwellEnabled}
+                          dwell={dwell}
+                          onClick={() => handleBuyCourse(course.id)}
+                        />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
 
-        {/* ── Settings view ── */}
-        {view === "settings" && (
-          <>
-            <h1 style={{ fontSize: "clamp(22px, 4vw, 30px)", fontWeight: "700", color: "#0f172a", margin: "0 0 6px", letterSpacing: "-0.5px" }}>
-              Accessibility settings
-            </h1>
-            <p style={{ fontSize: "14px", color: "#64748b", margin: "0 0 28px" }}>
-              Configure how you interact with AccessAI.
-            </p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-
-              {/* Dwell click */}
-              <div style={{ background: "#fff", border: "2px solid #e2e8f0", borderRadius: "16px", padding: "24px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px" }}>
-                  <div>
-                    <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#0f172a", margin: "0 0 4px" }}>Dwell-click</h3>
-                    <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>Hover over any button for {DWELL_MS / 1000}s to activate it — no click needed.</p>
-                  </div>
-                  <span style={{ background: dwellEnabled ? "#dcfce7" : "#f1f5f9", color: dwellEnabled ? "#15803d" : "#94a3b8", fontSize: "12px", fontWeight: "700", padding: "4px 10px", borderRadius: "999px" }}>
-                    {dwellEnabled ? "ON" : "OFF"}
-                  </span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  <DwellButton label="Enable dwell" sublabel='say "turn on dwell"' onClick={() => { setDwell(true);  speak("Dwell click enabled.", true); }} color="#16a34a" bg="#f0fdf4" dwellEnabled={false} dwell={dwell} speak={speak} />
-                  <DwellButton label="Disable dwell" sublabel='say "turn off dwell"' onClick={() => { setDwell(false); speak("Dwell click disabled.", true); }} color="#dc2626" bg="#fef2f2" dwellEnabled={false} dwell={dwell} speak={speak} />
-                </div>
-              </div>
-
-              {/* Switch navigation */}
-              <div style={{ background: "#fff", border: "2px solid #e2e8f0", borderRadius: "16px", padding: "24px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px" }}>
-                  <div>
-                    <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#0f172a", margin: "0 0 4px" }}>Switch / sip-puff navigation</h3>
-                    <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>Press Space to cycle through buttons. Press Enter to activate.</p>
-                  </div>
-                  <span style={{ background: switchEnabled ? "#dcfce7" : "#f1f5f9", color: switchEnabled ? "#15803d" : "#94a3b8", fontSize: "12px", fontWeight: "700", padding: "4px 10px", borderRadius: "999px" }}>
-                    {switchEnabled ? "ON" : "OFF"}
-                  </span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  <DwellButton label="Enable switch" sublabel='say "turn on switch"' onClick={() => { setSwitch(true);  speak("Switch navigation enabled. Press space to move between buttons.", true); }} color="#16a34a" bg="#f0fdf4" dwellEnabled={false} dwell={dwell} speak={speak} />
-                  <DwellButton label="Disable switch" onClick={() => { setSwitch(false); speak("Switch navigation disabled.", true); }} color="#dc2626" bg="#fef2f2" dwellEnabled={false} dwell={dwell} speak={speak} />
-                </div>
-              </div>
-
-              {/* Voice control */}
-              <div style={{ background: "#fff", border: "2px solid #e2e8f0", borderRadius: "16px", padding: "24px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px" }}>
-                  <div>
-                    <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#0f172a", margin: "0 0 4px" }}>Voice commands</h3>
-                    <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>Hands-free control of every feature using speech.</p>
-                  </div>
-                  <span style={{ background: voiceActive ? "#dcfce7" : "#f1f5f9", color: voiceActive ? "#15803d" : "#94a3b8", fontSize: "12px", fontWeight: "700", padding: "4px 10px", borderRadius: "999px" }}>
-                    {voiceActive ? "ON" : "OFF"}
-                  </span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  <DwellButton label="Enable voice" onClick={() => { setVoice(true);  speak("Voice commands enabled.", true); }} color="#16a34a" bg="#f0fdf4" dwellEnabled={false} dwell={dwell} speak={speak} />
-                  <DwellButton label="Disable voice" onClick={() => { setVoice(false); stop(); }} color="#dc2626" bg="#fef2f2" dwellEnabled={false} dwell={dwell} speak={speak} />
-                </div>
-              </div>
-
+        {/* 3. MY LEARNING VIEW */}
+        {activeTab === "my-learning" && !selectedCourse && !activeCoursePlay && (
+          <div className="flex flex-col gap-8 animate-fadeIn">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Your Enrolled Courses</h1>
+              <p className="text-xs text-slate-400">Launch learning players or submit review feedback verbally.</p>
             </div>
-          </>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {courses.filter(c => purchasedIds.includes(c.id)).map(course => {
+                const pct = progress[course.id]?.completion || 0;
+                return (
+                  <div key={course.id} className="bg-slate-900/40 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-6">
+                    <div>
+                      <div className="flex justify-between items-center text-[10px] font-bold text-slate-500">
+                        <span>{course.instructor}</span>
+                        <span className="text-cyan-400">{course.level}</span>
+                      </div>
+                      <h3 className="text-lg font-bold mt-2">{course.title}</h3>
+                      <p className="text-xs text-slate-400 mt-2 line-clamp-3">{course.description}</p>
+                    </div>
+
+                    <div className="border-t border-white/5 pt-4">
+                      <div className="flex justify-between text-xs mb-2">
+                        <span>Completion Rate</span>
+                        <span className="font-bold text-cyan-400">{pct}%</span>
+                      </div>
+                      <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden mb-4">
+                        <div className="h-full bg-cyan-500" style={{ width: `${pct}%` }} />
+                      </div>
+                      <DwellButton
+                        label="Launch Adaptive Player"
+                        color="cyan"
+                        dwellEnabled={dwellEnabled}
+                        dwell={dwell}
+                        onClick={() => { setActiveCoursePlay(course); setCurrentLessonIdx(0); }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 4. COURSE DETAILS VIEW */}
+        {selectedCourse && !activeCoursePlay && (
+          <div className="flex flex-col gap-8 animate-fadeIn max-w-4xl mx-auto w-full">
+            <DwellButton
+              label="◀ Back to library"
+              color="indigo"
+              dwellEnabled={dwellEnabled}
+              dwell={dwell}
+              onClick={() => setSelectedCourse(null)}
+            />
+
+            <div className="bg-gradient-to-br from-indigo-900/60 to-slate-950/40 border border-white/5 p-8 rounded-3xl flex flex-col gap-4">
+              <span className="self-start text-xs font-semibold px-2 py-0.5 bg-cyan-500/10 text-cyan-300 rounded border border-cyan-500/20">{selectedCourse.badge}</span>
+              <h1 className="text-3xl font-extrabold">{selectedCourse.title}</h1>
+              <p className="text-slate-300 text-sm leading-relaxed">{selectedCourse.description}</p>
+              
+              <div className="flex gap-6 text-xs text-slate-400 border-t border-white/5 pt-4">
+                <span>Instructor: {selectedCourse.instructor}</span>
+                <span>Rating: ⭐ {selectedCourse.rating}</span>
+                <span>Duration: {selectedCourse.duration}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-2 flex flex-col gap-4">
+                <h3 className="text-lg font-bold">Curriculum Syllabus</h3>
+                <div className="flex flex-col gap-3">
+                  {selectedCourse.lessons.map((lesson, idx) => (
+                    <div key={lesson.id} className="p-4 bg-slate-900/35 border border-white/5 rounded-xl flex justify-between items-center">
+                      <span className="text-sm font-semibold">0{idx + 1}. {lesson.title}</span>
+                      <span className="text-xs text-slate-500">{lesson.duration}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-6">
+                <div className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
+                  <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Motor Accessibility</h4>
+                  <ul className="text-xs text-slate-400 flex flex-col gap-2.5">
+                    <li className="flex items-center gap-2"><span className="material-symbols-outlined text-cyan-400 !text-sm">check_circle</span> Large hover dwell areas</li>
+                    <li className="flex items-center gap-2"><span className="material-symbols-outlined text-cyan-400 !text-sm">check_circle</span> Switch keyboard cycling</li>
+                    <li className="flex items-center gap-2"><span className="material-symbols-outlined text-cyan-400 !text-sm">check_circle</span> Voice assist navigations</li>
+                  </ul>
+                </div>
+
+                <DwellButton
+                  label={purchasedIds.includes(selectedCourse.id) ? "Start Learning" : "Enroll Now ($9.99)"}
+                  color="green"
+                  dwellEnabled={dwellEnabled}
+                  dwell={dwell}
+                  onClick={() => {
+                    if (!purchasedIds.includes(selectedCourse.id)) {
+                      handleBuyCourse(selectedCourse.id);
+                    }
+                    setActiveCoursePlay(selectedCourse);
+                    setCurrentLessonIdx(0);
+                    setSelectedCourse(null);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 5. COURSE PLAYER & LESSON PAGE */}
+        {activeCoursePlay && (
+          <div className="flex flex-col gap-6 animate-fadeIn max-w-5xl mx-auto w-full">
+            <div className="flex justify-between items-center border-b border-white/5 pb-4">
+              <DwellButton
+                label="✕ Close Player"
+                color="red"
+                dwellEnabled={dwellEnabled}
+                dwell={dwell}
+                onClick={() => setActiveCoursePlay(null)}
+              />
+              <div className="text-right text-xs">
+                <p className="text-slate-500 font-bold">Lesson {currentLessonIdx + 1} of {activeCoursePlay.lessons.length}</p>
+                <p className="text-cyan-400 font-extrabold">{activeCoursePlay.lessons[currentLessonIdx].title}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Media Player */}
+              <div className="lg:col-span-2 flex flex-col gap-4">
+                <div className="relative aspect-video bg-[#000] border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center">
+                  <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src={`https://www.youtube.com/embed/${activeCoursePlay.lessons[currentLessonIdx].video}?autoplay=1&enablejsapi=1&rel=0&controls=1`} 
+                    title={activeCoursePlay.lessons[currentLessonIdx].title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full border-none"
+                  />
+                </div>
+
+                {/* Oversized lesson player controllers */}
+                <div className="grid grid-cols-2 gap-4">
+                  <DwellButton
+                    label="◀ Previous Lesson"
+                    sublabel='say "previous"'
+                    disabled={currentLessonIdx === 0}
+                    color="indigo"
+                    dwellEnabled={dwellEnabled}
+                    dwell={dwell}
+                    onClick={() => setCurrentLessonIdx(i => i - 1)}
+                  />
+                  <DwellButton
+                    label="Next Lesson ▶"
+                    sublabel='say "next"'
+                    disabled={currentLessonIdx === activeCoursePlay.lessons.length - 1}
+                    color="cyan"
+                    dwellEnabled={dwellEnabled}
+                    dwell={dwell}
+                    onClick={() => {
+                      setCurrentLessonIdx(i => i + 1);
+                      const nextProgress = Math.round(((currentLessonIdx + 1) / activeCoursePlay.lessons.length) * 100);
+                      updateProgress(activeCoursePlay.id, nextProgress);
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Quiz and interactive widgets */}
+              <div className="flex flex-col gap-4">
+                <div className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-3">
+                  <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <span className="material-symbols-outlined !text-base">quiz</span> Quiz Check
+                  </h4>
+                  <p className="text-xs text-slate-300 font-semibold leading-relaxed">{activeCoursePlay.quiz.question}</p>
+                  
+                  {/* Selectable quiz answers in large targets */}
+                  <div className="flex flex-col gap-2 mt-2">
+                    {activeCoursePlay.quiz.options.map((opt, i) => (
+                      <DwellButton
+                        key={i}
+                        label={opt}
+                        color="cyan"
+                        dwellEnabled={dwellEnabled}
+                        dwell={dwell}
+                        onClick={() => {
+                          const isCorrect = opt === activeCoursePlay.quiz.answer;
+                          if (isCorrect) {
+                            speak("Correct! Progress updated.");
+                            updateProgress(activeCoursePlay.id, 100);
+                          } else {
+                            speak("Incorrect. Try another selection.");
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-tr from-indigo-950/40 to-slate-900/35 border border-indigo-500/10 p-6 rounded-2xl flex flex-col gap-2">
+                  <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <span className="material-symbols-outlined !text-base">auto_awesome</span> AI Lesson Explainer
+                  </h4>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    This course unit explains fingerspelling shapes. Rest your cursor target on option cards to select matching coordinates.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 6. AI TUTOR VIEW */}
+        {activeTab === "ai-tutor" && (
+          <div className="flex flex-col gap-6 animate-fadeIn max-w-4xl mx-auto w-full h-[calc(100vh-140px)]">
+            <div className="flex justify-between items-center border-b border-white/5 pb-4">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">AccessAI Adaptive Tutor</h1>
+                <p className="text-xs text-slate-400 font-medium">Use large triggers or voice dictation to generate custom review questions.</p>
+              </div>
+
+              <div className="flex bg-slate-900/80 p-1.5 rounded-xl border border-white/5 gap-2">
+                {[
+                  { id: "chat", label: "Chat bot", icon: "forum" },
+                  { id: "homework", label: "Upload Code", icon: "school" },
+                  { id: "quiz-gen", label: "Gen Quiz", icon: "quiz" }
+                ].map(subTab => (
+                  <button
+                    key={subTab.id}
+                    onClick={() => setAiTutorTab(subTab.id)}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+                      aiTutorTab === subTab.id ? "bg-cyan-600 text-white" : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined !text-sm">{subTab.icon}</span>
+                    {subTab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Chatbot view */}
+            {aiTutorTab === "chat" && (
+              <div className="flex-1 flex flex-col justify-between gap-4 overflow-hidden">
+                {/* Large suggested prompt triggers */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-2 border-b border-white/5">
+                  <DwellButton
+                    label="Explain Eye Calibration"
+                    color="indigo"
+                    dwellEnabled={dwellEnabled}
+                    dwell={dwell}
+                    onClick={() => handleQuickQuestion("Explain Eye Calibration setting")}
+                  />
+                  <DwellButton
+                    label="How do I sign fingerspelling double letters?"
+                    color="indigo"
+                    dwellEnabled={dwellEnabled}
+                    dwell={dwell}
+                    onClick={() => handleQuickQuestion("Explain double letters in fingerspelling")}
+                  />
+                </div>
+
+                {/* Dialog messages */}
+                <div className="flex-1 overflow-y-auto flex flex-col gap-4 py-2 pr-2">
+                  {chatMessages.map((msg, idx) => (
+                    <div key={idx} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
+                      <div className={`max-w-xl p-4 rounded-2xl text-xs leading-relaxed ${
+                        msg.sender === "user"
+                          ? "bg-cyan-600 text-white font-medium rounded-tr-none"
+                          : "bg-slate-900/60 border border-white/5 text-slate-300 rounded-tl-none flex gap-3 items-start"
+                      }`}>
+                        {msg.sender === "ai" && <span className="material-symbols-outlined text-cyan-400 !text-sm mt-0.5">smart_toy</span>}
+                        <div>{msg.text}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Text entry field */}
+                <div className="flex gap-3 bg-slate-900/50 border border-white/5 p-3 rounded-2xl items-center">
+                  <button 
+                    onClick={() => setIsVoiceChatActive(v => !v)}
+                    className={`p-3 rounded-xl transition-all ${
+                      isVoiceChatActive ? "bg-emerald-600 text-white animate-pulse" : "bg-slate-800 text-slate-400"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined !text-lg">settings_voice</span>
+                  </button>
+                  <input
+                    type="text"
+                    placeholder="Ask tutor something..."
+                    value={chatInput}
+                    onChange={e => setChatInput(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleSendMessage()}
+                    className="flex-1 bg-transparent text-xs outline-none text-white"
+                  />
+                  <button onClick={handleSendMessage} className="p-3 bg-cyan-600 text-white rounded-xl">
+                    <span className="material-symbols-outlined !text-sm">send</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Homework submission view */}
+            {aiTutorTab === "homework" && (
+              <div className="flex flex-col gap-6 animate-fadeIn">
+                <div className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
+                  <h3 className="text-base font-bold flex items-center gap-2">
+                    <span className="material-symbols-outlined text-cyan-400">upload_file</span>
+                    Submit Code / File
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Submit adaptive scripts or homework answers. Hover trigger allows file selection.
+                  </p>
+
+                  <div 
+                    onClick={() => speak("Drag files here or hover click to select locally.")}
+                    className="border-2 border-dashed border-white/10 hover:border-cyan-500/25 rounded-2xl p-12 text-center bg-slate-955/20 cursor-pointer flex flex-col items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined !text-4xl text-slate-600 animate-pulse">cloud_upload</span>
+                    <span className="text-xs font-semibold text-slate-300">Gaze here to select local files</span>
+                    <span className="text-[10px] text-slate-650">File size max 50MB</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quiz gen */}
+            {aiTutorTab === "quiz-gen" && (
+              <div className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-6 animate-fadeIn">
+                <div>
+                  <h3 className="text-base font-bold">Generate Practice Questions</h3>
+                  <p className="text-xs text-slate-400">Generate a custom motor-friendly review check.</p>
+                </div>
+                <DwellButton
+                  label="Create Fingerspelling Quiz"
+                  color="cyan"
+                  dwellEnabled={dwellEnabled}
+                  dwell={dwell}
+                  onClick={() => {
+                    setChatMessages(prev => [...prev, { sender: "ai", text: "New Quiz Compiled: How do you sign double letters in ASL? (Options: bounce thumb, bounce twice, slide sideways)" }]);
+                    setAiTutorTab("chat");
+                    speak("Practice exam generated. Check tutor chat.");
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 7. ACTIVITY DASHBOARD VIEW */}
+        {activeTab === "activity" && (
+          <div className="flex flex-col gap-8 animate-fadeIn max-w-5xl mx-auto w-full">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Study Activity</h1>
+              <p className="text-xs text-slate-400">Track weekly focus minutes and consistency parameters.</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Daily activity chart (Bar chart) */}
+              <div className="lg:col-span-2 bg-slate-900/40 border border-white/5 rounded-2xl p-6 flex flex-col gap-4">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Weekly Minutes</h3>
+                
+                <div className="flex justify-between items-end h-48 px-4 mt-6">
+                  {[
+                    { day: "Mon", min: 15, h: "25%" },
+                    { day: "Tue", min: 45, h: "75%" },
+                    { day: "Wed", min: 30, h: "50%" },
+                    { day: "Thu", min: 10, h: "15%" },
+                    { day: "Fri", min: 60, h: "100%" },
+                    { day: "Sat", min: 25, h: "40%" },
+                    { day: "Sun", min: 40, h: "65%" }
+                  ].map((bar, idx) => (
+                    <div key={idx} className="flex flex-col items-center gap-2 flex-1">
+                      <div className="relative w-8 bg-slate-950 border border-white/5 rounded-md h-36 flex items-end">
+                        <div className="w-full bg-gradient-to-t from-cyan-600 to-indigo-500 rounded-md" style={{ height: bar.h }} />
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-cyan-400 font-bold">{bar.min}m</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-semibold">{bar.day}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Stats column */}
+              <div className="flex flex-col gap-6">
+                <div className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-3">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase">Focus categories</h4>
+                  <div className="flex flex-col gap-3">
+                    {[
+                      { topic: "ASL Alphabet", pct: 95, color: "bg-cyan-500" },
+                      { topic: "Dialogue Phrases", pct: 40, color: "bg-indigo-500" }
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex flex-col gap-1.5 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">{item.topic}</span>
+                          <span>{item.pct}%</span>
+                        </div>
+                        <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                          <div className={`h-full ${item.color}`} style={{ width: `${item.pct}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-tr from-cyan-955/20 to-slate-900/40 border border-cyan-500/10 p-6 rounded-2xl">
+                  <h4 className="text-xs font-bold text-cyan-400 uppercase">AI Recommendation</h4>
+                  <p className="text-xs text-slate-400 leading-relaxed mt-2">
+                    Reviewing Alphabet fingerspelling cards using Dwell timer builds muscle memory 15% faster.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Badges */}
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-bold">Earned Badges</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {[
+                  { title: "Switch Mastery", desc: "Completed 10 cycles", icon: "verified" },
+                  { title: "Dwell Champion", desc: "No manual clicks used", icon: "local_fire_department" },
+                  { title: "Alphabet Gold", desc: "ASL Alphabet quiz 100%", icon: "school" },
+                  { title: "Verbal Communicator", desc: "Spoke 20+ voice queries", icon: "forum" }
+                ].map((badge, idx) => (
+                  <div key={idx} className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl flex flex-col items-center gap-3 text-center">
+                    <div className="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+                      <span className="material-symbols-outlined !text-2xl">{badge.icon}</span>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold">{badge.title}</h4>
+                      <p className="text-[10px] text-slate-500 mt-1">{badge.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 8. PROFILE & CERTIFICATES */}
+        {activeTab === "profile" && (
+          <div className="flex flex-col gap-8 animate-fadeIn max-w-4xl mx-auto w-full">
+            <div className="bg-slate-900/40 border border-white/5 p-8 rounded-3xl flex flex-col md:flex-row items-center gap-6">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-white text-3xl font-extrabold shadow-lg">
+                AH
+              </div>
+              <div className="flex-1 flex flex-col gap-1 text-center md:text-left">
+                <h2 className="text-2xl font-bold">Aman Halkude</h2>
+                <p className="text-sm text-slate-400">Gaze & Switch adaptive user account · Enrolled June 2026</p>
+                <div className="flex justify-center md:justify-start gap-4 mt-3">
+                  <span className="text-xs bg-cyan-500/10 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/20">2 Completed</span>
+                  <span className="text-xs bg-green-500/10 text-green-400 px-3 py-1 rounded-full border border-green-500/20">7-Day Streak</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Certificates */}
+            <div className="flex flex-col gap-4">
+              <h2 className="text-xl font-bold tracking-tight">My Completed Certificates</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {[
+                  { id: "cert-1", title: "American Sign Language Alphabet", date: "June 25, 2026", code: "ACC-AI-ASL-8271" },
+                  { id: "cert-2", title: "Basic ASL Sentences & Greetings", date: "June 26, 2026", code: "ACC-AI-ASL-9982" }
+                ].map(cert => (
+                  <div key={cert.id} className="bg-slate-900/40 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-4">
+                    <div>
+                      <span className="text-[9px] uppercase font-bold tracking-widest text-cyan-400">ASL fluency validation</span>
+                      <h3 className="text-base font-bold mt-1">{cert.title}</h3>
+                      <p className="text-xs text-slate-500 mt-2">ID: {cert.code} · Date: {cert.date}</p>
+                    </div>
+                    <div className="flex gap-3">
+                      <DwellButton
+                        label="Download PDF"
+                        color="cyan"
+                        dwellEnabled={dwellEnabled}
+                        dwell={dwell}
+                        onClick={() => alert(`Certificate downloaded for: ${cert.code}`)}
+                      />
+                      <DwellButton
+                        label="Share"
+                        color="indigo"
+                        dwellEnabled={dwellEnabled}
+                        dwell={dwell}
+                        onClick={() => alert("LinkedIn sharing overlay loaded.")}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 9. ACCESSIBILITY SETTINGS */}
+        {activeTab === "settings" && (
+          <div className="flex flex-col gap-8 animate-fadeIn max-w-3xl mx-auto w-full">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Accessibility Configurations</h1>
+              <p className="text-xs text-slate-400 font-medium">Calibrate dwell mouse clicks, cycling scan speeds, and visual pointers.</p>
+            </div>
+
+            <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-8 flex flex-col gap-6">
+              {/* Dwell config */}
+              <div className="pb-6 border-b border-white/5 flex flex-col gap-3">
+                <h3 className="text-sm font-bold text-slate-200">Dwell Selection Engine</h3>
+                <div className="flex justify-between items-center text-xs mt-2">
+                  <span className="text-slate-400">Enable gaze hover timers</span>
+                  <button 
+                    onClick={() => setDwellEnabled(d => !d)}
+                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${
+                      dwellEnabled ? "bg-cyan-600 border-cyan-500 text-white" : "bg-slate-900 border-white/5 text-slate-400"
+                    }`}
+                  >
+                    {dwellEnabled ? "Gaze Timer Active" : "Gaze Timer Disabled"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Switch key cycle */}
+              <div className="pb-6 border-b border-white/5 flex flex-col gap-3">
+                <h3 className="text-sm font-bold text-slate-200">Switch Scanning Cycling</h3>
+                <div className="flex justify-between items-center text-xs mt-2">
+                  <span className="text-slate-400">Enable Space/Enter button highlights</span>
+                  <button 
+                    onClick={() => setSwitchEnabled(s => !s)}
+                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${
+                      switchEnabled ? "bg-cyan-600 border-cyan-500 text-white" : "bg-slate-900 border-white/5 text-slate-400"
+                    }`}
+                  >
+                    {switchEnabled ? "Highlights Active" : "Highlights Disabled"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Cursor setting */}
+              <div className="pb-6 border-b border-white/5 flex flex-col gap-3">
+                <h3 className="text-sm font-bold text-slate-200">Simulated cursor pointer circle</h3>
+                <div className="flex justify-between items-center text-xs mt-2">
+                  <span className="text-slate-400">Highlight target size</span>
+                  <div className="flex gap-2">
+                    {["normal", "xl", "xxl"].map(sz => (
+                      <button
+                        key={sz}
+                        onClick={() => setCursorSize(sz)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
+                          cursorSize === sz ? "bg-cyan-600 text-white" : "bg-slate-800 text-slate-500"
+                        }`}
+                      >
+                        {sz}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* FontSize */}
+              <div className="flex flex-col gap-3">
+                <h3 className="text-sm font-bold text-slate-200">Text Scaling</h3>
+                <div className="flex justify-between items-center text-xs mt-2">
+                  <span className="text-slate-400">Adjust content size</span>
+                  <div className="flex gap-2">
+                    {["medium", "large", "x-large"].map(fs => (
+                      <button
+                        key={fs}
+                        onClick={() => setFontSize(fs)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
+                          fontSize === fs ? "bg-cyan-600 text-white" : "bg-slate-800 text-slate-500"
+                        }`}
+                      >
+                        {fs}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </main>
-
-      <style>{`
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-        *:focus-visible{outline:4px solid #0284c7 !important;outline-offset:4px;}
-      `}</style>
     </div>
   );
 }

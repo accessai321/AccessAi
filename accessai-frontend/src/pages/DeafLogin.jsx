@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../services/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import API from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function DeafLogin() {
   const navigate = useNavigate();
+  const { loginDemoUser, DEMO_MODE } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,6 +17,19 @@ export default function DeafLogin() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    
+    // TEMPORARY DEMO MODE BYPASS: Navigate directly to Deaf Dashboard
+    loginDemoUser("deaf", email);
+    navigate("/deaf");
+    setLoading(false);
+    
+    /* Original Firebase Code:
+    if (DEMO_MODE) {
+      loginDemoUser("deaf", email);
+      navigate("/deaf");
+      setLoading(false);
+      return;
+    }
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const idToken = await userCredential.user.getIdToken();
@@ -27,6 +42,7 @@ export default function DeafLogin() {
     } finally {
       setLoading(false);
     }
+    */
   };
 
   return (
@@ -107,6 +123,49 @@ export default function DeafLogin() {
             <span>Sign In</span>
           </button>
         </form>
+
+        <div className="flex items-center my-1">
+          <div className="flex-1 border-t border-outline-variant/20"></div>
+          <span className="px-3 text-xs text-on-surface-variant font-medium">Or</span>
+          <div className="flex-1 border-t border-outline-variant/20"></div>
+        </div>
+
+        <button
+          onClick={async () => {
+            setLoading(true);
+            setError("");
+            
+            // TEMPORARY DEMO MODE BYPASS: Navigate directly to Deaf Dashboard
+            loginDemoUser("deaf", "goyalvrusha@gmail.com");
+            navigate("/deaf");
+            setLoading(false);
+
+            /* Original Firebase Code:
+            if (DEMO_MODE) {
+              loginDemoUser("deaf", "goyalvrusha@gmail.com");
+              navigate("/deaf");
+              setLoading(false);
+              return;
+            }
+            try {
+              const userCredential = await signInWithEmailAndPassword(auth, "goyalvrusha@gmail.com", "vrusha123");
+              const idToken = await userCredential.user.getIdToken();
+              try {
+                await API.post("/login", { idToken });
+              } catch {}
+              navigate("/deaf");
+            } catch (err) {
+              setError(err.message || "Invalid credentials. Please try again.");
+            } finally {
+              setLoading(false);
+            }
+            */
+          }}
+          className="w-full py-3.5 bg-emerald-50 border-2 border-emerald-500 text-emerald-700 hover:bg-emerald-100 active:scale-[0.98] font-bold rounded-2xl flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer"
+        >
+          <span className="material-symbols-outlined text-base">flash_on</span>
+          <span>Quick Sign In as Vrusha</span>
+        </button>
 
         <div className="text-center text-xs text-on-surface-variant border-t border-outline-variant/20 pt-4">
           Don't have an account?{" "}

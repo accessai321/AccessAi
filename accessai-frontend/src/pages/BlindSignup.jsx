@@ -5,6 +5,7 @@ import { auth } from "../services/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import API from "../services/api";
 import VoiceEmailInput from "../components/VoiceEmailInput";
+import { useAuth } from "../context/AuthContext";
 
 const BLIND_STEP_NONE = "NONE";
 const BLIND_STEP_SIGNUP_FIRST_NAME = "SIGNUP_FIRST_NAME";
@@ -183,6 +184,7 @@ function parseSpokenAge(text) {
 
 export default function BlindSignup() {
   const navigate = useNavigate();
+  const { loginDemoUser, DEMO_MODE } = useAuth();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -492,6 +494,14 @@ export default function BlindSignup() {
     setError("");
     const data = voiceDataRef.current;
     console.log("Attempting voice registration for email:", data.email);
+    if (DEMO_MODE) {
+      loginDemoUser("blind", data.email);
+      speakText("Congratulations. Your AccessAI account has been created successfully. Redirecting you to your dashboard.", () => {
+        navigate(`/${data.accessibilityPref || "blind"}`);
+      });
+      setLoading(false);
+      return;
+    }
     try {
       if (data.password !== data.confirmPassword) {
         throw new Error("Passwords do not match.");
@@ -526,7 +536,7 @@ export default function BlindSignup() {
     } finally {
       setLoading(false);
     }
-  }, [speakText, navigate, promptForStep]);
+  }, [speakText, navigate, promptForStep, DEMO_MODE, loginDemoUser]);
 
   const processVoiceInput = useCallback((spokenText, confidence) => {
     const text = spokenText.toLowerCase().trim();
@@ -1071,6 +1081,12 @@ export default function BlindSignup() {
     }
     setLoading(true);
     setError("");
+    if (DEMO_MODE) {
+      loginDemoUser("blind", email);
+      navigate("/blind");
+      setLoading(false);
+      return;
+    }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const idToken = await userCredential.user.getIdToken();

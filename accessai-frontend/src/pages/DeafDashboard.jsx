@@ -1,546 +1,1272 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import API from "../services/api";
+import { db } from "../services/firebase";
+import { collection, doc, setDoc, getDocs, query, where } from "firebase/firestore";
 
-// ── Visual flash alert system ─────────────────────────────────────────────────
-function FlashAlert({ message, color, onDone }) {
-  useEffect(() => {
-    const t = setTimeout(onDone, 2800);
-    return () => clearTimeout(t);
-  }, [onDone]);
+// High-quality courses database
+const MOCK_COURSES = [
+  {
+    id: "course-1",
+    title: "American Sign Language Alphabet",
+    description: "Learn to spell your name and master the basic letters (A-Z) in American Sign Language.",
+    video: "5K69_tq-0pQ",
+    category: "language",
+    instructor: "Sarah Jenkins, ASL Specialist",
+    duration: "1h 15m",
+    level: "Beginner",
+    rating: 4.8,
+    badge: "Deaf-Friendly",
+    lessons: [
+      { id: "les-1-1", title: "Introduction to Fingerspelling", content: "Fingerspelling is the manual representation of letters. Start by keeping your wrist stable and your elbow near your body.", duration: "12 mins", video: "5K69_tq-0pQ" },
+      { id: "les-1-2", title: "Letters A to J Practice", content: "Master A, B, C, D, E, F, G, H, I, and J. Note the shape differences between A, E, and S which are common finger spelling pitfalls.", duration: "20 mins", video: "5K69_tq-0pQ" },
+      { id: "les-1-3", title: "Letters K to T Practice", content: "Practice letters K to T. Keep check of how K uses the thumb on the middle finger and P is just a downward-facing K.", duration: "20 mins", video: "5K69_tq-0pQ" },
+      { id: "les-1-4", title: "Letters U to Z & Double Letters", content: "Complete the alphabet. Z is traced in the air with your index finger. When spelling double letters, bounce or slide slightly outward.", duration: "23 mins", video: "5K69_tq-0pQ" }
+    ],
+    quiz: {
+      question: "Which letter in ASL is signed by tracing the shape of the letter in the air with your index finger?",
+      options: ["A", "J", "X", "Z"],
+      answer: "Z"
+    }
+  },
+  {
+    id: "course-2",
+    title: "Basic ASL Sentences & Greetings",
+    description: "Essential greetings, common expressions, and simple conversational starters in sign language.",
+    video: "ianCxd71Uzg",
+    category: "language",
+    instructor: "Sarah Jenkins, ASL Specialist",
+    duration: "2h 30m",
+    level: "Beginner",
+    rating: 4.9,
+    badge: "Interactive Guide",
+    lessons: [
+      { id: "les-2-1", title: "Meeting People & Basic Greetings", content: "Learn 'Hello', 'Good Morning', 'What's your name?', and 'Nice to meet you'. Remember to smile as facial expressions carry grammatical weight.", duration: "30 mins", video: "ianCxd71Uzg" },
+      { id: "les-2-2", title: "Expressing Emotions & Feelings", content: "Sign 'Happy', 'Sad', 'Tired', 'Fine', and 'Excited'. Facial expressions are critical—they form the vocal inflection of ASL.", duration: "45 mins", video: "ianCxd71Uzg" },
+      { id: "les-2-3", title: "Simple Inquiries & Question Shapes", content: "Asking questions in ASL requires specific eyebrow movements. Lower eyebrows for Wh-questions (Who, What, Where) and raise them for Yes/No questions.", duration: "45 mins", video: "ianCxd71Uzg" },
+      { id: "les-2-4", title: "Practice Dialogue & Handshapes", content: "Interactive review. Tie all vocabulary together in a simple greeting dialogue. Make sure to establish a signing space.", duration: "30 mins", video: "ianCxd71Uzg" }
+    ],
+    quiz: {
+      question: "What eyebrow shape is grammatically correct when signing a WH-question (e.g. Who, What, Where) in ASL?",
+      options: ["Eyebrows raised", "Eyebrows lowered/furrowed", "Eyebrows held neutral", "One eyebrow raised, one lowered"],
+      answer: "Eyebrows lowered/furrowed"
+    }
+  },
+  {
+    id: "course-3",
+    title: "Sign Language: Numbers & Colors",
+    description: "Learn the fundamentals of counting, expressions, and identifying colors in ASL.",
+    video: "Raa0IvPnPhg",
+    category: "vocabulary",
+    instructor: "David Vance, Deaf Educator",
+    duration: "1h 45m",
+    level: "Intermediate",
+    rating: 4.7,
+    badge: "Visual Cues",
+    lessons: [
+      { id: "les-3-1", title: "Numbers 1-10 in Sign", duration: "25 mins", content: "Learn to sign numbers 1 to 10. Note that for numbers 1 to 5, your palm faces inward towards your body.", video: "Raa0IvPnPhg" },
+      { id: "les-3-2", title: "Numbers 11-20 & Counting Patterns", duration: "30 mins", content: "Flicking and tapping motions for numbers 11 through 20. Palm orientation flips outward for numbers starting from 11.", video: "Raa0IvPnPhg" },
+      { id: "les-3-3", title: "Visual Spectrum: Colors in Sign", duration: "25 mins", content: "Signing 'Red', 'Blue', 'Yellow', 'Green', 'Purple'. Colors often involve shaking the initial letter handshape (e.g. shaking B for Blue).", video: "Raa0IvPnPhg" }
+    ],
+    quiz: {
+      question: "Which way should your palm face when signing the numbers 1 through 5 in ASL?",
+      options: ["Facing outward towards the listener", "Facing inward towards yourself", "Facing sideways to the right", "Facing sideways to the left"],
+      answer: "Facing inward towards yourself"
+    }
+  },
+  {
+    id: "course-4",
+    title: "Advanced Conversational Sign Language",
+    description: "Improve your signing speed, sentence syntax, and understand advanced non-manual markers.",
+    video: "0FcwzLiXpNY",
+    category: "syntax",
+    instructor: "David Vance, Deaf Educator",
+    duration: "3h 10m",
+    level: "Advanced",
+    rating: 4.6,
+    badge: "Syntax Intensive",
+    lessons: [
+      { id: "les-4-1", title: "Non-Manual Signs & Facial Expressions", duration: "45 mins", content: "Learn to communicate structure and urgency. Learn mouth morphemes like 'cha' (large) and 'oo' (small).", video: "0FcwzLiXpNY" },
+      { id: "les-4-2", title: "ASL Grammar: Topic-Comment Structure", duration: "50 mins", content: "Understand subject-object syntax. In ASL, the topic is stated first with raised eyebrows, followed by the comment.", video: "0FcwzLiXpNY" },
+      { id: "les-4-3", title: "Directional Verbs & Classifiers", duration: "55 mins", content: "Show action visually using directional signs like 'help' or 'give' where the movement direction indicates who is giving/helping whom.", video: "0FcwzLiXpNY" }
+    ],
+    quiz: {
+      question: "How is the topic established in an ASL Topic-Comment sentence structure?",
+      options: ["Signing it last", "Signing it first with lowered eyebrows", "Signing it first with raised eyebrows", "Spelling it letter-by-letter"],
+      answer: "Signing it first with raised eyebrows"
+    }
+  }
+];
 
-  return (
-    <div style={{
-      position: "fixed", inset: 0, pointerEvents: "none", zIndex: 9999,
-      border: `6px solid ${color}`,
-      animation: "flashBorder 2.8s ease forwards",
-    }}>
-      <div style={{
-        position: "absolute", top: "24px", left: "50%", transform: "translateX(-50%)",
-        background: color, color: "#fff", padding: "12px 28px",
-        borderRadius: "999px", fontSize: "15px", fontWeight: "600",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.18)", whiteSpace: "nowrap",
-        animation: "slideDown 0.3s ease",
-      }}>
-        {message}
-      </div>
-      <style>{`
-        @keyframes flashBorder {
-          0%   { opacity: 1; }
-          70%  { opacity: 1; }
-          100% { opacity: 0; }
-        }
-        @keyframes slideDown {
-          from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
-          to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-// ── Caption bar ───────────────────────────────────────────────────────────────
-function CaptionBar({ text }) {
-  return (
-    <div style={{
-      position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100,
-      background: "rgba(0,0,0,0.88)", padding: "14px 24px",
-      borderTop: "2px solid #2563eb",
-      display: "flex", alignItems: "center", gap: "12px",
-      backdropFilter: "blur(6px)",
-    }}>
-      <span style={{
-        background: "#2563eb", color: "#fff", fontSize: "11px",
-        fontWeight: "700", padding: "2px 8px", borderRadius: "4px",
-        letterSpacing: "0.5px", flexShrink: 0,
-      }}>CC</span>
-      <span style={{ color: "#fff", fontSize: "15px", lineHeight: 1.5 }}>
-        {text || <span style={{ color: "#6b7280" }}>Captions will appear here when a course is playing...</span>}
-      </span>
-    </div>
-  );
-}
-
-// ── Course card ───────────────────────────────────────────────────────────────
-const categoryColors = {
-  programming: { bg: "#eff6ff", text: "#2563eb", dot: "#2563eb" },
-  math:        { bg: "#fdf4ff", text: "#9333ea", dot: "#9333ea" },
-  science:     { bg: "#f0fdf4", text: "#16a34a", dot: "#16a34a" },
-  language:    { bg: "#fff7ed", text: "#ea580c", dot: "#ea580c" },
-  life:        { bg: "#f0fdfa", text: "#0d9488", dot: "#0d9488" },
-  other:       { bg: "#f9fafb", text: "#6b7280", dot: "#6b7280" },
-};
-
-function CourseCard({ course, progress, captionsOn, onOpen, onAlert }) {
-  const cat     = categoryColors[course.category] || categoryColors.other;
-  const pct     = progress?.completion ?? 0;
-  const started = pct > 0;
-
-  return (
-    <div style={{
-      background: "#fff", border: "1.5px solid #e5e7eb",
-      borderRadius: "14px", padding: "24px",
-      display: "flex", flexDirection: "column", gap: "14px",
-      transition: "box-shadow 0.18s",
-      cursor: "pointer",
-    }}
-      onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 18px rgba(0,0,0,0.09)"}
-      onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}
-    >
-      {/* Top row */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "10px" }}>
-        <span style={{
-          background: cat.bg, color: cat.text,
-          fontSize: "11px", fontWeight: "600", padding: "3px 10px",
-          borderRadius: "999px", display: "inline-flex", alignItems: "center", gap: "5px",
-        }}>
-          <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: cat.dot }} />
-          {course.category}
-        </span>
-        {captionsOn && (
-          <span style={{
-            background: "#eff6ff", color: "#2563eb", fontSize: "11px",
-            fontWeight: "700", padding: "3px 8px", borderRadius: "4px",
-          }}>CC ON</span>
-        )}
-      </div>
-
-      {/* Title + desc */}
-      <div>
-        <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#111827", margin: "0 0 6px" }}>
-          {course.title}
-        </h3>
-        <p style={{ fontSize: "13px", color: "#6b7280", margin: 0, lineHeight: 1.55 }}>
-          {course.description}
-        </p>
-      </div>
-
-      {/* Progress bar */}
-      {started && (
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
-            <span style={{ fontSize: "12px", color: "#6b7280" }}>Progress</span>
-            <span style={{ fontSize: "12px", fontWeight: "600", color: "#2563eb" }}>{pct}%</span>
-          </div>
-          <div style={{ height: "6px", background: "#e5e7eb", borderRadius: "999px", overflow: "hidden" }}>
-            <div style={{
-              height: "100%", width: `${pct}%`,
-              background: "linear-gradient(90deg, #2563eb, #60a5fa)",
-              borderRadius: "999px", transition: "width 0.4s ease",
-            }} />
-          </div>
-        </div>
-      )}
-
-      {/* Media badges */}
-      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-        {course.video && (
-          <span style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#374151", background: "#f3f4f6", padding: "4px 10px", borderRadius: "6px" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Video
-          </span>
-        )}
-        {captionsOn && (
-          <span style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#2563eb", background: "#eff6ff", padding: "4px 10px", borderRadius: "6px" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M7 11h4M7 15h8"/></svg>
-            Captions
-          </span>
-        )}
-        {course.audio && (
-          <span style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#374151", background: "#f3f4f6", padding: "4px 10px", borderRadius: "6px" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-            Audio
-          </span>
-        )}
-      </div>
-
-      {/* Open button */}
-      <button
-        onClick={() => { onOpen(course); onAlert(`Opening: ${course.title}`, "#2563eb"); }}
-        style={{
-          width: "100%", padding: "11px",
-          background: started ? "#eff6ff" : "#2563eb",
-          color: started ? "#2563eb" : "#fff",
-          border: started ? "1.5px solid #bfdbfe" : "none",
-          borderRadius: "10px", fontSize: "14px", fontWeight: "600",
-          cursor: "pointer", transition: "opacity 0.15s",
-          fontFamily: "inherit",
-        }}
-        onMouseEnter={e => e.currentTarget.style.opacity = "0.88"}
-        onMouseLeave={e => e.currentTarget.style.opacity = "1"}
-      >
-        {started ? `Continue (${pct}%)` : "Start course"}
-      </button>
-    </div>
-  );
-}
-
-// ── Main dashboard ────────────────────────────────────────────────────────────
 export default function DeafDashboard() {
-  const { user, logout }               = useAuth();
-  const [courses, setCourses]          = useState([]);
-  const [progress, setProgress]        = useState({});
-  const [captionsOn, setCaptionsOn]    = useState(true);
-  const [captionText, setCaptionText]  = useState("");
-  const [alert, setAlert]              = useState(null);
-  const [loading, setLoading]          = useState(true);
-  const [search, setSearch]            = useState("");
-  const [activeCategory, setCategory]  = useState("all");
-  const [openCourse, setOpenCourse]    = useState(null);
+  const { user, logout, DEMO_MODE } = useAuth();
+  
+  // Navigation tabs state
+  const [activeTab, setActiveTab] = useState("home"); // home, courses, my-learning, ai-tutor, activity, profile, settings
+  
+  // Nested views
+  const [selectedCourse, setSelectedCourse] = useState(null); // Course details page
+  const [activeCoursePlay, setActiveCoursePlay] = useState(null); // Course player
+  const [currentLessonIdx, setCurrentLessonIdx] = useState(0);
 
-  // Load courses + progress
+  // Search & filters
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
+  const [difficulty, setDifficulty] = useState("all");
+
+  // Database lists
+  const [courses, setCourses] = useState(MOCK_COURSES);
+  const [purchasedIds, setPurchasedIds] = useState(["course-1", "course-2"]);
+  const [progress, setProgress] = useState({
+    "course-1": { completion: 75 },
+    "course-2": { completion: 25 }
+  });
+
+  // AI Tutor Chat states
+  const [chatMessages, setChatMessages] = useState([
+    { sender: "ai", text: "Hello! I am your AccessAI Sign Language tutor. Ask me any question about ASL grammar, vocabulary, or ask me to generate a custom quiz!" }
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [isVoiceChatActive, setIsVoiceChatActive] = useState(false);
+  const [aiTutorTab, setAiTutorTab] = useState("chat"); // chat, homework, quiz-gen
+
+  // Quiz state in course player
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("");
+  const [quizCorrect, setQuizCorrect] = useState(null);
+
+  // Caption Settings state
+  const [captionSize, setCaptionSize] = useState("medium"); // small, medium, large
+  const [captionBg, setCaptionBg] = useState("black-trans"); // black-trans, yellow, none
+  const [contrastTheme, setContrastTheme] = useState("dark"); // dark, light, high-contrast
+  const [pipInterpreter, setPipInterpreter] = useState(true);
+
+  // User Stats state
+  const [studyStreak, setStudyStreak] = useState(7);
+  const [studyMinutesToday, setStudyMinutesToday] = useState(25);
+
+  // Load backend database if possible (fallback to mock in demo/dev mode)
   useEffect(() => {
-    const load = async () => {
+    if (DEMO_MODE) return;
+    const fetchDB = async () => {
       try {
         const [cRes, pRes] = await Promise.all([
           API.get("/courses"),
-          API.get(`/progress/${user.uid}`),
+          API.get(`/progress/${user?.uid}`)
         ]);
-        setCourses(cRes.data.courses);
-        // Index progress by courseId
-        const pMap = {};
-        pRes.data.progress.forEach(p => { pMap[p.courseId] = p; });
-        setProgress(pMap);
+        if (cRes.data?.courses?.length > 0) setCourses(cRes.data.courses);
+        if (pRes.data?.progress) {
+          const pMap = {};
+          pRes.data.progress.forEach(p => { pMap[p.courseId] = p; });
+          setProgress(pMap);
+        }
       } catch (e) {
-        console.error("Load error:", e);
-      } finally {
-        setLoading(false);
+        console.warn("Could not load backend courses, using premium local dataset.", e);
       }
     };
-    load();
-  }, [user.uid]);
+    fetchDB();
+  }, [user?.uid, DEMO_MODE]);
 
-  const triggerAlert = useCallback((message, color = "#2563eb") => {
-    setAlert({ message, color, id: Date.now() });
-  }, []);
-
-  const toggleCaptions = () => {
-    const next = !captionsOn;
-    setCaptionsOn(next);
-    triggerAlert(next ? "Captions turned ON" : "Captions turned OFF", next ? "#16a34a" : "#dc2626");
+  // Handle course buying
+  const handleBuyCourse = (courseId) => {
+    if (purchasedIds.includes(courseId)) return;
+    setPurchasedIds(prev => [...prev, courseId]);
+    // Initialize progress at 0
+    setProgress(prev => ({ ...prev, [courseId]: { completion: 0 } }));
   };
 
-  const handleOpenCourse = (course) => {
-    setOpenCourse(course);
-    if (captionsOn) {
-      setCaptionText(`Now playing: ${course.title} — ${course.description}`);
-    }
+  // Update lesson progress
+  const updateProgress = (courseId, pct) => {
+    setProgress(prev => ({
+      ...prev,
+      [courseId]: { ...prev[courseId], completion: pct }
+    }));
   };
 
-  const handleCloseCourse = () => {
-    setOpenCourse(null);
-    setCaptionText("");
+  const handleSendMessage = () => {
+    if (!chatInput.trim()) return;
+    const newMsg = { sender: "user", text: chatInput };
+    setChatMessages(prev => [...prev, newMsg]);
+    setChatInput("");
+    
+    // Simulate AI response
+    setTimeout(() => {
+      let replyText = "Interesting query! In ASL, palm orientation and facial expressions are key variables.";
+      if (chatInput.toLowerCase().includes("alphabet") || chatInput.toLowerCase().includes("abc")) {
+        replyText = "The ASL alphabet is a 1-handed system. Make sure you don't bounce your letters when fingerspelling unless you are spelling doubles!";
+      } else if (chatInput.toLowerCase().includes("grammar") || chatInput.toLowerCase().includes("sentence")) {
+        replyText = "ASL utilizes a Topic-Comment sentence structure. Establish the topic first with raised eyebrows, then describe the action (comment) with eyebrows lowered or relaxed.";
+      } else if (chatInput.toLowerCase().includes("quiz")) {
+        replyText = "Let's test your skills! What eyebrow movement is required when signing a Yes/No question in ASL? (Hint: They should be raised!)";
+      }
+      setChatMessages(prev => [...prev, { sender: "ai", text: replyText }]);
+    }, 1000);
   };
 
-  const saveProgress = async (courseId, completion) => {
-    try {
-      await API.post("/progress", { userId: user.uid, courseId, completion });
-      setProgress(prev => ({ ...prev, [courseId]: { courseId, completion } }));
-      triggerAlert(`Progress saved — ${completion}%`, "#16a34a");
-    } catch (e) {
-      console.error("Save progress error:", e);
-    }
+  const handleQuickQuestion = (qText) => {
+    setChatInput(qText);
+    setTimeout(() => handleSendMessage(), 100);
   };
 
-  // Filter courses
-  const filtered = courses.filter(c => {
-    const matchSearch   = c.title.toLowerCase().includes(search.toLowerCase()) ||
+  const handleGenerateQuiz = () => {
+    setChatMessages(prev => [
+      ...prev,
+      { sender: "ai", text: "Here is your generated ASL vocabulary check: What is the palm orientation when signing numbers 1 to 5 in ASL?" }
+    ]);
+  };
+
+  // Filter courses library
+  const filteredCourses = courses.filter(c => {
+    const matchesSearch = c.title.toLowerCase().includes(search.toLowerCase()) || 
                           c.description.toLowerCase().includes(search.toLowerCase());
-    const matchCategory = activeCategory === "all" || c.category === activeCategory;
-    return matchSearch && matchCategory;
+    const matchesCategory = category === "all" || c.category === category;
+    const matchesDifficulty = difficulty === "all" || c.level.toLowerCase() === difficulty;
+    return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
-  const categories = ["all", ...new Set(courses.map(c => c.category))];
-
   return (
-    <div style={{ minHeight: "100vh", background: "#f9fafb", fontFamily: "'DM Sans', sans-serif", paddingBottom: captionsOn ? "80px" : "0" }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
-      {/* Flash alert */}
-      {alert && (
-        <FlashAlert
-          key={alert.id}
-          message={alert.message}
-          color={alert.color}
-          onDone={() => setAlert(null)}
-        />
+    <div className={`min-h-screen ${contrastTheme === "light" ? "bg-slate-50 text-slate-900" : "bg-[#090d16] text-[#e2e8f0]"} font-sans flex relative`}>
+      {/* Visual glowing background circles (SaaS Theme) */}
+      {contrastTheme === "dark" && (
+        <>
+          <div className="absolute top-10 left-10 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
+        </>
       )}
 
-      {/* ── Navbar ── */}
-      <nav style={{
-        background: "#fff", borderBottom: "1px solid #e5e7eb",
-        padding: "0 32px", height: "60px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        position: "sticky", top: 0, zIndex: 50,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ fontSize: "22px", fontWeight: "700", color: "#111827", letterSpacing: "-0.5px" }}>
-            Access<span style={{ color: "#2563eb" }}>AI</span>
-          </span>
-          <span style={{
-            background: "#eff6ff", color: "#2563eb", fontSize: "11px",
-            fontWeight: "600", padding: "3px 10px", borderRadius: "999px",
-            display: "inline-flex", alignItems: "center", gap: "5px",
-          }}>
-            <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#2563eb" }} />
-            deaf mode
-          </span>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {/* Captions toggle */}
-          <button
-            onClick={toggleCaptions}
-            aria-pressed={captionsOn}
-            aria-label={captionsOn ? "Turn captions off" : "Turn captions on"}
-            style={{
-              display: "flex", alignItems: "center", gap: "8px",
-              padding: "8px 16px", borderRadius: "8px", border: "1.5px solid",
-              borderColor: captionsOn ? "#2563eb" : "#e5e7eb",
-              background: captionsOn ? "#eff6ff" : "#fff",
-              color: captionsOn ? "#2563eb" : "#6b7280",
-              fontSize: "13px", fontWeight: "600", cursor: "pointer",
-              transition: "all 0.15s", fontFamily: "inherit",
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="2" y="7" width="20" height="14" rx="2"/>
-              <path d="M7 11h4M7 15h8"/>
-            </svg>
-            CC {captionsOn ? "ON" : "OFF"}
-          </button>
-
-          {/* User info */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <div style={{
-              width: "32px", height: "32px", borderRadius: "50%",
-              background: "#eff6ff", display: "flex", alignItems: "center",
-              justifyContent: "center", fontSize: "13px", fontWeight: "700", color: "#2563eb",
-            }}>
-              {user.displayName?.[0] || user.email?.[0] || "U"}
-            </div>
-            <span style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}>
-              {user.displayName?.split(" ")[0] || "User"}
-            </span>
+      {/* ── Left Sidebar Navigation (Premium SaaS style) ── */}
+      <aside className={`w-72 border-r flex flex-col justify-between sticky top-0 h-screen z-50 backdrop-blur-xl ${contrastTheme === "light" ? "bg-white/80 border-slate-200" : "bg-[#0a0f1d]/75 border-white/5"}`}>
+        <div className="p-6">
+          {/* Logo */}
+          <div className="flex items-center gap-3 mb-8 cursor-pointer" onClick={() => { setActiveTab("home"); setSelectedCourse(null); setActiveCoursePlay(null); }}>
+            <span className="text-2xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">AccessAI</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full">Deaf Mode</span>
           </div>
 
-          {/* Logout */}
-          <button
-            onClick={logout}
-            style={{
-              padding: "7px 14px", borderRadius: "8px",
-              border: "1.5px solid #e5e7eb", background: "#fff",
-              fontSize: "13px", color: "#6b7280", cursor: "pointer",
-              fontFamily: "inherit",
-            }}
-          >
-            Sign out
+          {/* Nav Items */}
+          <nav className="flex flex-col gap-1.5">
+            {[
+              { id: "home", label: "Home Dashboard", icon: "home" },
+              { id: "courses", label: "Course Library", icon: "grid_view" },
+              { id: "my-learning", label: "My Learning", icon: "menu_book" },
+              { id: "ai-tutor", label: "AI Tutor", icon: "smart_toy" },
+              { id: "activity", label: "Activity Dashboard", icon: "analytics" },
+              { id: "profile", label: "Profile & Certificates", icon: "account_circle" },
+              { id: "settings", label: "Accessibility Settings", icon: "tune" }
+            ].map(item => {
+              const isSelected = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setSelectedCourse(null);
+                    setActiveCoursePlay(null);
+                  }}
+                  className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-left text-sm font-semibold transition-all duration-200 ${
+                    isSelected 
+                      ? "bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-600/15" 
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                  }`}
+                >
+                  <span className="material-symbols-outlined !text-xl" style={{ fontVariationSettings: ` 'FILL' ${isSelected ? 1 : 0}` }}>
+                    {item.icon}
+                  </span>
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* User profile section at footer */}
+        <div className="p-6 border-t border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white text-sm">
+              VG
+            </div>
+            <div>
+              <p className="text-xs font-semibold">Vrusha Goyal</p>
+              <p className="text-[10px] text-slate-500">Deaf Analyst</p>
+            </div>
+          </div>
+          <button onClick={logout} className="p-2 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors" title="Sign out">
+            <span className="material-symbols-outlined !text-xl">logout</span>
           </button>
         </div>
-      </nav>
+      </aside>
 
-      {/* ── Course viewer modal ── */}
-      {openCourse && (
-        <div style={{
-          position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",
-          zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center",
-          padding: "24px",
-        }}>
-          <div style={{
-            background: "#fff", borderRadius: "16px", width: "100%", maxWidth: "760px",
-            maxHeight: "90vh", overflow: "auto", padding: "32px",
-          }}>
-            {/* Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
-              <div>
-                <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#111827", margin: "0 0 6px" }}>
-                  {openCourse.title}
-                </h2>
-                <p style={{ fontSize: "14px", color: "#6b7280", margin: 0 }}>{openCourse.description}</p>
+      {/* ── Main Content Area ── */}
+      <main className="flex-1 min-h-screen overflow-y-auto p-8 relative z-10">
+
+        {/* 1. HOME DASHBOARD VIEW */}
+        {activeTab === "home" && !selectedCourse && !activeCoursePlay && (
+          <div className="max-w-6xl mx-auto flex flex-col gap-8 animate-fadeIn">
+            {/* Header welcome banner */}
+            <div className="bg-gradient-to-r from-indigo-900/60 to-purple-900/40 border border-white/5 p-8 rounded-3xl backdrop-blur-md relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="flex flex-col gap-2 max-w-xl">
+                <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Hello, Vrusha!</h1>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Welcome to AccessAI e-learning! Expand your signing vocabulary and ASL syntax. Everything is adapted visually for you, no audio required.
+                </p>
               </div>
-              <button
-                onClick={handleCloseCourse}
-                aria-label="Close course"
-                style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", color: "#6b7280" }}
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6L6 18M6 6l12 12"/>
-                </svg>
-              </button>
+              <div className="flex gap-4">
+                <div className="bg-slate-900/60 border border-white/10 px-5 py-3.5 rounded-2xl flex flex-col items-center">
+                  <span className="text-2xl font-bold text-yellow-400">{studyStreak}🔥</span>
+                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1">Day Streak</span>
+                </div>
+                <div className="bg-slate-900/60 border border-white/10 px-5 py-3.5 rounded-2xl flex flex-col items-center">
+                  <span className="text-2xl font-bold text-indigo-400">{studyMinutesToday}m</span>
+                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1">Spent Today</span>
+                </div>
+              </div>
             </div>
 
-            {/* Visual alert banner — no audio cue */}
-            <div style={{
-              background: "#eff6ff", border: "2px solid #bfdbfe",
-              borderRadius: "10px", padding: "12px 16px", marginBottom: "20px",
-              display: "flex", alignItems: "center", gap: "10px",
-            }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
-              </svg>
-              <span style={{ fontSize: "13px", color: "#1e40af", fontWeight: "500" }}>
-                Captions are {captionsOn ? "ON" : "OFF"} — toggle with the CC button in the top bar
-              </span>
+            {/* Grid metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Daily Goal Card */}
+              <div className="bg-[#121b2d]/50 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
+                <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                  <span className="material-symbols-outlined text-indigo-400">workspace_premium</span>
+                  Daily Goals
+                </h3>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-slate-400">Today's goal: 30 minutes</span>
+                  <span className="text-xs text-indigo-400 font-bold">83% Done</span>
+                </div>
+                <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full" style={{ width: "83%" }}></div>
+                </div>
+              </div>
+
+              {/* Progress Overview Card */}
+              <div className="bg-[#121b2d]/50 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
+                <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                  <span className="material-symbols-outlined text-green-400">task_alt</span>
+                  Progress Overview
+                </h3>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">2 Completed Courses</span>
+                  <span className="text-green-400 font-bold">50% Average</span>
+                </div>
+                <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-green-500 to-emerald-600 rounded-full" style={{ width: "50%" }}></div>
+                </div>
+              </div>
+
+              {/* Quick AI Tutor Card */}
+              <div className="bg-gradient-to-br from-indigo-950/40 to-slate-900/60 border border-indigo-500/10 p-6 rounded-2xl flex flex-col justify-between gap-4">
+                <div>
+                  <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined text-purple-400">smart_toy</span>
+                    AI Study Companion
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-2">Generate a custom visual quiz or ask grammar questions instantly.</p>
+                </div>
+                <button onClick={() => setActiveTab("ai-tutor")} className="w-full py-2 bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 font-semibold text-xs rounded-xl hover:bg-indigo-600/30 transition-all">
+                  Chat with AI Tutor
+                </button>
+              </div>
             </div>
 
-            {/* Video placeholder */}
-            <div style={{
-              background: "#111827", borderRadius: "12px", aspectRatio: "16/9",
-              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              gap: "12px", marginBottom: "20px", position: "relative", overflow: "hidden",
-            }}>
-              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5" opacity="0.5">
-                <polygon points="5 3 19 12 5 21 5 3"/>
-              </svg>
-              <span style={{ color: "#9ca3af", fontSize: "13px" }}>{openCourse.video || "No video attached"}</span>
-              {captionsOn && (
-                <div style={{
-                  position: "absolute", bottom: 0, left: 0, right: 0,
-                  background: "rgba(0,0,0,0.82)", padding: "10px 16px",
-                  display: "flex", alignItems: "center", gap: "8px",
-                }}>
-                  <span style={{ background: "#2563eb", color: "#fff", fontSize: "10px", fontWeight: "700", padding: "1px 6px", borderRadius: "3px" }}>CC</span>
-                  <span style={{ color: "#fff", fontSize: "13px" }}>
-                    {openCourse.title} — captions active
-                  </span>
+            {/* Continue Learning */}
+            <div className="flex flex-col gap-4">
+              <h2 className="text-xl font-bold tracking-tight text-white">Continue Learning</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {courses.filter(c => purchasedIds.includes(c.id)).map(course => {
+                  const pct = progress[course.id]?.completion || 0;
+                  return (
+                    <div key={course.id} className="bg-[#121b2d]/45 border border-white/5 hover:border-white/10 rounded-2xl p-6 flex flex-col justify-between gap-4 transition-all">
+                      <div className="flex justify-between items-start gap-4">
+                        <div>
+                          <span className="text-[10px] uppercase font-bold text-indigo-400 px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded">{course.level}</span>
+                          <h3 className="text-base font-bold text-white mt-2">{course.title}</h3>
+                          <p className="text-xs text-slate-400 mt-1 line-clamp-2">{course.description}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between items-center mb-1.5 text-xs">
+                          <span className="text-slate-400">Course Progress</span>
+                          <span className="text-indigo-400 font-bold">{pct}%</span>
+                        </div>
+                        <div className="h-2 bg-slate-800 rounded-full overflow-hidden mb-4">
+                          <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${pct}%` }}></div>
+                        </div>
+                        <button onClick={() => { setActiveCoursePlay(course); setCurrentLessonIdx(0); }} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all">
+                          Resume Learning
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Recommended & Notifications */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Recommendations */}
+              <div className="flex flex-col gap-4">
+                <h2 className="text-xl font-bold tracking-tight text-white">Recommended for you</h2>
+                <div className="flex flex-col gap-3">
+                  {courses.filter(c => !purchasedIds.includes(c.id)).slice(0, 2).map(course => (
+                    <div key={course.id} onClick={() => setSelectedCourse(course)} className="bg-[#121b2d]/30 border border-white/5 hover:border-indigo-500/20 rounded-xl p-4 flex gap-4 cursor-pointer transition-all">
+                      <div className="w-12 h-12 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 flex-shrink-0">
+                        <span className="material-symbols-outlined !text-2xl">sign_language</span>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-white line-clamp-1">{course.title}</h4>
+                        <p className="text-xs text-slate-400 mt-1">{course.instructor} · {course.duration}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notifications */}
+              <div className="bg-[#121b2d]/25 border border-white/5 rounded-2xl p-6 flex flex-col gap-4">
+                <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider">System Notifications</h3>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-start gap-3 text-xs border-b border-white/5 pb-2">
+                    <span className="w-2 h-2 rounded-full bg-indigo-400 mt-1"></span>
+                    <div>
+                      <p className="text-slate-300 font-semibold">New ASL course released!</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">Explore advanced classifiers & syntaxes.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 text-xs">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1"></span>
+                    <div>
+                      <p className="text-slate-300 font-semibold">Tutor AI is updated</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">Now supports homework uploads and interactive quizzes.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 2. COURSE LIBRARY VIEW */}
+        {activeTab === "courses" && !selectedCourse && !activeCoursePlay && (
+          <div className="max-w-6xl mx-auto flex flex-col gap-8 animate-fadeIn">
+            {/* Header */}
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Explore Course Catalog</h1>
+              <p className="text-sm text-slate-400">All courses contain embedded visual captions and high-quality sign language PIP videos.</p>
+            </div>
+
+            {/* Search + filter bar */}
+            <div className="flex flex-col md:flex-row gap-4 bg-[#121b2d]/40 border border-white/5 p-4 rounded-2xl">
+              <div className="flex-1 relative">
+                <span className="material-symbols-outlined absolute left-3 top-3 text-slate-500">search</span>
+                <input
+                  type="text"
+                  placeholder="Search courses by keyword..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="w-full bg-[#080d16] border border-white/10 rounded-xl py-2 px-10 text-xs text-white placeholder-slate-500 outline-none focus:border-indigo-500 transition-all"
+                />
+              </div>
+              <div className="flex gap-3">
+                <select value={category} onChange={e => setCategory(e.target.value)} className="bg-[#080d16] border border-white/10 text-xs text-slate-300 rounded-xl px-4 py-2 outline-none cursor-pointer">
+                  <option value="all">All Categories</option>
+                  <option value="language">ASL Language</option>
+                  <option value="vocabulary">ASL Vocabulary</option>
+                  <option value="syntax">Conversational Syntax</option>
+                </select>
+                <select value={difficulty} onChange={e => setDifficulty(e.target.value)} className="bg-[#080d16] border border-white/10 text-xs text-slate-300 rounded-xl px-4 py-2 outline-none cursor-pointer">
+                  <option value="all">All Levels</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Courses Catalog Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {filteredCourses.map(course => {
+                const isOwned = purchasedIds.includes(course.id);
+                return (
+                  <div key={course.id} onClick={() => setSelectedCourse(course)} className="bg-[#121b2d]/30 border border-white/5 hover:border-indigo-500/20 hover:-translate-y-1 transition-all duration-300 rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between">
+                    {/* Course Card Cover (Visual design) */}
+                    <div className="h-36 bg-gradient-to-br from-indigo-900 to-slate-900 p-6 flex flex-col justify-between">
+                      <span className="self-start text-[10px] font-bold uppercase tracking-wider bg-white/10 text-white px-2 py-0.5 rounded backdrop-blur">
+                        {course.badge}
+                      </span>
+                      <span className="material-symbols-outlined !text-4xl text-indigo-400 self-end">sign_language</span>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 flex-1 flex flex-col justify-between gap-4">
+                      <div>
+                        <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          <span>{course.category}</span>
+                          <span>⭐ {course.rating}</span>
+                        </div>
+                        <h3 className="text-base font-bold text-white mt-2 leading-snug line-clamp-1">{course.title}</h3>
+                        <p className="text-xs text-slate-400 mt-2 line-clamp-2">{course.description}</p>
+                      </div>
+
+                      <div className="border-t border-white/5 pt-4 flex flex-col gap-3">
+                        <div className="flex justify-between text-xs text-slate-500">
+                          <span>Level: {course.level}</span>
+                          <span>Time: {course.duration}</span>
+                        </div>
+                        <button className={`w-full py-2.5 text-xs font-bold rounded-xl transition-all ${
+                          isOwned 
+                            ? "bg-slate-800 text-slate-200" 
+                            : "bg-indigo-600 text-white hover:bg-indigo-700"
+                        }`}>
+                          {isOwned ? "Start Course (Owned)" : "View Details ($9.99)"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 3. MY LEARNING VIEW */}
+        {activeTab === "my-learning" && !selectedCourse && !activeCoursePlay && (
+          <div className="max-w-6xl mx-auto flex flex-col gap-8 animate-fadeIn">
+            {/* Header */}
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-white mb-2">My Enrolled Courses</h1>
+              <p className="text-sm text-slate-400">Resume study on your purchased content with real-time video captioning support.</p>
+            </div>
+
+            {/* Courses listing */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {courses.filter(c => purchasedIds.includes(c.id)).map(course => {
+                const pct = progress[course.id]?.completion || 0;
+                return (
+                  <div key={course.id} className="bg-[#121b2d]/35 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-4">
+                    <div>
+                      <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
+                        <span>Instructor: {course.instructor}</span>
+                        <span className="text-indigo-400">{course.level}</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-white mt-2">{course.title}</h3>
+                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">{course.description}</p>
+                    </div>
+
+                    <div className="border-t border-white/5 pt-4">
+                      <div className="flex justify-between text-xs mb-2">
+                        <span className="text-slate-400">Total Completion</span>
+                        <span className="text-indigo-400 font-bold">{pct}%</span>
+                      </div>
+                      <div className="h-2 bg-slate-850 rounded-full overflow-hidden mb-4">
+                        <div className="h-full bg-indigo-500" style={{ width: `${pct}%` }}></div>
+                      </div>
+                      <button onClick={() => { setActiveCoursePlay(course); setCurrentLessonIdx(0); }} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all">
+                        Launch Course Player
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              {purchasedIds.length === 0 && (
+                <div className="col-span-2 text-center py-16 bg-[#121b2d]/10 border border-dashed border-white/10 rounded-2xl">
+                  <span className="material-symbols-outlined !text-4xl text-slate-600 mb-2">library_books</span>
+                  <p className="text-sm text-slate-500">You haven't enrolled in any courses yet.</p>
+                  <button onClick={() => setActiveTab("courses")} className="mt-4 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-750 transition-all">
+                    Browse Courses
+                  </button>
                 </div>
               )}
             </div>
+          </div>
+        )}
 
-            {/* Progress buttons */}
-            <div style={{ marginBottom: "16px" }}>
-              <p style={{ fontSize: "13px", color: "#6b7280", marginBottom: "10px", fontWeight: "500" }}>
-                Mark your progress:
-              </p>
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                {[25, 50, 75, 100].map(pct => (
+        {/* ── COURSE DETAILS VIEW ── */}
+        {selectedCourse && !activeCoursePlay && (
+          <div className="max-w-4xl mx-auto flex flex-col gap-8 animate-fadeIn">
+            {/* Back button */}
+            <button onClick={() => setSelectedCourse(null)} className="self-start flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors">
+              <span className="material-symbols-outlined !text-sm">arrow_back</span> Back to Catalog
+            </button>
+
+            {/* Banner block */}
+            <div className="bg-gradient-to-br from-indigo-900 to-slate-900 border border-white/5 p-8 rounded-3xl flex flex-col md:flex-row justify-between gap-6 items-start md:items-end">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-white/10 text-white px-2 py-0.5 rounded">{selectedCourse.badge}</span>
+                <h1 className="text-3xl font-extrabold text-white mt-4 tracking-tight">{selectedCourse.title}</h1>
+                <p className="text-slate-300 text-sm mt-2">{selectedCourse.instructor} · Rated ⭐ {selectedCourse.rating}</p>
+              </div>
+
+              {purchasedIds.includes(selectedCourse.id) ? (
+                <button onClick={() => { setActiveCoursePlay(selectedCourse); setCurrentLessonIdx(0); }} className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-2xl transition-all shadow-lg shadow-indigo-600/10">
+                  Resume Course
+                </button>
+              ) : (
+                <button onClick={() => handleBuyCourse(selectedCourse.id)} className="px-8 py-3.5 bg-green-600 hover:bg-green-750 text-white font-bold text-sm rounded-2xl transition-all shadow-lg shadow-green-600/10">
+                  Buy Course ($9.99)
+                </button>
+              )}
+            </div>
+
+            {/* Layout body */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Left col - Details */}
+              <div className="md:col-span-2 flex flex-col gap-6">
+                <div>
+                  <h3 className="text-lg font-bold text-white mb-2">Description</h3>
+                  <p className="text-sm text-slate-400 leading-relaxed">{selectedCourse.description}</p>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-bold text-white mb-4">Course Syllabus</h3>
+                  <div className="flex flex-col gap-3">
+                    {selectedCourse.lessons.map((lesson, idx) => (
+                      <div key={lesson.id} className="bg-[#121b2d]/30 border border-white/5 p-4 rounded-xl flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-bold text-slate-500">0{idx + 1}</span>
+                          <span className="text-sm font-semibold text-slate-200">{lesson.title}</span>
+                        </div>
+                        <span className="text-xs text-slate-500">{lesson.duration}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right col - Accessibility overview */}
+              <div className="flex flex-col gap-6">
+                <div className="bg-[#121b2d]/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
+                  <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider">Accessibility Design</h3>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { icon: "closed_caption", text: "Visual captions included" },
+                      { icon: "sign_language", text: "Sign Language PIP avatar" },
+                      { icon: "text_snippet", text: "Downloadable course summaries" },
+                      { icon: "keyboard", text: "Full keyboard accessible controls" }
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-3 text-xs text-slate-400">
+                        <span className="material-symbols-outlined text-indigo-400 !text-lg">{item.icon}</span>
+                        {item.text}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-[#121b2d]/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-3">
+                  <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider">AI Summarization</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    This course has been processed by AccessAI to yield condensed lesson synopses, custom quiz structures, and visual glossary terms.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── COURSE PLAYER & LESSON PAGE VIEW ── */}
+        {activeCoursePlay && (
+          <div className="max-w-6xl mx-auto flex flex-col gap-6 animate-fadeIn">
+            {/* Header info bar */}
+            <div className="flex justify-between items-center border-b border-white/5 pb-4">
+              <div>
+                <button onClick={() => setActiveCoursePlay(null)} className="flex items-center gap-2 text-xs text-slate-500 hover:text-white transition-colors mb-2">
+                  <span className="material-symbols-outlined !text-sm">arrow_back</span> Close Course Player
+                </button>
+                <h2 className="text-xl font-bold text-white">{activeCoursePlay.title}</h2>
+              </div>
+              <div className="text-right text-xs">
+                <span className="text-slate-500">Lesson {currentLessonIdx + 1} of {activeCoursePlay.lessons.length}</span>
+                <p className="text-indigo-400 font-bold mt-0.5">{activeCoursePlay.lessons[currentLessonIdx].title}</p>
+              </div>
+            </div>
+
+            {/* Player Columns */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column: Player & Subtitles */}
+              <div className="lg:col-span-2 flex flex-col gap-6">
+                {/* Embedded YouTube video container */}
+                <div className="relative aspect-video bg-[#000] border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={`https://www.youtube.com/embed/${activeCoursePlay.lessons[currentLessonIdx].video}?autoplay=1&enablejsapi=1&rel=0&controls=1`}
+                    title={activeCoursePlay.lessons[currentLessonIdx].title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full border-none"
+                  />
+
+                  {/* Sign Language Window Overlaid (PIP Interpreter) */}
+                  {pipInterpreter && (
+                    <div className="absolute bottom-16 right-4 w-36 md:w-44 aspect-[3/4] bg-[#000] border-2 border-indigo-500/60 rounded-xl overflow-hidden shadow-lg z-20 flex flex-col justify-end">
+                      {/* Secondary looping mock signing video or avatar element */}
+                      <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center text-center p-2">
+                        <span className="material-symbols-outlined !text-3xl text-indigo-400 animate-bounce mb-1">sign_language</span>
+                        <span className="text-[9px] text-indigo-300 font-bold uppercase tracking-widest leading-none">ASL Interpreter</span>
+                        <span className="text-[8px] text-slate-500 mt-1 italic">Visual PIP</span>
+                      </div>
+                      <div className="relative z-10 bg-indigo-900/90 text-center py-1 text-[8px] text-white font-semibold">Active</div>
+                    </div>
+                  )}
+
+                  {/* Dynamic Subtitle overlay */}
+                  <div className={`absolute bottom-4 left-4 right-4 z-20 text-center p-4 rounded-xl flex items-center justify-center gap-3 ${
+                    captionBg === "black-trans" ? "bg-black/85 border border-white/10" : captionBg === "yellow" ? "bg-yellow-400 text-black border-none" : "bg-transparent text-white"
+                  }`}>
+                    <span className="bg-indigo-600 text-white font-bold text-[9px] px-1.5 py-0.5 rounded flex-shrink-0">CC</span>
+                    <p className={`font-semibold tracking-wide leading-relaxed ${
+                      captionSize === "small" ? "text-xs" : captionSize === "large" ? "text-lg" : "text-sm"
+                    }`}>
+                      [Interpreter]: {activeCoursePlay.lessons[currentLessonIdx].content}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Lesson Navigation Controls */}
+                <div className="flex justify-between items-center">
                   <button
-                    key={pct}
-                    onClick={() => { saveProgress(openCourse.id, pct); if (pct === 100) handleCloseCourse(); }}
-                    style={{
-                      padding: "9px 18px", borderRadius: "8px",
-                      background: (progress[openCourse.id]?.completion ?? 0) >= pct ? "#2563eb" : "#f3f4f6",
-                      color: (progress[openCourse.id]?.completion ?? 0) >= pct ? "#fff" : "#374151",
-                      border: "none", fontSize: "13px", fontWeight: "600",
-                      cursor: "pointer", fontFamily: "inherit",
-                    }}
+                    disabled={currentLessonIdx === 0}
+                    onClick={() => setCurrentLessonIdx(i => i - 1)}
+                    className="px-5 py-2.5 bg-slate-800 hover:bg-slate-750 disabled:opacity-30 disabled:cursor-not-allowed text-xs text-white font-semibold rounded-xl transition-all flex items-center gap-2"
                   >
-                    {pct === 100 ? "Complete ✓" : `${pct}%`}
+                    <span className="material-symbols-outlined !text-base">skip_previous</span> Previous Lesson
+                  </button>
+
+                  <button
+                    disabled={currentLessonIdx === activeCoursePlay.lessons.length - 1}
+                    onClick={() => {
+                      setCurrentLessonIdx(i => i + 1);
+                      // Record progress completion
+                      const nextProgress = Math.round(((currentLessonIdx + 1) / activeCoursePlay.lessons.length) * 100);
+                      updateProgress(activeCoursePlay.id, nextProgress);
+                    }}
+                    className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-30 disabled:cursor-not-allowed text-xs text-white font-semibold rounded-xl transition-all flex items-center gap-2"
+                  >
+                    Next Lesson <span className="material-symbols-outlined !text-base">skip_next</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column: AI Explainer, Quiz & Custom PIP toggle */}
+              <div className="flex flex-col gap-6">
+                {/* Visual Settings Panel */}
+                <div className="bg-[#121b2d]/50 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
+                  <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined text-indigo-400">visibility</span>
+                    Visual Settings
+                  </h3>
+                  
+                  {/* Pip Interpreter Toggle */}
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400">ASL Sign Language Window</span>
+                    <button onClick={() => setPipInterpreter(p => !p)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all ${
+                      pipInterpreter ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-400"
+                    }`}>
+                      {pipInterpreter ? "Visible" : "Hidden"}
+                    </button>
+                  </div>
+
+                  {/* Caption size toggle */}
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400">Caption Font Size</span>
+                    <div className="flex gap-1.5">
+                      {["small", "medium", "large"].map(sz => (
+                        <button key={sz} onClick={() => setCaptionSize(sz)} className={`px-2.5 py-1 rounded text-[10px] font-bold capitalize ${
+                          captionSize === sz ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                        }`}>
+                          {sz}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Caption style */}
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400">Caption Coloring</span>
+                    <div className="flex gap-1.5">
+                      {[
+                        { id: "black-trans", label: "Dark" },
+                        { id: "yellow", label: "Yellow" },
+                        { id: "none", label: "Transparent" }
+                      ].map(bgOpt => (
+                        <button key={bgOpt.id} onClick={() => setCaptionBg(bgOpt.id)} className={`px-2.5 py-1 rounded text-[10px] font-bold ${
+                          captionBg === bgOpt.id ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                        }`}>
+                          {bgOpt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Lesson Quiz Panel */}
+                <div className="bg-[#121b2d]/50 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
+                  <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined text-green-400">quiz</span>
+                    Lesson Quiz Check
+                  </h3>
+                  <div>
+                    <p className="text-xs text-slate-300 leading-relaxed font-semibold">{activeCoursePlay.quiz.question}</p>
+                    <div className="flex flex-col gap-2 mt-4">
+                      {activeCoursePlay.quiz.options.map(opt => (
+                        <button
+                          key={opt}
+                          onClick={() => {
+                            if (quizSubmitted) return;
+                            setSelectedOption(opt);
+                          }}
+                          className={`w-full py-2.5 px-4 text-xs text-left rounded-xl transition-all ${
+                            selectedOption === opt 
+                              ? "bg-indigo-600 text-white font-bold" 
+                              : "bg-[#0a0f1d] text-slate-400 border border-white/5 hover:border-white/10"
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+
+                    {!quizSubmitted ? (
+                      <button
+                        onClick={() => {
+                          if (!selectedOption) return;
+                          setQuizSubmitted(true);
+                          const isCorrect = selectedOption === activeCoursePlay.quiz.answer;
+                          setQuizCorrect(isCorrect);
+                          if (isCorrect) {
+                            updateProgress(activeCoursePlay.id, 100);
+                          }
+                        }}
+                        className="w-full mt-4 py-2.5 bg-indigo-600 hover:bg-indigo-750 text-white text-xs font-bold rounded-xl transition-all"
+                      >
+                        Submit Answer
+                      </button>
+                    ) : (
+                      <div className="mt-4">
+                        <div className={`p-3 rounded-xl text-center text-xs font-bold ${
+                          quizCorrect ? "bg-green-500/10 border border-green-500/20 text-green-400" : "bg-red-500/10 border border-red-500/20 text-red-400"
+                        }`}>
+                          {quizCorrect ? "Correct answer! Well done! 🎉" : `Wrong answer. Correct was ${activeCoursePlay.quiz.answer}`}
+                        </div>
+                        <button
+                          onClick={() => {
+                            setQuizSubmitted(false);
+                            setSelectedOption("");
+                            setQuizCorrect(null);
+                          }}
+                          className="w-full mt-3 py-2 bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl hover:bg-slate-700"
+                        >
+                          Retry Quiz
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* AI Explanation / Summary card */}
+                <div className="bg-gradient-to-tr from-[#121b2d]/80 to-[#1e152e]/55 border border-indigo-500/10 p-6 rounded-2xl flex flex-col gap-3">
+                  <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <span className="material-symbols-outlined !text-base">auto_awesome</span> AI Synopsis
+                  </h4>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    ASL values visual parameters over vocal syntax. Key take-aways of this lesson: focus on palm-orientation adjustments, sign within the bounding box range, and use appropriate non-manual facial markers.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 4. AI TUTOR (ChatGPT/Gemini style) */}
+        {activeTab === "ai-tutor" && (
+          <div className="max-w-5xl mx-auto flex flex-col gap-6 animate-fadeIn h-[calc(100vh-100px)]">
+            {/* Header tab selectors */}
+            <div className="flex justify-between items-center border-b border-white/5 pb-4">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-white mb-1">AccessAI Tutor</h1>
+                <p className="text-xs text-slate-400">Ask ASL dictionary terms, test quizzes, or review code syntax.</p>
+              </div>
+              <div className="flex bg-[#121b2d] p-1.5 rounded-xl border border-white/5">
+                {[
+                  { id: "chat", label: "ASL Chatbot", icon: "forum" },
+                  { id: "homework", label: "Homework Help", icon: "school" },
+                  { id: "quiz-gen", label: "Quiz Generator", icon: "playlist_add_check" }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setAiTutorTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                      aiTutorTab === tab.id 
+                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/10" 
+                        : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined !text-base">{tab.icon}</span>
+                    {tab.label}
                   </button>
                 ))}
               </div>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* ── Page body ── */}
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "32px 24px" }}>
+            {/* TAB CONTENT: CHATBOT */}
+            {aiTutorTab === "chat" && (
+              <div className="flex-1 flex flex-col justify-between gap-4 overflow-hidden">
+                {/* Suggested prompt pills */}
+                <div className="flex gap-2 flex-wrap pb-2 border-b border-white/5">
+                  {[
+                    "How do I sign the double letter 'LL' in ASL?",
+                    "Explain Topic-Comment sentence structure in ASL",
+                    "Explain palm orientation for numbers 1 to 5"
+                  ].map(prompt => (
+                    <button
+                      key={prompt}
+                      onClick={() => handleQuickQuestion(prompt)}
+                      className="px-3.5 py-2 bg-[#121b2d]/65 border border-white/5 hover:border-indigo-500/20 text-[11px] text-slate-300 rounded-xl transition-all hover:bg-indigo-950/20 text-left"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
 
-        {/* Page header */}
-        <div style={{ marginBottom: "28px" }}>
-          <h1 style={{ fontSize: "26px", fontWeight: "700", color: "#111827", margin: "0 0 6px", letterSpacing: "-0.5px" }}>
-            Your courses
-          </h1>
-          <p style={{ fontSize: "14px", color: "#6b7280", margin: 0 }}>
-            All content includes captions and visual cues — no audio required.
-          </p>
-        </div>
+                {/* Message display area */}
+                <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-4 py-2">
+                  {chatMessages.map((msg, idx) => (
+                    <div key={idx} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
+                      <div className={`max-w-xl p-4 rounded-2xl text-xs leading-relaxed ${
+                        msg.sender === "user" 
+                          ? "bg-indigo-600 text-white font-medium rounded-tr-none" 
+                          : "bg-[#121b2d]/60 border border-white/5 text-slate-300 rounded-tl-none flex gap-3 items-start"
+                      }`}>
+                        {msg.sender === "ai" && (
+                          <span className="material-symbols-outlined text-indigo-400 !text-lg flex-shrink-0">smart_toy</span>
+                        )}
+                        <div>{msg.text}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-        {/* Search + filter row */}
-        <div style={{ display: "flex", gap: "12px", marginBottom: "24px", flexWrap: "wrap" }}>
-          {/* Search */}
-          <div style={{ position: "relative", flex: 1, minWidth: "220px" }}>
-            <svg style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }}
-              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-            </svg>
-            <input
-              type="text"
-              placeholder="Search courses..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              aria-label="Search courses"
-              style={{
-                width: "100%", paddingLeft: "38px", paddingRight: "14px",
-                height: "40px", border: "1.5px solid #e5e7eb", borderRadius: "8px",
-                fontSize: "14px", color: "#111827", background: "#fff",
-                outline: "none", fontFamily: "inherit", boxSizing: "border-box",
-              }}
-            />
-          </div>
+                {/* Text entry field */}
+                <div className="flex gap-3 bg-[#121b2d]/50 border border-white/5 p-3 rounded-2xl items-center">
+                  <button onClick={() => setIsVoiceChatActive(v => !v)} className={`p-2.5 rounded-xl transition-all ${
+                    isVoiceChatActive ? "bg-emerald-600 text-white animate-pulse" : "bg-slate-800 text-slate-400 hover:text-slate-200"
+                  }`} title="Toggle Voice Chat">
+                    <span className="material-symbols-outlined !text-xl">settings_voice</span>
+                  </button>
+                  <input
+                    type="text"
+                    placeholder="Type or ask your AI tutor a question about sign language..."
+                    value={chatInput}
+                    onChange={e => setChatInput(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleSendMessage()}
+                    className="flex-1 bg-transparent text-xs text-white placeholder-slate-500 outline-none"
+                  />
+                  <button onClick={handleSendMessage} className="p-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all">
+                    <span className="material-symbols-outlined !text-lg">send</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
-          {/* Category filters */}
-          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setCategory(cat)}
-                style={{
-                  padding: "8px 14px", borderRadius: "8px", border: "1.5px solid",
-                  borderColor: activeCategory === cat ? "#2563eb" : "#e5e7eb",
-                  background: activeCategory === cat ? "#eff6ff" : "#fff",
-                  color: activeCategory === cat ? "#2563eb" : "#6b7280",
-                  fontSize: "13px", fontWeight: "500", cursor: "pointer",
-                  transition: "all 0.15s", fontFamily: "inherit", textTransform: "capitalize",
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
+            {/* TAB CONTENT: HOMEWORK HELP */}
+            {aiTutorTab === "homework" && (
+              <div className="flex-1 flex flex-col gap-6 animate-fadeIn">
+                <div className="bg-[#121b2d]/45 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <span className="material-symbols-outlined text-indigo-400">upload_file</span>
+                    Submit Homework or Sign Video
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Upload your recorded signing file or paste homework questions here. AccessAI will perform visual tracking and verify sign shape accuracy.
+                  </p>
 
-        {/* Stats bar */}
-        <div style={{ display: "flex", gap: "12px", marginBottom: "28px", flexWrap: "wrap" }}>
-          {[
-            { label: "Total courses", value: courses.length, color: "#2563eb", bg: "#eff6ff" },
-            { label: "In progress",   value: Object.values(progress).filter(p => p.completion > 0 && p.completion < 100).length, color: "#d97706", bg: "#fffbeb" },
-            { label: "Completed",     value: Object.values(progress).filter(p => p.completion === 100).length, color: "#16a34a", bg: "#f0fdf4" },
-          ].map(stat => (
-            <div key={stat.label} style={{
-              background: stat.bg, borderRadius: "10px", padding: "12px 20px",
-              display: "flex", flexDirection: "column", gap: "2px",
-            }}>
-              <span style={{ fontSize: "22px", fontWeight: "700", color: stat.color }}>{stat.value}</span>
-              <span style={{ fontSize: "12px", color: "#6b7280" }}>{stat.label}</span>
-            </div>
-          ))}
-        </div>
+                  <div className="border-2 border-dashed border-white/10 hover:border-indigo-500/20 rounded-xl p-12 text-center transition-all cursor-pointer bg-[#0a0f1d]/40 flex flex-col items-center gap-2">
+                    <span className="material-symbols-outlined !text-4xl text-slate-600 animate-pulse">cloud_upload</span>
+                    <span className="text-xs font-semibold text-slate-400">Drag and drop file, or select locally</span>
+                    <span className="text-[10px] text-slate-650">Supports .mp4, .mov, or images up to 50MB</span>
+                  </div>
+                </div>
 
-        {/* Courses grid */}
-        {loading ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "#9ca3af", fontSize: "15px" }}>
-            Loading courses...
-          </div>
-        ) : filtered.length === 0 ? (
-          <div style={{
-            textAlign: "center", padding: "60px 0",
-            background: "#fff", borderRadius: "14px", border: "1.5px solid #e5e7eb",
-          }}>
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5" style={{ marginBottom: "12px" }}>
-              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-            </svg>
-            <p style={{ fontSize: "15px", color: "#9ca3af", margin: 0 }}>No courses found</p>
-          </div>
-        ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "16px" }}>
-            {filtered.map(course => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                progress={progress[course.id]}
-                captionsOn={captionsOn}
-                onOpen={handleOpenCourse}
-                onAlert={triggerAlert}
-              />
-            ))}
+                <div className="bg-[#121b2d]/25 border border-white/5 p-6 rounded-2xl flex flex-col gap-3">
+                  <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                    <span className="material-symbols-outlined !text-base font-bold">auto_awesome</span> Homework Analysis Logs
+                  </h4>
+                  <p className="text-xs text-slate-500 italic">No files submitted yet. The camera analysis window will load logs here.</p>
+                </div>
+              </div>
+            )}
+
+            {/* TAB CONTENT: QUIZ GENERATOR */}
+            {aiTutorTab === "quiz-gen" && (
+              <div className="flex-1 flex flex-col gap-6 animate-fadeIn">
+                <div className="bg-[#121b2d]/45 border border-white/5 p-6 rounded-2xl flex flex-col gap-6">
+                  <div>
+                    <h3 className="text-base font-bold text-white flex items-center gap-2">
+                      <span className="material-symbols-outlined text-indigo-400">summarize</span>
+                      Generate Custom ASL Quiz
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">Specify topics and we will compile a visual mock assessment.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-2">
+                      <span className="text-xs text-slate-300">Choose Target Topic</span>
+                      <select className="bg-[#080d16] border border-white/10 text-xs text-slate-300 rounded-xl p-3 outline-none">
+                        <option>Fingerspelling & Alphabet</option>
+                        <option>Conversational Syntax (Grammar)</option>
+                        <option>Numerical Vocabulary</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <span className="text-xs text-slate-300">Complexity</span>
+                      <select className="bg-[#080d16] border border-white/10 text-xs text-slate-300 rounded-xl p-3 outline-none">
+                        <option>Beginner level check</option>
+                        <option>Intermediate grammar check</option>
+                        <option>Advanced fluency check</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <button onClick={handleGenerateQuiz} className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-indigo-650/15">
+                    Generate Practice Exam
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
-      </div>
 
-      {/* Caption bar — fixed bottom */}
-      {captionsOn && <CaptionBar text={captionText} />}
+        {/* 5. ACTIVITY DASHBOARD */}
+        {activeTab === "activity" && (
+          <div className="max-w-6xl mx-auto flex flex-col gap-8 animate-fadeIn">
+            {/* Title */}
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-white mb-2">My Activity Dashboard</h1>
+              <p className="text-sm text-slate-400">Review your study records, consistent days, and learning analysis.</p>
+            </div>
+
+            {/* Graphs Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Daily activity chart (Bar chart) */}
+              <div className="lg:col-span-2 bg-[#121b2d]/30 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-4">
+                <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Weekly study minutes</h3>
+                
+                {/* SVG/CSS graph bars */}
+                <div className="flex justify-between items-end h-48 px-4 mt-6">
+                  {[
+                    { day: "Mon", min: 15, h: "25%" },
+                    { day: "Tue", min: 45, h: "75%" },
+                    { day: "Wed", min: 30, h: "50%" },
+                    { day: "Thu", min: 10, h: "15%" },
+                    { day: "Fri", min: 60, h: "100%" },
+                    { day: "Sat", min: 25, h: "40%" },
+                    { day: "Sun", min: 40, h: "65%" }
+                  ].map((bar, idx) => (
+                    <div key={idx} className="flex flex-col items-center gap-2 flex-1">
+                      <div className="relative w-8 bg-slate-900 border border-white/5 rounded-md h-36 flex items-end">
+                        <div className="w-full bg-gradient-to-t from-indigo-600 to-indigo-500 rounded-md" style={{ height: bar.h }} />
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-indigo-400 font-bold">{bar.min}m</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-semibold">{bar.day}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Learning stats summary */}
+              <div className="flex flex-col gap-6">
+                <div className="bg-[#121b2d]/30 border border-white/5 rounded-2xl p-6 flex flex-col gap-4">
+                  <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Fluency Progress</h3>
+                  <div className="flex flex-col gap-4 mt-2">
+                    {[
+                      { topic: "Fingerspelling", pct: 95, color: "bg-indigo-500" },
+                      { topic: "Greetings Dialogue", pct: 60, color: "bg-purple-500" },
+                      { topic: "Facial Inflection (Syntax)", pct: 40, color: "bg-cyan-500" }
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex flex-col gap-1.5 text-xs">
+                        <div className="flex justify-between font-semibold">
+                          <span className="text-slate-400">{item.topic}</span>
+                          <span className="text-white">{item.pct}%</span>
+                        </div>
+                        <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                          <div className={`h-full ${item.color}`} style={{ width: `${item.pct}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-[#121b2d]/30 border border-white/5 rounded-2xl p-6 flex flex-col gap-3">
+                  <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider">AI Insight</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Based on your quiz performance, practicing directional verb placements for 10 minutes on Wednesdays could boost grammar scores by 18%.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Achievements grid */}
+            <div className="flex flex-col gap-4">
+              <h2 className="text-lg font-bold text-white">Earned Badges</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {[
+                  { title: "Quick Learner", desc: "First purchase completed", icon: "verified" },
+                  { title: "Weekly Master", desc: "Maintained a 7-day streak", icon: "local_fire_department" },
+                  { title: "Fluency Starter", desc: "ASL Alphabet score 100%", icon: "school" },
+                  { title: "Tutor Pro", desc: "Used AI Tutor for 15+ queries", icon: "forum" }
+                ].map((badge, idx) => (
+                  <div key={idx} className="bg-[#121b2d]/20 border border-white/5 p-5 rounded-2xl flex flex-col items-center text-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                      <span className="material-symbols-outlined !text-2xl">{badge.icon}</span>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-200">{badge.title}</h4>
+                      <p className="text-[10px] text-slate-500 mt-1">{badge.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 6. PROFILE & CERTIFICATES */}
+        {activeTab === "profile" && (
+          <div className="max-w-4xl mx-auto flex flex-col gap-8 animate-fadeIn">
+            {/* User Bio Card */}
+            <div className="bg-[#121b2d]/30 border border-white/5 p-8 rounded-3xl flex flex-col md:flex-row items-center gap-6">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-extrabold shadow-lg">
+                VG
+              </div>
+              <div className="flex-1 flex flex-col gap-1 text-center md:text-left">
+                <h2 className="text-2xl font-bold text-white">Vrusha Goyal</h2>
+                <p className="text-sm text-slate-400">Deaf accessibility portal account · Joined June 2026</p>
+                <div className="flex justify-center md:justify-start gap-4 mt-3">
+                  <span className="text-xs bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full border border-indigo-500/20">2 Completed</span>
+                  <span className="text-xs bg-green-500/10 text-green-400 px-3 py-1 rounded-full border border-green-500/20">7-Day Streak</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Certificates Catalog */}
+            <div className="flex flex-col gap-4">
+              <h2 className="text-xl font-bold tracking-tight text-white">My Certificates</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {[
+                  { id: "cert-1", title: "American Sign Language Alphabet", date: "June 25, 2026", code: "ACC-AI-ASL-8271" },
+                  { id: "cert-2", title: "Basic ASL Sentences & Greetings", date: "June 26, 2026", code: "ACC-AI-ASL-9982" }
+                ].map(cert => (
+                  <div key={cert.id} className="bg-[#121b2d]/45 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-4">
+                    <div>
+                      <span className="text-[9px] uppercase font-bold tracking-widest text-indigo-400">Completion Certificate</span>
+                      <h3 className="text-base font-bold text-white mt-1">{cert.title}</h3>
+                      <p className="text-xs text-slate-500 mt-2">Verified Code: {cert.code} · Date: {cert.date}</p>
+                    </div>
+
+                    <div className="flex gap-2 mt-2">
+                      <button onClick={() => alert(`Downloading Certificate PDF: ${cert.code}`)} className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5">
+                        <span className="material-symbols-outlined !text-base">download</span> Download PDF
+                      </button>
+                      <button onClick={() => alert("Shared on LinkedIn")} className="py-2 px-3 bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs rounded-xl transition-all" title="Share Certificate">
+                        <span className="material-symbols-outlined !text-base">share</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 7. ACCESSIBILITY SETTINGS */}
+        {activeTab === "settings" && (
+          <div className="max-w-3xl mx-auto flex flex-col gap-8 animate-fadeIn">
+            {/* Title */}
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Accessibility Settings</h1>
+              <p className="text-sm text-slate-400">Configure visual subtitles, high-contrast, or interface settings.</p>
+            </div>
+
+            {/* Config Forms */}
+            <div className="bg-[#121b2d]/30 border border-white/5 rounded-2xl p-8 flex flex-col gap-6">
+              {/* Caption settings */}
+              <div className="flex flex-col gap-3 pb-6 border-b border-white/5">
+                <h3 className="text-sm font-bold text-slate-200">Deaf Accessibility</h3>
+                <div className="flex justify-between items-center text-xs mt-2">
+                  <span className="text-slate-400">Video Subtitle Font Size</span>
+                  <div className="flex gap-2">
+                    {["small", "medium", "large"].map(sz => (
+                      <button key={sz} onClick={() => setCaptionSize(sz)} className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize ${
+                        captionSize === sz ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                      }`}>
+                        {sz}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-xs mt-2">
+                  <span className="text-slate-400">Video Subtitle Color Backdrop</span>
+                  <div className="flex gap-2">
+                    {[
+                      { id: "black-trans", label: "Dark Trans" },
+                      { id: "yellow", label: "Yellow background" },
+                      { id: "none", label: "Transparent background" }
+                    ].map(bgOpt => (
+                      <button key={bgOpt.id} onClick={() => setCaptionBg(bgOpt.id)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+                        captionBg === bgOpt.id ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                      }`}>
+                        {bgOpt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Theme Settings */}
+              <div className="flex flex-col gap-3 pb-6 border-b border-white/5">
+                <h3 className="text-sm font-bold text-slate-200">General Interface Theme</h3>
+                <div className="flex justify-between items-center text-xs mt-2">
+                  <span className="text-slate-400">Contrast Settings</span>
+                  <div className="flex gap-2">
+                    {[
+                      { id: "dark", label: "SaaS Dark" },
+                      { id: "light", label: "Light" },
+                      { id: "high-contrast", label: "High Contrast" }
+                    ].map(themeOpt => (
+                      <button key={themeOpt.id} onClick={() => {
+                        setContrastTheme(themeOpt.id);
+                        if (themeOpt.id === "high-contrast") {
+                          setCaptionBg("yellow");
+                          setCaptionSize("large");
+                        }
+                      }} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+                        contrastTheme === themeOpt.id ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                      }`}>
+                        {themeOpt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sign PIP Settings */}
+              <div className="flex flex-col gap-3">
+                <h3 className="text-sm font-bold text-slate-200">Video PIP Interpreter</h3>
+                <div className="flex justify-between items-center text-xs mt-2">
+                  <span className="text-slate-400">Display secondary PIP Interpreter window</span>
+                  <button onClick={() => setPipInterpreter(p => !p)} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    pipInterpreter ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                  }`}>
+                    {pipInterpreter ? "Interpreter ACTIVE" : "Interpreter INACTIVE"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

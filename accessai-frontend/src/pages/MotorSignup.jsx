@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useVoiceAssistant } from "../hooks/useVoice";
 import { auth } from "../services/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import API from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import VoiceEmailInput from "../components/VoiceEmailInput";
+import { useVoiceAssistant } from "../hooks/useVoice";
 
 const DWELL_MS = 1400;
 
@@ -185,6 +186,7 @@ function parseSpokenAge(text) {
 
 export default function MotorSignup() {
   const navigate = useNavigate();
+  const { loginDemoUser, DEMO_MODE } = useAuth();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -589,6 +591,12 @@ export default function MotorSignup() {
     }
     setLoading(true);
     setError("");
+    if (DEMO_MODE) {
+      loginDemoUser("motor", email);
+      navigate("/motor");
+      setLoading(false);
+      return;
+    }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const idToken = await userCredential.user.getIdToken();
@@ -625,6 +633,14 @@ export default function MotorSignup() {
     setError("");
     const data = voiceDataRef.current;
     console.log("[MotorSignup] Voice signup email:", data.email);
+    if (DEMO_MODE) {
+      loginDemoUser("motor", data.email);
+      speakText("Congratulations. Your AccessAI account has been created successfully. Redirecting you to your dashboard.", () => {
+        navigate(`/${data.accessibilityPref || "motor"}`);
+      });
+      setLoading(false);
+      return;
+    }
     try {
       if (data.password !== data.confirmPassword) {
         throw new Error("Passwords do not match.");
@@ -659,7 +675,7 @@ export default function MotorSignup() {
     } finally {
       setLoading(false);
     }
-  }, [speakText, navigate, promptForStep]);
+  }, [speakText, navigate, promptForStep, DEMO_MODE, loginDemoUser]);
 
   const processVoiceInput = useCallback((spokenText, confidence) => {
     const text = spokenText.toLowerCase().trim();

@@ -15,7 +15,8 @@ import { VoiceAssistantProvider } from "./context/VoiceAssistantContext";
 
 // Protects /deaf /blind /motor — redirects to landing if not logged in
 function ProtectedRoute({ children, requiredMode }) {
-  const { user, disabilityType } = useAuth();
+  const { user, disabilityType, DEMO_MODE } = useAuth();
+  if (DEMO_MODE) return children;
   if (!user) return <Navigate to="/" replace />;
   if (disabilityType && disabilityType !== requiredMode) {
     return <Navigate to={`/${disabilityType}`} replace />;

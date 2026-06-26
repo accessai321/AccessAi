@@ -5,6 +5,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import API from "../services/api";
 import VoiceEmailInput from "../components/VoiceEmailInput";
 import { useVoiceAssistant } from "../hooks/useVoice";
+import { useAuth } from "../context/AuthContext";
 
 const BLIND_STEP_NONE = "NONE";
 const BLIND_STEP_EMAIL = "EMAIL";
@@ -14,6 +15,7 @@ const BLIND_STEP_PASSWORD_CONFIRM = "PASSWORD_CONFIRM";
 
 export default function BlindLogin() {
   const navigate = useNavigate();
+  const { loginDemoUser, DEMO_MODE } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -91,6 +93,14 @@ export default function BlindLogin() {
     setError("");
     const credentials = voiceDataRef.current;
     console.log("Attempting voice login for email:", credentials.email);
+    if (DEMO_MODE) {
+      loginDemoUser("blind", credentials.email);
+      speakText("Welcome back to AccessAI! Login successful.", () => {
+        navigate("/blind");
+      });
+      setLoading(false);
+      return;
+    }
     try {
       const userCredential = await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
       const idToken = await userCredential.user.getIdToken();
@@ -186,6 +196,19 @@ export default function BlindLogin() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    
+    // TEMPORARY DEMO MODE BYPASS: Navigate directly to Blind Dashboard
+    loginDemoUser("blind", email);
+    navigate("/blind");
+    setLoading(false);
+
+    /* Original Firebase Code:
+    if (DEMO_MODE) {
+      loginDemoUser("blind", email);
+      navigate("/blind");
+      setLoading(false);
+      return;
+    }
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const idToken = await userCredential.user.getIdToken();
@@ -198,6 +221,7 @@ export default function BlindLogin() {
     } finally {
       setLoading(false);
     }
+    */
   };
 
   return (
@@ -306,6 +330,51 @@ export default function BlindLogin() {
             <span>Sign In</span>
           </button>
         </form>
+
+        <div className="flex items-center my-1">
+          <div className="flex-1 border-t border-outline-variant/20"></div>
+          <span className="px-3 text-xs text-on-surface-variant font-medium">Or</span>
+          <div className="flex-1 border-t border-outline-variant/20"></div>
+        </div>
+
+        <button
+          onClick={() => {
+            speakText("Quick signing in as Aman.", async () => {
+              setLoading(true);
+              setError("");
+              
+              // TEMPORARY DEMO MODE BYPASS: Navigate directly to Blind Dashboard
+              loginDemoUser("blind", "amanhalkude7750+blind@gmail.com");
+              navigate("/blind");
+              setLoading(false);
+
+              /* Original Firebase Code:
+              if (DEMO_MODE) {
+                loginDemoUser("blind", "amanhalkude7750+blind@gmail.com");
+                navigate("/blind");
+                setLoading(false);
+                return;
+              }
+              try {
+                const userCredential = await signInWithEmailAndPassword(auth, "amanhalkude7750+blind@gmail.com", "aman123");
+                const idToken = await userCredential.user.getIdToken();
+                try {
+                  await API.post("/login", { idToken });
+                } catch {}
+                navigate("/blind");
+              } catch (err) {
+                setError(err.message || "Invalid credentials. Please try again.");
+              } finally {
+                setLoading(false);
+              }
+              */
+            });
+          }}
+          className="w-full py-3.5 bg-emerald-50 border-2 border-emerald-500 text-emerald-700 hover:bg-emerald-100 active:scale-[0.98] font-bold rounded-2xl flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer"
+        >
+          <span className="material-symbols-outlined text-base">flash_on</span>
+          <span>Quick Sign In as Aman</span>
+        </button>
 
         <div className="text-center text-xs text-on-surface-variant border-t border-outline-variant/20 pt-4 flex flex-col gap-2">
           <div>

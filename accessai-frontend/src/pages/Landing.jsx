@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useVoiceAssistant } from "../hooks/useVoice";
+import { useAuth } from "../context/AuthContext";
 
 
 const STATE_IDLE = "IDLE";
@@ -51,6 +52,7 @@ const modes = [
 export default function Landing() {
   const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
+  const { loginDemoUser, DEMO_MODE } = useAuth();
 
   const {
     registerContext,
@@ -111,6 +113,12 @@ export default function Landing() {
   const selectMode = useCallback((modeKey, playTTS = true) => {
     setSelectedWithRef(modeKey);
 
+    if (DEMO_MODE) {
+      loginDemoUser(modeKey);
+      navigate(`/${modeKey}`);
+      return;
+    }
+
     if (playTTS) {
       const modeName = modes.find(m => m.key === modeKey)?.title;
       const replyText = `${modeName} selected. Would you like to Login or Sign Up?`;
@@ -127,7 +135,7 @@ export default function Landing() {
         }, 100);
       });
     }
-  }, [speakText, resumeListening, setSelectedWithRef, stop, setAgentState]);
+  }, [speakText, resumeListening, setSelectedWithRef, stop, setAgentState, DEMO_MODE, loginDemoUser, navigate]);
 
   const selectBlindMode = useCallback(() => {
     selectMode("blind", true);
@@ -137,12 +145,15 @@ export default function Landing() {
     selectMode("motor", true);
   }, [selectMode]);
 
-
-
   const handleAuthRedirect = useCallback(() => {
     if (!selected) return;
+    if (DEMO_MODE) {
+      loginDemoUser(selected);
+      navigate(`/${selected}`);
+      return;
+    }
     navigate(`/${selected}/login`);
-  }, [selected, navigate]);
+  }, [selected, navigate, DEMO_MODE, loginDemoUser]);
 
   const openLogin = useCallback(() => {
     if (!selectedRef.current) {

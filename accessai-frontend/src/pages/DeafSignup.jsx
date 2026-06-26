@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../services/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import API from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function DeafSignup() {
   const navigate = useNavigate();
+  const { loginDemoUser, DEMO_MODE } = useAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -30,6 +32,12 @@ export default function DeafSignup() {
     }
     setLoading(true);
     setError("");
+    if (DEMO_MODE) {
+      loginDemoUser("deaf", email);
+      navigate("/deaf");
+      setLoading(false);
+      return;
+    }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const idToken = await userCredential.user.getIdToken();
