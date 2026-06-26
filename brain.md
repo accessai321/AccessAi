@@ -62,7 +62,8 @@ DBM/
     ├── app.py                       # REST application entry point & error handlers
     ├── firebase_config.py           # Firebase Admin SDK credentials and Firestore client init
     ├── requirements.txt             # Python environment dependencies
-    └── serviceAccountKey.json       # Private JSON key for Firebase Admin operations
+    ├── serviceAccountKey.json       # Private JSON key for Firebase Admin operations
+    └── vercel.json                  # Vercel Serverless configuration for backend deployment
 ```
 
 ---
