@@ -2,6 +2,12 @@ from flask import Blueprint, request, jsonify
 from firebase_admin import auth, firestore
 from firebase_config import db
 from middleware.validators import validate_register, validate_login
+from services.mode_collections import (
+    find_user_profile,
+    migrate_legacy_user_profile,
+    normalize_mode,
+    users_collection,
+)
 from datetime import datetime, timezone
 
 auth_bp = Blueprint("auth", __name__)
@@ -19,20 +25,38 @@ def register():
         if error:
             return jsonify({"error": error}), 400
 
-        user_record = auth.create_user(
-            email=data["email"].strip(),
-            password=data["password"],
+        decoded = auth.verify_id_token(data["idToken"])
+        uid = decoded["uid"]
+        email = decoded.get("email", data["email"]).strip()
+
+        auth.update_user(
+            uid,
             display_name=data["name"].strip(),
         )
 
-        db.collection("users").document(user_record.uid).set({
-            "name":           data["name"].strip(),
-            "email":          data["email"].strip(),
-            "disabilityType": data["disabilityType"].strip(),
-            "createdAt":      datetime.now(timezone.utc).isoformat(),
-        })
+        disability_type = normalize_mode(data["disabilityType"])
 
-        return jsonify({"message": "User registered"}), 201
+        user_data = {
+            "name":           data["name"].strip(),
+            "email":          email,
+            "disabilityType": disability_type,
+            "createdAt":      datetime.now(timezone.utc).isoformat(),
+        }
+        if "firstName" in data:
+            user_data["firstName"] = data["firstName"].strip()
+        if "lastName" in data:
+            user_data["lastName"] = data["lastName"].strip()
+        if "phone" in data:
+            user_data["phone"] = data["phone"].strip()
+        if "age" in data:
+            user_data["age"] = data["age"]
+        if "gender" in data:
+            user_data["gender"] = data["gender"].strip()
+
+        auth.set_custom_user_claims(uid, {"disabilityType": disability_type})
+        users_collection(db, disability_type).document(uid).set(user_data)
+
+        return jsonify({"message": "User registered", "uid": uid}), 201
 
     except auth.EmailAlreadyExistsError:
         return jsonify({"error": "Email already in use"}), 409
@@ -56,8 +80,11 @@ def login():
         uid      = decoded["uid"]
         email    = decoded.get("email", "")
 
-        user_doc = db.collection("users").document(uid).get()
-        profile  = user_doc.to_dict() if user_doc.exists else {}
+        migrate_legacy_user_profile(db, uid)
+        mode, user_doc = find_user_profile(db, uid)
+        profile = user_doc.to_dict() if user_doc and user_doc.exists else {}
+        if profile and mode:
+            profile["disabilityType"] = mode
 
         return jsonify({
             "message": "Login successful",

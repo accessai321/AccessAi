@@ -3,6 +3,12 @@ from firebase_admin import auth
 from firebase_config import db
 from middleware.auth_middleware import token_required
 from middleware.validators import validate_user_update
+from services.mode_collections import (
+    find_user_profile,
+    migrate_legacy_user_profile,
+    normalize_mode,
+    users_collection,
+)
 from datetime import datetime, timezone
 
 users_bp = Blueprint("users", __name__)
@@ -17,8 +23,9 @@ def get_user(user_id):
         if g.uid != user_id:
             return jsonify({"error": "Unauthorized"}), 403
 
-        doc = db.collection("users").document(user_id).get()
-        if not doc.exists:
+        migrate_legacy_user_profile(db, user_id)
+        mode, doc = find_user_profile(db, user_id)
+        if not doc or not doc.exists:
             return jsonify({"error": "User not found"}), 404
 
         return jsonify({"user": {"uid": doc.id, **doc.to_dict()}}), 200
@@ -43,15 +50,26 @@ def update_user(user_id):
         if error:
             return jsonify({"error": error}), 400
 
-        doc = db.collection("users").document(user_id).get()
-        if not doc.exists:
+        migrate_legacy_user_profile(db, user_id)
+        current_mode, doc = find_user_profile(db, user_id)
+        if not doc or not doc.exists:
             return jsonify({"error": "User not found"}), 404
 
         allowed = {"name", "disabilityType"}
         updates = {k: v for k, v in data.items() if k in allowed}
+        if "disabilityType" in updates:
+            updates["disabilityType"] = normalize_mode(updates["disabilityType"])
         updates["updatedAt"] = datetime.now(timezone.utc).isoformat()
 
-        db.collection("users").document(user_id).update(updates)
+        next_mode = updates.get("disabilityType", current_mode)
+        if next_mode != current_mode:
+            user_data = doc.to_dict()
+            user_data.update(updates)
+            users_collection(db, next_mode).document(user_id).set(user_data)
+            users_collection(db, current_mode).document(user_id).delete()
+            auth.set_custom_user_claims(user_id, {"disabilityType": next_mode})
+        else:
+            users_collection(db, current_mode).document(user_id).update(updates)
 
         if "name" in updates:
             auth.update_user(user_id, display_name=updates["name"])
@@ -72,11 +90,12 @@ def delete_user(user_id):
         if g.uid != user_id:
             return jsonify({"error": "Unauthorized"}), 403
 
-        doc = db.collection("users").document(user_id).get()
-        if not doc.exists:
+        migrate_legacy_user_profile(db, user_id)
+        mode, doc = find_user_profile(db, user_id)
+        if not doc or not doc.exists:
             return jsonify({"error": "User not found"}), 404
 
-        db.collection("users").document(user_id).delete()
+        users_collection(db, mode).document(user_id).delete()
         auth.delete_user(user_id)
 
         return jsonify({"message": "User deleted successfully"}), 200

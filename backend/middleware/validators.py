@@ -1,5 +1,7 @@
 import re
 
+from services.mode_collections import ALLOWED_MODES
+
 
 # ── Validators ─────────────────────────────────────────────────────────────────
 
@@ -21,7 +23,7 @@ def validate_completion(value) -> bool:
 
 def validate_register(data: dict) -> str | None:
     """Returns an error message string, or None if valid."""
-    required = ["name", "email", "password", "disabilityType"]
+    required = ["name", "email", "idToken", "disabilityType"]
     for field in required:
         if not data.get(field):
             return f"'{field}' is required"
@@ -29,11 +31,11 @@ def validate_register(data: dict) -> str | None:
     if not validate_email(data["email"]):
         return "Invalid email format"
 
-    if not validate_password(data["password"]):
-        return "Password must be at least 6 characters"
-
     if len(data["name"].strip()) < 2:
         return "Name must be at least 2 characters"
+
+    if str(data["disabilityType"]).strip().lower() not in ALLOWED_MODES:
+        return f"'disabilityType' must be one of: {', '.join(sorted(ALLOWED_MODES))}"
 
     return None
 
@@ -87,5 +89,8 @@ def validate_user_update(data: dict) -> str | None:
 
     if "name" in updates and len(str(updates["name"]).strip()) < 2:
         return "Name must be at least 2 characters"
+
+    if "disabilityType" in updates and str(updates["disabilityType"]).strip().lower() not in ALLOWED_MODES:
+        return f"'disabilityType' must be one of: {', '.join(sorted(ALLOWED_MODES))}"
 
     return None
