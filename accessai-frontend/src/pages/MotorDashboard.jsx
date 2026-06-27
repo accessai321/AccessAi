@@ -212,24 +212,24 @@ function DwellButton({ label, sublabel, icon, onClick, active = false, color = "
   };
 
   const ringColorMap = {
-    indigo: "border-indigo-500/40 hover:border-indigo-400 bg-indigo-550/10 text-indigo-300",
-    cyan: "border-cyan-500/40 hover:border-cyan-400 bg-cyan-550/10 text-cyan-300",
-    green: "border-green-500/40 hover:border-green-400 bg-green-550/10 text-green-300",
-    red: "border-red-500/40 hover:border-red-400 bg-red-550/10 text-red-300"
+    indigo: "border-indigo-100 hover:border-indigo-400 bg-indigo-50/50 text-indigo-700",
+    cyan: "border-cyan-100 hover:border-cyan-400 bg-cyan-50/50 text-cyan-700",
+    green: "border-green-100 hover:border-green-400 bg-green-50/50 text-green-700",
+    red: "border-red-100 hover:border-red-400 bg-red-50/50 text-red-700"
   };
 
   const activeColorMap = {
-    indigo: "bg-indigo-600 text-white border-indigo-400 shadow-lg shadow-indigo-600/15",
-    cyan: "bg-cyan-600 text-white border-cyan-400 shadow-lg shadow-cyan-600/15",
-    green: "bg-green-600 text-white border-green-400 shadow-lg shadow-green-600/15",
-    red: "bg-red-600 text-white border-red-400 shadow-lg shadow-red-600/15"
+    indigo: "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/10",
+    cyan: "bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-600/10",
+    green: "bg-green-600 text-white border-green-600 shadow-md shadow-green-600/10",
+    red: "bg-red-600 text-white border-red-600 shadow-md shadow-red-600/10"
   };
 
   const overlayMap = {
-    indigo: "bg-indigo-500/20",
-    cyan: "bg-cyan-500/20",
-    green: "bg-green-500/20",
-    red: "bg-red-500/20"
+    indigo: "bg-indigo-600/10",
+    cyan: "bg-cyan-600/10",
+    green: "bg-green-600/10",
+    red: "bg-red-600/10"
   };
 
   return (
@@ -242,10 +242,10 @@ function DwellButton({ label, sublabel, icon, onClick, active = false, color = "
       data-switchable
       className={`w-full flex flex-col items-center justify-center gap-2 rounded-2xl border-2 transition-all duration-200 outline-none text-left relative overflow-hidden select-none ${
         disabled 
-          ? "bg-slate-900/20 border-slate-800 text-slate-600 cursor-not-allowed" 
+          ? "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed" 
           : active 
             ? activeColorMap[color] 
-            : `bg-slate-900/50 backdrop-blur border-slate-800 text-slate-300 hover:text-white ${ringColorMap[color]}`
+            : `bg-white border-slate-100 text-slate-700 hover:text-slate-900 ${ringColorMap[color]}`
       } ${isLarge ? "py-6 px-5 min-h-[120px]" : "py-4 px-4 min-h-[80px]"}`}
     >
       {/* Visual dwell progress */}
@@ -279,6 +279,16 @@ function DwellButton({ label, sublabel, icon, onClick, active = false, color = "
 export default function MotorDashboard() {
   const { user, logout, DEMO_MODE } = useAuth();
   const { speak, stop, speaking } = useTTS();
+
+  // UI Theme Config (Light theme optimized for motor mode readability)
+  const bgClass = "bg-[#f8fafc] text-slate-800";
+  const sidebarClass = "bg-slate-50 border-slate-200 text-slate-800 border-r";
+  const cardClass = "bg-white border border-slate-200 shadow-sm text-slate-700";
+  const innerCardClass = "bg-slate-50 border border-slate-200/60";
+  const textTitleClass = "text-slate-900";
+  const textSubtitleClass = "text-slate-500";
+  const borderClass = "border-slate-200";
+  const inputClass = "bg-white border border-slate-300 text-slate-900";
 
   // Dashboard state tabs
   const [activeTab, setActiveTab] = useState("home"); // home, courses, my-learning, ai-tutor, activity, profile, settings
@@ -465,7 +475,7 @@ export default function MotorDashboard() {
   return (
     <div 
       ref={containerRef}
-      className={`min-h-screen bg-[#090d16] text-[#e2e8f0] font-sans flex relative overflow-hidden ${
+      className={`min-h-screen ${bgClass} font-sans flex relative overflow-hidden ${
         fontSize === "x-large" ? "text-lg" : fontSize === "large" ? "text-base" : "text-sm"
       }`}
     >
@@ -486,7 +496,7 @@ export default function MotorDashboard() {
       )}
 
       {/* ── LEFT SIDEBAR: LARGE ACCESSIBLE TARGETS ── */}
-      <aside className="w-80 border-r border-white/5 flex flex-col justify-between sticky top-0 h-screen z-50 backdrop-blur-xl bg-[#0a0f1d]/75">
+      <aside className={`w-80 flex flex-col justify-between sticky top-0 h-screen z-50 backdrop-blur-xl ${sidebarClass}`}>
         <div className="p-6 flex flex-col gap-8">
           {/* Logo & Mode pill */}
           <div 
@@ -494,7 +504,7 @@ export default function MotorDashboard() {
             className="flex flex-col gap-2 cursor-pointer"
           >
             <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">AccessAI</span>
-            <span className="self-start text-[10px] font-bold uppercase tracking-wider bg-cyan-500/10 text-cyan-300 border border-cyan-500/25 px-3 py-1 rounded-full flex items-center gap-1.5">
+            <span className="self-start text-[10px] font-bold uppercase tracking-wider bg-cyan-500/10 text-cyan-700 border border-cyan-500/25 px-3 py-1 rounded-full flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
               Motor Mode
             </span>
@@ -532,7 +542,7 @@ export default function MotorDashboard() {
         </div>
 
         {/* Footer profile & logout */}
-        <div className="p-6 border-t border-white/5 flex flex-col gap-4">
+        <div className={`p-6 border-t ${borderClass} flex flex-col gap-4`}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center font-bold text-white text-sm">
               AH
@@ -559,21 +569,21 @@ export default function MotorDashboard() {
       <main className="flex-1 min-h-screen overflow-y-auto p-8 relative z-10 flex flex-col gap-6">
         
         {/* Top Navbar Status indicators */}
-        <div className="flex justify-between items-center bg-[#121b2d]/35 border border-white/5 p-4 rounded-2xl backdrop-blur-md">
+        <div className={`flex justify-between items-center ${cardClass} p-4 rounded-2xl`}>
           <div className="flex gap-4 items-center">
             {voiceActive && listening && (
-              <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-bold">
+              <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 px-3 py-1.5 rounded-xl text-xs font-bold">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 Mic Listening
               </div>
             )}
             {eyeTrackingState === "calibrated" ? (
-              <div className="flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 px-3 py-1.5 rounded-xl text-xs font-bold">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              <div className="flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 px-3 py-1.5 rounded-xl text-xs font-bold">
+                <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
                 Eye Tracker Calibrated
               </div>
             ) : (
-              <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-3 py-1.5 rounded-xl text-xs font-bold">
+              <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 px-3 py-1.5 rounded-xl text-xs font-bold">
                 Eye Tracker Disconnected
               </div>
             )}
@@ -583,7 +593,7 @@ export default function MotorDashboard() {
             <button
               onClick={() => setVoiceActive(v => !v)}
               className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${
-                voiceActive ? "bg-cyan-600 border-cyan-500 text-white" : "bg-slate-900 border-white/5 text-slate-400"
+                voiceActive ? "bg-cyan-600 border-cyan-500 text-white" : "bg-slate-100 border-slate-200 text-slate-500"
               }`}
             >
               {voiceActive ? "Voice Assistant: ON" : "Voice Assistant: OFF"}
@@ -591,7 +601,7 @@ export default function MotorDashboard() {
             <button
               onClick={() => setDwellEnabled(d => !d)}
               className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${
-                dwellEnabled ? "bg-cyan-600 border-cyan-500 text-white" : "bg-slate-900 border-white/5 text-slate-400"
+                dwellEnabled ? "bg-cyan-600 border-cyan-500 text-white" : "bg-slate-100 border-slate-200 text-slate-500"
               }`}
             >
               {dwellEnabled ? "Dwell Clicks: ON" : "Dwell Clicks: OFF"}
@@ -600,7 +610,7 @@ export default function MotorDashboard() {
         </div>
 
         {voiceActive && transcript && (
-          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl text-xs font-semibold">
+          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 p-4 rounded-xl text-xs font-semibold">
             Heard Command: "{transcript}"
           </div>
         )}
@@ -609,20 +619,20 @@ export default function MotorDashboard() {
         {activeTab === "home" && !selectedCourse && !activeCoursePlay && (
           <div className="flex flex-col gap-8 animate-fadeIn">
             {/* Greeting card banner */}
-            <div className="bg-gradient-to-r from-cyan-950/40 to-indigo-950/20 border border-white/5 p-8 rounded-3xl backdrop-blur relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="bg-gradient-to-r from-cyan-50 to-indigo-50 border border-slate-200 p-8 rounded-3xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm">
               <div className="flex flex-col gap-2 max-w-xl">
-                <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-350 bg-clip-text text-transparent">Welcome, Aman!</h1>
-                <p className="text-slate-300 text-sm leading-relaxed">
+                <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Welcome, Aman!</h1>
+                <p className="text-slate-600 text-sm leading-relaxed">
                   Start your lessons effortlessly. Every element reacts when you rest your gaze or hover. Need help? Say "help" to activate speech controls.
                 </p>
               </div>
               <div className="flex gap-4">
-                <div className="bg-slate-900/60 border border-white/5 px-6 py-4 rounded-2xl flex flex-col items-center">
-                  <span className="text-2xl font-bold text-yellow-400">7🔥</span>
+                <div className="bg-white border border-slate-200 px-6 py-4 rounded-2xl flex flex-col items-center shadow-sm">
+                  <span className="text-2xl font-bold text-yellow-600">7🔥</span>
                   <span className="text-[10px] text-slate-500 font-bold uppercase mt-1">Study Streak</span>
                 </div>
-                <div className="bg-slate-900/60 border border-white/5 px-6 py-4 rounded-2xl flex flex-col items-center">
-                  <span className="text-2xl font-bold text-cyan-400">25m</span>
+                <div className="bg-white border border-slate-200 px-6 py-4 rounded-2xl flex flex-col items-center shadow-sm">
+                  <span className="text-2xl font-bold text-cyan-600">25m</span>
                   <span className="text-[10px] text-slate-500 font-bold uppercase mt-1">Today</span>
                 </div>
               </div>
@@ -630,40 +640,40 @@ export default function MotorDashboard() {
 
             {/* Quick Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-3">
+              <div className={`p-6 rounded-2xl flex flex-col gap-3 ${cardClass}`}>
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                  <span className="material-symbols-outlined text-cyan-400">workspace_premium</span>
+                  <span className="material-symbols-outlined text-cyan-600">workspace_premium</span>
                   Daily Progress
                 </h3>
-                <div className="flex justify-between text-xs font-bold text-slate-200">
+                <div className="flex justify-between text-xs font-bold text-slate-700">
                   <span>Goal: 30 minutes</span>
                   <span>83%</span>
                 </div>
-                <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                   <div className="h-full bg-cyan-500" style={{ width: "83%" }} />
                 </div>
               </div>
 
-              <div className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-3">
+              <div className={`p-6 rounded-2xl flex flex-col gap-3 ${cardClass}`}>
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                  <span className="material-symbols-outlined text-green-400">task_alt</span>
+                  <span className="material-symbols-outlined text-green-600">task_alt</span>
                   Course Progress
                 </h3>
-                <div className="flex justify-between text-xs font-bold text-slate-200">
+                <div className="flex justify-between text-xs font-bold text-slate-700">
                   <span>2 Owned Courses</span>
                   <span>50% average</span>
                 </div>
-                <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                   <div className="h-full bg-green-500" style={{ width: "50%" }} />
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-indigo-950/40 to-slate-950/30 border border-indigo-500/10 p-6 rounded-2xl flex flex-col justify-between gap-4">
+              <div className={`p-6 rounded-2xl flex flex-col justify-between gap-4 ${cardClass}`}>
                 <div>
-                  <h4 className="text-xs font-bold text-indigo-400 uppercase flex items-center gap-1.5">
+                  <h4 className="text-xs font-bold text-indigo-600 uppercase flex items-center gap-1.5">
                     <span className="material-symbols-outlined !text-base">smart_toy</span> AI Tutor Help
                   </h4>
-                  <p className="text-[11px] text-slate-400 mt-1">Generate a quiz verbally or upload code.</p>
+                  <p className="text-[11px] text-slate-500 mt-1">Generate a quiz verbally or upload code.</p>
                 </div>
                 <DwellButton
                   label="Launch AI Tutor"
@@ -682,18 +692,18 @@ export default function MotorDashboard() {
                 {courses.filter(c => purchasedIds.includes(c.id)).map(course => {
                   const pct = progress[course.id]?.completion || 0;
                   return (
-                    <div key={course.id} className="bg-slate-900/40 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-6">
+                    <div key={course.id} className={`p-6 rounded-2xl flex flex-col justify-between gap-6 ${cardClass}`}>
                       <div>
-                        <span className="text-[9px] uppercase font-bold px-2 py-0.5 bg-cyan-500/10 text-cyan-300 rounded border border-cyan-500/20">{course.level}</span>
-                        <h3 className="text-base font-bold mt-2">{course.title}</h3>
-                        <p className="text-xs text-slate-400 mt-1 line-clamp-2">{course.description}</p>
+                        <span className="text-[9px] uppercase font-bold px-2 py-0.5 bg-cyan-500/10 text-cyan-700 rounded border border-cyan-500/20">{course.level}</span>
+                        <h3 className="text-base font-bold mt-2 text-slate-900">{course.title}</h3>
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-2">{course.description}</p>
                       </div>
                       <div>
                         <div className="flex justify-between text-xs mb-1.5">
                           <span className="text-slate-500">Completion</span>
-                          <span className="text-cyan-400 font-bold">{pct}%</span>
+                          <span className="text-cyan-600 font-bold">{pct}%</span>
                         </div>
-                        <div className="h-2 bg-slate-800 rounded-full overflow-hidden mb-4">
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
                           <div className="h-full bg-cyan-500" style={{ width: `${pct}%` }} />
                         </div>
                         <DwellButton
@@ -712,43 +722,43 @@ export default function MotorDashboard() {
 
             {/* Recommendations & Calibration section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-slate-900/30 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
-                <h3 className="text-sm font-bold">Recommended for you</h3>
+              <div className={`p-6 rounded-2xl flex flex-col gap-4 ${cardClass}`}>
+                <h3 className="text-sm font-bold text-slate-900">Recommended for you</h3>
                 <div className="flex flex-col gap-3">
                   {courses.filter(c => !purchasedIds.includes(c.id)).slice(0, 2).map(course => (
                     <div 
                       key={course.id}
                       onClick={() => setSelectedCourse(course)}
-                      className="p-3 bg-slate-900/60 hover:bg-slate-850 border border-white/5 hover:border-cyan-500/25 rounded-xl flex justify-between items-center cursor-pointer transition-all"
+                      className="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-cyan-500 rounded-xl flex justify-between items-center cursor-pointer transition-all shadow-sm text-slate-800"
                     >
                       <div>
                         <h4 className="text-xs font-bold line-clamp-1">{course.title}</h4>
                         <p className="text-[10px] text-slate-500 mt-0.5">{course.instructor} · {course.duration}</p>
                       </div>
-                      <span className="material-symbols-outlined text-cyan-400">arrow_forward</span>
+                      <span className="material-symbols-outlined text-cyan-600">arrow_forward</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Calibration card helper */}
-              <div className="bg-slate-900/30 border border-white/5 p-6 rounded-2xl flex flex-col justify-between gap-4">
+              <div className={`p-6 rounded-2xl flex flex-col justify-between gap-4 ${cardClass}`}>
                 <div>
-                  <h3 className="text-sm font-bold flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-cyan-400">face</span> Eye Tracking Simulation
+                  <h3 className="text-sm font-bold flex items-center gap-1.5 text-slate-900">
+                    <span className="material-symbols-outlined text-cyan-600">face</span> Eye Tracking Simulation
                   </h3>
-                  <p className="text-xs text-slate-400 mt-2">
+                  <p className="text-xs text-slate-500 mt-2">
                     Simulate eye tracking calibration. Clicking starts eye tracking overlays.
                   </p>
                 </div>
 
                 {eyeTrackingState === "calibrating" ? (
                   <div className="flex flex-col gap-2">
-                    <div className="flex justify-between text-xs">
+                    <div className="flex justify-between text-xs text-slate-600">
                       <span>Calibrating gaze metrics...</span>
                       <span>{calibrationProgress}%</span>
                     </div>
-                    <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                       <div className="h-full bg-cyan-500" style={{ width: `${calibrationProgress}%` }} />
                     </div>
                   </div>
@@ -770,12 +780,12 @@ export default function MotorDashboard() {
         {activeTab === "courses" && !selectedCourse && !activeCoursePlay && (
           <div className="flex flex-col gap-8 animate-fadeIn">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Explore Course Catalog</h1>
-              <p className="text-xs text-slate-400">Oversized dwell cards enable easy course discovery and enrollment.</p>
+              <h1 className={`text-2xl font-bold tracking-tight ${textTitleClass}`}>Explore Course Catalog</h1>
+              <p className="text-xs text-slate-500">Oversized dwell cards enable easy course discovery and enrollment.</p>
             </div>
 
             {/* Categories filter boxes - NOT small dropdowns */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-900/30 border border-white/5 p-4 rounded-2xl">
+            <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 ${innerCardClass} p-4 rounded-2xl`}>
               {[
                 { id: "all", label: "📚 All Classes" },
                 { id: "programming", label: "💻 Python & Java" },
@@ -795,14 +805,14 @@ export default function MotorDashboard() {
             </div>
 
             {/* Search target */}
-            <div className="bg-slate-900/40 border border-white/5 p-4 rounded-xl flex items-center gap-3">
-              <span className="material-symbols-outlined text-slate-500">search</span>
+            <div className={`p-4 rounded-xl flex items-center gap-3 ${cardClass}`}>
+              <span className="material-symbols-outlined text-slate-550">search</span>
               <input 
                 type="text" 
                 placeholder="Search courses..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="flex-1 bg-transparent text-sm outline-none border-none placeholder-slate-500"
+                className="flex-1 bg-transparent text-sm outline-none border-none text-slate-800 placeholder-slate-400"
               />
             </div>
 
@@ -813,18 +823,18 @@ export default function MotorDashboard() {
                 return (
                   <div 
                     key={course.id}
-                    className="bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden hover:border-cyan-500/25 transition-all flex flex-col justify-between"
+                    className={`rounded-2xl overflow-hidden hover:border-cyan-500 transition-all flex flex-col justify-between ${cardClass}`}
                   >
                     <div className="p-6 flex flex-col gap-3">
-                      <span className="self-start text-[9px] uppercase font-bold px-2 py-0.5 bg-indigo-500/15 text-indigo-300 rounded border border-indigo-500/20">{course.badge}</span>
-                      <h3 className="text-base font-bold leading-snug">{course.title}</h3>
-                      <p className="text-xs text-slate-400 line-clamp-2">{course.description}</p>
-                      <div className="flex justify-between text-[10px] font-bold text-slate-500 pt-2 border-t border-white/5">
+                      <span className="self-start text-[9px] uppercase font-bold px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded border border-indigo-100">{course.badge}</span>
+                      <h3 className="text-base font-bold leading-snug text-slate-900">{course.title}</h3>
+                      <p className="text-xs text-slate-500 line-clamp-2">{course.description}</p>
+                      <div className="flex justify-between text-[10px] font-bold text-slate-500 pt-2 border-t border-slate-100">
                         <span>Lvl: {course.level}</span>
                         <span>Rating: ⭐ {course.rating}</span>
                       </div>
                     </div>
-                    <div className="p-6 bg-slate-955/20 border-t border-white/5 flex flex-col gap-2">
+                    <div className={`p-6 border-t ${borderClass} flex flex-col gap-2`}>
                       <DwellButton
                         label="View Syllabus Details"
                         color="cyan"

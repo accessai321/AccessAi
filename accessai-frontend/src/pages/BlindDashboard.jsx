@@ -297,7 +297,7 @@ export default function BlindDashboard() {
 
   return (
     <div 
-      className={`min-h-screen bg-[#050810] text-[#f1f5f9] font-sans flex relative ${
+      className={`min-h-screen bg-white text-slate-900 font-sans flex relative ${
         fontSize === "xxl" ? "text-lg" : "text-base"
       }`}
     >
@@ -313,9 +313,7 @@ export default function BlindDashboard() {
       <aside 
         role="navigation"
         aria-label="Sidebar navigation"
-        className={`w-80 flex flex-col justify-between sticky top-0 h-screen z-50 backdrop-blur-xl border-r ${
-          contrastTheme === "high-contrast" ? "bg-black border-[#fbbf24]" : "bg-[#090d16]/95 border-white/5"
-        }`}
+        className="w-80 flex flex-col justify-between sticky top-0 h-screen z-50 bg-slate-50 border-r border-slate-200 text-slate-900"
       >
         <div className="p-6 flex flex-col gap-6">
           <div 
@@ -325,8 +323,8 @@ export default function BlindDashboard() {
             aria-label="AccessAI Blind Mode logo. Link to Home."
             onFocus={() => speak("AccessAI home logo link.")}
           >
-            <span className="text-2xl font-black text-[#fbbf24] tracking-tight">AccessAI</span>
-            <span className="self-start text-[10px] font-black uppercase tracking-widest bg-yellow-400/20 text-[#fbbf24] border border-[#fbbf24]/50 px-2.5 py-0.5 rounded-full">
+            <span className="text-2xl font-black text-slate-900 tracking-tight">AccessAI</span>
+            <span className="self-start text-[10px] font-black uppercase tracking-widest bg-yellow-400/20 text-yellow-700 border border-yellow-500/50 px-2.5 py-0.5 rounded-full">
               BLIND MODE
             </span>
           </div>
@@ -347,10 +345,10 @@ export default function BlindDashboard() {
                 onFocus={() => speak(`${tab.label}. ${tab.desc}`)}
                 aria-label={`${tab.label}. ${tab.desc}`}
                 aria-pressed={activeTab === tab.id}
-                className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl text-left text-sm font-black transition-all ${
+                className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl text-left text-sm font-black transition-all border-2 ${
                   activeTab === tab.id 
-                    ? "bg-[#fbbf24] text-black border-[#fbbf24] shadow-xl" 
-                    : "text-slate-300 hover:text-white border-2 border-transparent hover:border-yellow-400 bg-slate-900/60"
+                    ? "bg-[#fbbf24] text-black border-[#fbbf24] shadow-md" 
+                    : "text-slate-700 hover:text-black border-transparent hover:border-yellow-500 bg-slate-200/50"
                 }`}
               >
                 <span className="material-symbols-outlined !text-xl">{tab.icon}</span>
@@ -360,21 +358,21 @@ export default function BlindDashboard() {
           </nav>
         </div>
 
-        <div className="p-6 border-t border-white/10 flex flex-col gap-3">
+        <div className="p-6 border-t border-slate-200 flex flex-col gap-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#fbbf24] text-black flex items-center justify-center font-black text-sm">
               AH
             </div>
             <div>
-              <p className="text-xs font-bold text-[#fbbf24]">Aman Halkude</p>
-              <p className="text-[10px] text-slate-400">Audio Navigator</p>
+              <p className="text-xs font-bold text-slate-800">Aman Halkude</p>
+              <p className="text-[10px] text-slate-500">Audio Navigator</p>
             </div>
           </div>
           <button
             onClick={logout}
             onFocus={() => speak("Sign Out button. Press enter to log out.")}
             aria-label="Sign Out"
-            className="w-full py-3 bg-red-950 border border-red-500/50 hover:bg-red-900 text-red-300 font-bold rounded-xl text-center text-xs"
+            className="w-full py-3 bg-red-50 border border-red-200 hover:bg-red-100 text-red-700 font-bold rounded-xl text-center text-xs"
           >
             Sign Out
           </button>
@@ -385,15 +383,15 @@ export default function BlindDashboard() {
       <main className="flex-1 min-h-screen overflow-y-auto p-8 relative flex flex-col gap-6">
         
         {/* Status indicator banner */}
-        <div className="flex justify-between items-center bg-black border-2 border-[#fbbf24]/50 p-4 rounded-xl">
+        <div className="flex justify-between items-center bg-slate-50 border-2 border-slate-200 p-4 rounded-xl text-slate-800 shadow-sm">
           <div className="flex gap-4 items-center">
             {voiceActive && listening && (
-              <div className="flex items-center gap-2 text-[#fbbf24] text-xs font-black uppercase">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#fbbf24] animate-ping" />
+              <div className="flex items-center gap-2 text-amber-700 text-xs font-black uppercase">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-600 animate-ping" />
                 Mic Enabled
               </div>
             )}
-            <span className="text-xs font-bold text-slate-400">TTS Audio Feedback: ACTIVE</span>
+            <span className="text-xs font-bold text-slate-550">TTS Audio Feedback: ACTIVE</span>
           </div>
 
           <div className="flex gap-2">
@@ -404,7 +402,7 @@ export default function BlindDashboard() {
               }}
               onFocus={() => speak("Voice Assistant toggle button.")}
               className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all ${
-                voiceActive ? "bg-[#fbbf24] text-black border-[#fbbf24]" : "bg-slate-900 text-slate-400 border-white/5"
+                voiceActive ? "bg-[#fbbf24] text-black border-[#fbbf24]" : "bg-slate-100 text-slate-500 border-slate-200"
               }`}
             >
               Voice: {voiceActive ? "ON" : "OFF"}
@@ -416,7 +414,7 @@ export default function BlindDashboard() {
                 speak(`Theme updated to ${nextT === "high-contrast" ? "high contrast yellow" : "standard dark mode"}.`);
               }}
               onFocus={() => speak("Contrast theme selector.")}
-              className="px-4 py-2 text-xs font-bold rounded-lg bg-slate-900 border border-white/10 text-slate-300"
+              className="px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 border border-slate-200 text-slate-700"
             >
               Toggle Contrast Theme
             </button>
@@ -424,7 +422,7 @@ export default function BlindDashboard() {
         </div>
 
         {voiceActive && transcript && (
-          <div className="bg-emerald-950/40 border border-emerald-500 text-emerald-400 p-4 rounded-xl text-xs font-bold">
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 p-4 rounded-xl text-xs font-bold shadow-sm">
             Voice Heard: "{transcript}"
           </div>
         )}
@@ -433,16 +431,16 @@ export default function BlindDashboard() {
         {activeTab === "home" && !selectedCourse && !activeCoursePlay && (
           <div className="flex flex-col gap-6 animate-fadeIn">
             {/* Header welcome */}
-            <div className="bg-slate-950 border-2 border-[#fbbf24] p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="bg-slate-50 border-2 border-[#fbbf24] p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm">
               <div className="flex flex-col gap-2 max-w-xl">
-                <h1 className="text-3xl font-black text-[#fbbf24]" tabIndex={0} onFocus={() => speak("Welcome back, Aman. Get ready to expand your auditory and sign library.")}>Hello, Aman!</h1>
-                <p className="text-slate-300 text-sm leading-relaxed">
+                <h1 className="text-3xl font-black text-slate-900" tabIndex={0} onFocus={() => speak("Welcome back, Aman. Get ready to expand your auditory and sign library.")}>Hello, Aman!</h1>
+                <p className="text-slate-600 text-sm leading-relaxed">
                   Every element announces details on focus. Use your keyboard TAB/SHIFT-TAB keys to jump inputs, or dictate navigation using speech.
                 </p>
               </div>
               <div className="flex gap-4">
-                <div className="bg-slate-900 border border-[#fbbf24]/50 px-5 py-3 rounded-2xl flex flex-col items-center">
-                  <span className="text-2xl font-bold text-yellow-400">7🔥</span>
+                <div className="bg-white border border-[#fbbf24]/50 px-5 py-3 rounded-2xl flex flex-col items-center shadow-sm">
+                  <span className="text-2xl font-bold text-yellow-600">7🔥</span>
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Streak</span>
                 </div>
               </div>
