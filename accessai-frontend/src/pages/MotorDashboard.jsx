@@ -159,11 +159,29 @@ function useVoiceCommands(commands, active) {
   useEffect(() => {
     const unregister = registerContext(contextIdRef.current, (spokenText) => {
       setTranscript(spokenText);
-      const text = spokenText.toLowerCase().trim();
+      let text = spokenText.toLowerCase().trim();
+      
+      const fillers = ["take me to", "navigate to", "go to", "open", "show", "my", "the"];
+      fillers.forEach(f => {
+        text = text.replace(new RegExp(`\\b${f}\\b`, "g"), "").trim();
+      });
+
+      let matched = false;
       for (const [pattern, handler] of Object.entries(commandsRef.current)) {
         if (text.includes(pattern)) {
           handler(spokenText);
+          matched = true;
           break;
+        }
+      }
+      
+      if (!matched) {
+        const originalText = spokenText.toLowerCase().trim();
+        for (const [pattern, handler] of Object.entries(commandsRef.current)) {
+          if (originalText.includes(pattern)) {
+            handler(spokenText);
+            break;
+          }
         }
       }
     }, active);
@@ -471,19 +489,21 @@ export default function MotorDashboard() {
 
   // Global voice shortcuts
   const { listening, transcript } = useVoiceCommands({
-    "go to home": () => { navigate("/motor"); speak("Navigating to Home Dashboard."); },
-    "go to courses": () => { navigate("/motor/courses"); speak("Navigating to Courses."); },
-    "go to learning": () => { navigate("/motor/my-learning"); speak("Navigating to Enrolled Courses."); },
-    "go to tutor": () => { navigate("/motor/ai-tutor"); speak("Navigating to AI Tutor."); },
-    "go to activity": () => { navigate("/motor/activity"); speak("Navigating to Activity Dashboard."); },
-    "go to profile": () => { navigate("/motor/profile"); speak("Navigating to Profile."); },
-    "go to settings": () => { navigate("/motor/settings"); speak("Navigating to Accessibility Settings."); },
+    "home": () => { navigate("/motor"); speak("Navigating to Home Dashboard."); },
+    "course": () => { navigate("/motor/courses"); speak("Navigating to Courses."); },
+    "library": () => { navigate("/motor/courses"); speak("Navigating to Courses."); },
+    "learning": () => { navigate("/motor/my-learning"); speak("Navigating to Enrolled Courses."); },
+    "tutor": () => { navigate("/motor/ai-tutor"); speak("Navigating to AI Tutor."); },
+    "activity": () => { navigate("/motor/activity"); speak("Navigating to Activity Dashboard."); },
+    "certificate": () => { navigate("/motor/profile"); speak("Navigating to Profile."); },
+    "profile": () => { navigate("/motor/profile"); speak("Navigating to Profile."); },
+    "setting": () => { navigate("/motor/settings"); speak("Navigating to Accessibility Settings."); },
     "turn on dwell": () => { setDwellEnabled(true); speak("Dwell click timers activated."); },
     "turn off dwell": () => { setDwellEnabled(false); speak("Dwell click timers deactivated."); },
     "turn on switch": () => { setSwitchEnabled(true); speak("Switch navigation activated."); },
     "turn off switch": () => { setSwitchEnabled(false); speak("Switch navigation deactivated."); },
     "sign out": () => { speak("Logging you out. Redirecting to landing page."); setTimeout(logout, 1200); },
-    "help": () => speak("Shortcuts: go to home, go to courses, go to learning, go to tutor, go to settings, turn on dwell, turn off switch, sign out.")
+    "help": () => speak("Shortcuts: home, courses, learning, tutor, settings, turn on dwell, turn off switch, sign out.")
   }, voiceActive && !speaking);
 
   // Initial Greeting & Idle Prompt Logic

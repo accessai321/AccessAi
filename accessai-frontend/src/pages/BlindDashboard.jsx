@@ -123,11 +123,29 @@ function useVoiceCommands(commands, active) {
   useEffect(() => {
     const unregister = registerContext(contextIdRef.current, (spokenText) => {
       setTranscript(spokenText);
-      const text = spokenText.toLowerCase().trim();
+      let text = spokenText.toLowerCase().trim();
+      
+      const fillers = ["take me to", "navigate to", "go to", "open", "show", "my", "the"];
+      fillers.forEach(f => {
+        text = text.replace(new RegExp(`\\b${f}\\b`, "g"), "").trim();
+      });
+
+      let matched = false;
       for (const [pattern, handler] of Object.entries(commandsRef.current)) {
         if (text.includes(pattern)) {
           handler(spokenText);
+          matched = true;
           break;
+        }
+      }
+      
+      if (!matched) {
+        const originalText = spokenText.toLowerCase().trim();
+        for (const [pattern, handler] of Object.entries(commandsRef.current)) {
+          if (originalText.includes(pattern)) {
+            handler(spokenText);
+            break;
+          }
         }
       }
     }, active);
@@ -330,25 +348,26 @@ export default function BlindDashboard() {
 
   // Global voice commands (low vision/blind friendly navigation)
   const { listening, transcript } = useVoiceCommands({
-    "go to home": () => navigateTo("home", "Navigated to Home Dashboard."),
-    "go to courses": () => navigateTo("courses", "Navigated to Courses Library."),
-    "go to library": () => navigateTo("courses", "Navigated to Courses Library."),
-    "go to learning": () => navigateTo("my-learning", "Navigated to Enrolled Courses."),
-    "go to tutor": () => navigateTo("ai-tutor", "Navigated to Audio AI Tutor."),
-    "go to activity": () => navigateTo("activity", "Navigated to Activity Dashboard."),
-    "go to profile": () => navigateTo("profile", "Navigated to Profile and certificates page."),
-    "go to settings": () => navigateTo("settings", "Navigated to Accessibility settings."),
+    "course 1": () => { setSelectedCourse(courses[0]); speak("Opening details for Introduction to Python."); },
+    "course 2": () => { setSelectedCourse(courses[1]); speak("Opening details for Java Programming Basics."); },
+    "course 3": () => { setSelectedCourse(courses[2]); speak("Opening details for Database Management and SQL."); },
+    "course 4": () => { setSelectedCourse(courses[3]); speak("Opening details for Web Development Basics."); },
     "list courses": () => {
       const list = courses.map((c, i) => `Course ${i + 1}: ${c.title}`).join(". ");
       speak(`Here are the courses: ${list}. Say open course 1 to start.`, true);
     },
-    "open course 1": () => { setSelectedCourse(courses[0]); speak("Opening details for Introduction to Python."); },
-    "open course 2": () => { setSelectedCourse(courses[1]); speak("Opening details for Java Programming Basics."); },
-    "open course 3": () => { setSelectedCourse(courses[2]); speak("Opening details for Database Management and SQL."); },
-    "open course 4": () => { setSelectedCourse(courses[3]); speak("Opening details for Web Development Basics."); },
+    "home": () => navigateTo("home", "Navigated to Home Dashboard."),
+    "course": () => navigateTo("courses", "Navigated to Courses Library."),
+    "library": () => navigateTo("courses", "Navigated to Courses Library."),
+    "learning": () => navigateTo("my-learning", "Navigated to Enrolled Courses."),
+    "tutor": () => navigateTo("ai-tutor", "Navigated to Audio AI Tutor."),
+    "activity": () => navigateTo("activity", "Navigated to Activity Dashboard."),
+    "certificate": () => navigateTo("profile", "Navigated to Profile and certificates page."),
+    "profile": () => navigateTo("profile", "Navigated to Profile and certificates page."),
+    "setting": () => navigateTo("settings", "Navigated to Accessibility settings."),
     "sign out": () => { speak("Signing out. Redirecting to landing page."); setTimeout(logout, 1200); },
     "stop": () => stop(),
-    "help": () => speak("Commands: go to home, go to courses, go to learning, go to tutor, go to activity, go to settings, list courses, open course 1, stop, sign out.")
+    "help": () => speak("Commands: home, courses, learning, tutor, activity, settings, list courses, open course 1, stop, sign out.")
   }, voiceActive && !speaking);
 
   // Initial Greeting & Idle Prompt Logic
