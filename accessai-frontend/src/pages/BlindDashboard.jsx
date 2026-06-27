@@ -167,9 +167,50 @@ export default function BlindDashboard() {
 
   // Settings
   const [ttsSpeed, setTtsSpeed] = useState("normal"); // slow, normal, fast
-  const [contrastTheme, setContrastTheme] = useState("high-contrast"); // high-contrast, standard-dark
+  const [contrastTheme, setContrastTheme] = useState("high-contrast"); // high-contrast, standard-dark, light
   const [fontSize, setFontSize] = useState("xxl"); // xl, xxl
   const [voiceActive, setVoiceActive] = useState(true);
+
+  // Dynamic Contrast Themes config matching Deafmute/Deaf modes
+  const isLight = contrastTheme === "light";
+  const isDark = contrastTheme === "dark" || contrastTheme === "standard-dark";
+  const isHighContrast = contrastTheme === "high-contrast";
+
+  const bgClass = isLight 
+    ? "bg-white text-slate-900" 
+    : isDark 
+      ? "bg-[#090d16] text-[#e2e8f0]" 
+      : "bg-black text-[#fbbf24]";
+
+  const sidebarClass = isLight 
+    ? "bg-slate-50 border-slate-200 text-slate-900" 
+    : isDark 
+      ? "bg-[#0a0f1d]/95 border-white/5 text-[#e2e8f0]" 
+      : "bg-black border-[#fbbf24] text-[#fbbf24]";
+
+  const cardClass = isLight 
+    ? "bg-slate-50 border-slate-200 text-slate-800 border shadow-sm" 
+    : isDark 
+      ? "bg-[#121b2d]/50 border-white/5 text-slate-350 border" 
+      : "bg-black border-2 border-[#fbbf24]/50 text-[#fbbf24]";
+
+  const innerCardClass = isLight 
+    ? "bg-white border border-slate-200" 
+    : isDark 
+      ? "bg-[#0a0f1d]/40 border-white/5" 
+      : "bg-black border border-[#fbbf24]/30";
+
+  const textTitleClass = isLight 
+    ? "text-slate-900" 
+    : isDark 
+      ? "text-white" 
+      : "text-[#fbbf24]";
+
+  const borderClass = isLight 
+    ? "border-slate-200" 
+    : isDark 
+      ? "border-white/10" 
+      : "border-[#fbbf24]/50";
 
   // Status announce region
   const [statusMsg, setStatusMsg] = useState("");
@@ -297,7 +338,7 @@ export default function BlindDashboard() {
 
   return (
     <div 
-      className={`min-h-screen bg-white text-slate-900 font-sans flex relative ${
+      className={`min-h-screen ${bgClass} font-sans flex relative ${
         fontSize === "xxl" ? "text-lg" : "text-base"
       }`}
     >
@@ -313,7 +354,7 @@ export default function BlindDashboard() {
       <aside 
         role="navigation"
         aria-label="Sidebar navigation"
-        className="w-80 flex flex-col justify-between sticky top-0 h-screen z-50 bg-slate-50 border-r border-slate-200 text-slate-900"
+        className={`w-80 flex flex-col justify-between sticky top-0 h-screen z-50 ${sidebarClass}`}
       >
         <div className="p-6 flex flex-col gap-6">
           <div 
@@ -323,8 +364,10 @@ export default function BlindDashboard() {
             aria-label="AccessAI Blind Mode logo. Link to Home."
             onFocus={() => speak("AccessAI home logo link.")}
           >
-            <span className="text-2xl font-black text-slate-900 tracking-tight">AccessAI</span>
-            <span className="self-start text-[10px] font-black uppercase tracking-widest bg-yellow-400/20 text-yellow-700 border border-yellow-500/50 px-2.5 py-0.5 rounded-full">
+            <span className={`text-2xl font-black ${isLight ? "text-slate-900" : isDark ? "text-white" : "text-[#fbbf24]"} tracking-tight`}>AccessAI</span>
+            <span className={`self-start text-[10px] font-black uppercase tracking-widest bg-[#fbbf24]/20 px-2.5 py-0.5 rounded-full ${
+              isLight || isHighContrast ? "text-yellow-700 border border-yellow-500/50" : "text-yellow-400 border border-yellow-400/30"
+            }`}>
               BLIND MODE
             </span>
           </div>
@@ -347,8 +390,14 @@ export default function BlindDashboard() {
                 aria-pressed={activeTab === tab.id}
                 className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl text-left text-sm font-black transition-all border-2 ${
                   activeTab === tab.id 
-                    ? "bg-[#fbbf24] text-black border-[#fbbf24] shadow-md" 
-                    : "text-slate-700 hover:text-black border-transparent hover:border-yellow-500 bg-slate-200/50"
+                    ? isHighContrast 
+                      ? "bg-[#fbbf24] text-black border-[#fbbf24]" 
+                      : "bg-[#fbbf24] text-black border-[#fbbf24] shadow-md"
+                    : isLight 
+                      ? "text-slate-700 hover:text-black border-transparent hover:border-yellow-500 bg-slate-200/50"
+                      : isDark
+                        ? "text-slate-300 hover:text-white border-transparent hover:border-yellow-450 bg-slate-900/60"
+                        : "text-[#fbbf24] hover:bg-[#fbbf24]/10 border-transparent hover:border-[#fbbf24]"
                 }`}
               >
                 <span className="material-symbols-outlined !text-xl">{tab.icon}</span>
@@ -358,13 +407,13 @@ export default function BlindDashboard() {
           </nav>
         </div>
 
-        <div className="p-6 border-t border-slate-200 flex flex-col gap-3">
+        <div className={`p-6 border-t ${borderClass} flex flex-col gap-3`}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#fbbf24] text-black flex items-center justify-center font-black text-sm">
               AH
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-800">Aman Halkude</p>
+              <p className={`text-xs font-bold ${isLight ? "text-slate-800" : isDark ? "text-slate-200" : "text-[#fbbf24]"}`}>Aman Halkude</p>
               <p className="text-[10px] text-slate-500">Audio Navigator</p>
             </div>
           </div>
@@ -372,7 +421,13 @@ export default function BlindDashboard() {
             onClick={logout}
             onFocus={() => speak("Sign Out button. Press enter to log out.")}
             aria-label="Sign Out"
-            className="w-full py-3 bg-red-50 border border-red-200 hover:bg-red-100 text-red-700 font-bold rounded-xl text-center text-xs"
+            className={`w-full py-3 font-bold rounded-xl text-center text-xs border ${
+              isLight 
+                ? "bg-red-50 border-red-200 hover:bg-red-100 text-red-700" 
+                : isDark 
+                  ? "bg-red-950 border-red-500/30 hover:bg-red-900 text-red-300"
+                  : "bg-black border-red-500 hover:bg-red-500/10 text-red-500"
+            }`}
           >
             Sign Out
           </button>
@@ -383,15 +438,21 @@ export default function BlindDashboard() {
       <main className="flex-1 min-h-screen overflow-y-auto p-8 relative flex flex-col gap-6">
         
         {/* Status indicator banner */}
-        <div className="flex justify-between items-center bg-slate-50 border-2 border-slate-200 p-4 rounded-xl text-slate-800 shadow-sm">
+        <div className={`flex justify-between items-center p-4 rounded-xl border-2 ${
+          isLight 
+            ? "bg-slate-50 border-slate-200 text-slate-850 shadow-sm" 
+            : isDark 
+              ? "bg-[#121b2d]/50 border-white/5 text-[#e2e8f0]"
+              : "bg-black border-[#fbbf24]/50 text-[#fbbf24]"
+        }`}>
           <div className="flex gap-4 items-center">
             {voiceActive && listening && (
-              <div className="flex items-center gap-2 text-amber-700 text-xs font-black uppercase">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-600 animate-ping" />
+              <div className={`flex items-center gap-2 text-xs font-black uppercase ${isLight || isDark ? "text-amber-600" : "text-[#fbbf24]"}`}>
+                <span className={`w-2.5 h-2.5 rounded-full animate-ping ${isLight || isDark ? "bg-amber-600" : "bg-[#fbbf24]"}`} />
                 Mic Enabled
               </div>
             )}
-            <span className="text-xs font-bold text-slate-550">TTS Audio Feedback: ACTIVE</span>
+            <span className="text-xs font-bold text-slate-500">TTS Audio Feedback: ACTIVE</span>
           </div>
 
           <div className="flex gap-2">
@@ -402,19 +463,31 @@ export default function BlindDashboard() {
               }}
               onFocus={() => speak("Voice Assistant toggle button.")}
               className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all ${
-                voiceActive ? "bg-[#fbbf24] text-black border-[#fbbf24]" : "bg-slate-100 text-slate-500 border-slate-200"
+                voiceActive 
+                  ? "bg-[#fbbf24] text-black border-[#fbbf24]" 
+                  : isLight 
+                    ? "bg-slate-100 text-slate-500 border-slate-200"
+                    : isDark 
+                      ? "bg-slate-900 text-slate-400 border-white/5"
+                      : "bg-black text-[#fbbf24]/50 border-[#fbbf24]/30"
               }`}
             >
               Voice: {voiceActive ? "ON" : "OFF"}
             </button>
             <button
               onClick={() => {
-                const nextT = contrastTheme === "high-contrast" ? "standard-dark" : "high-contrast";
+                const nextT = contrastTheme === "light" ? "dark" : contrastTheme === "dark" ? "high-contrast" : "light";
                 setContrastTheme(nextT);
-                speak(`Theme updated to ${nextT === "high-contrast" ? "high contrast yellow" : "standard dark mode"}.`);
+                speak(`Theme updated to ${nextT === "light" ? "light mode" : nextT === "dark" ? "dark mode" : "high contrast yellow"}.`);
               }}
               onFocus={() => speak("Contrast theme selector.")}
-              className="px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 border border-slate-200 text-slate-700"
+              className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all ${
+                isLight 
+                  ? "bg-slate-100 border-slate-200 text-slate-700" 
+                  : isDark 
+                    ? "bg-slate-900 border-white/10 text-slate-300"
+                    : "bg-black border-[#fbbf24]/40 text-[#fbbf24]"
+              }`}
             >
               Toggle Contrast Theme
             </button>
@@ -422,7 +495,13 @@ export default function BlindDashboard() {
         </div>
 
         {voiceActive && transcript && (
-          <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 p-4 rounded-xl text-xs font-bold shadow-sm">
+          <div className={`p-4 rounded-xl text-xs font-bold shadow-sm border ${
+            isLight 
+              ? "bg-emerald-50 border-emerald-200 text-emerald-700" 
+              : isDark 
+                ? "bg-emerald-950/45 border-emerald-500/30 text-emerald-400"
+                : "bg-black border-emerald-500 text-emerald-450"
+          }`}>
             Voice Heard: "{transcript}"
           </div>
         )}
@@ -431,16 +510,28 @@ export default function BlindDashboard() {
         {activeTab === "home" && !selectedCourse && !activeCoursePlay && (
           <div className="flex flex-col gap-6 animate-fadeIn">
             {/* Header welcome */}
-            <div className="bg-slate-50 border-2 border-[#fbbf24] p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm">
+            <div className={`p-8 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-2 ${
+              isLight 
+                ? "bg-slate-50 border-slate-200 shadow-sm" 
+                : isDark 
+                  ? "bg-[#121b2d]/50 border-white/5" 
+                  : "bg-black border-[#fbbf24]"
+            }`}>
               <div className="flex flex-col gap-2 max-w-xl">
-                <h1 className="text-3xl font-black text-slate-900" tabIndex={0} onFocus={() => speak("Welcome back, Aman. Get ready to expand your auditory and sign library.")}>Hello, Aman!</h1>
-                <p className="text-slate-600 text-sm leading-relaxed">
+                <h1 className={`text-3xl font-black ${textTitleClass}`} tabIndex={0} onFocus={() => speak("Welcome back, Aman. Get ready to expand your auditory and sign library.")}>Hello, Aman!</h1>
+                <p className={`text-sm leading-relaxed ${isLight ? "text-slate-600" : isDark ? "text-slate-300" : "text-[#fbbf24]/90"}`}>
                   Every element announces details on focus. Use your keyboard TAB/SHIFT-TAB keys to jump inputs, or dictate navigation using speech.
                 </p>
               </div>
               <div className="flex gap-4">
-                <div className="bg-white border border-[#fbbf24]/50 px-5 py-3 rounded-2xl flex flex-col items-center shadow-sm">
-                  <span className="text-2xl font-bold text-yellow-600">7🔥</span>
+                <div className={`px-5 py-3 rounded-2xl flex flex-col items-center border ${
+                  isLight 
+                    ? "bg-white border-slate-200 shadow-sm" 
+                    : isDark 
+                      ? "bg-slate-900 border-white/5" 
+                      : "bg-black border-[#fbbf24]/50"
+                }`}>
+                  <span className={`text-2xl font-bold ${isLight || isDark ? "text-yellow-600" : "text-[#fbbf24]"}`}>7🔥</span>
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Streak</span>
                 </div>
               </div>
@@ -451,23 +542,23 @@ export default function BlindDashboard() {
               <div 
                 tabIndex={0} 
                 onFocus={() => speak("Goal progress card. Daily goal: 30 minutes. You have completed 83% of your goal today.")}
-                className="bg-slate-900 border-2 border-white/10 p-6 rounded-2xl flex flex-col gap-3"
+                className={`p-6 rounded-2xl flex flex-col gap-3 border-2 ${cardClass}`}
               >
-                <h3 className="text-xs font-black text-[#fbbf24] uppercase tracking-wider">Goal progress</h3>
+                <h3 className={`text-xs font-black uppercase tracking-wider ${isLight || isDark ? "text-slate-700" : "text-[#fbbf24]"}`}>Goal progress</h3>
                 <p className="text-sm font-bold">Completed: 25 minutes of 30 minutes (83%)</p>
-                <div className="h-3 bg-slate-800 rounded-full overflow-hidden border border-white/20">
-                  <div className="h-full bg-[#fbbf24]" style={{ width: "83%" }} />
+                <div className={`h-3 rounded-full overflow-hidden border ${innerCardClass}`}>
+                  <div className={`h-full ${isLight || isDark ? "bg-amber-500" : "bg-[#fbbf24]"}`} style={{ width: "83%" }} />
                 </div>
               </div>
 
               <div 
                 tabIndex={0}
                 onFocus={() => speak("AI Study Companion card. Launch the AI Tutor page to practice vocabulary questions verbally.")}
-                className="bg-slate-900 border-2 border-white/10 p-6 rounded-2xl flex flex-col justify-between gap-4"
+                className={`p-6 rounded-2xl flex flex-col justify-between gap-4 border-2 ${cardClass}`}
               >
                 <div>
-                  <h3 className="text-xs font-black text-[#fbbf24] uppercase tracking-wider">AI Speech Tutor</h3>
-                  <p className="text-xs text-slate-400 mt-2">Generate vocal quizzes and code summaries instantly.</p>
+                  <h3 className={`text-xs font-black uppercase tracking-wider ${isLight || isDark ? "text-slate-700" : "text-[#fbbf24]"}`}>AI Speech Tutor</h3>
+                  <p className={`text-xs mt-2 ${isLight ? "text-slate-600" : isDark ? "text-slate-400" : "text-[#fbbf24]/80"}`}>Generate vocal quizzes and code summaries instantly.</p>
                 </div>
                 <button
                   onClick={() => navigateTo("ai-tutor", "Opening AI Tutor chat.")}
@@ -481,20 +572,20 @@ export default function BlindDashboard() {
 
             {/* Enrolled resume list */}
             <div className="flex flex-col gap-4">
-              <h2 className="text-xl font-black text-[#fbbf24]">Enrolled Courses</h2>
+              <h2 className={`text-xl font-black ${textTitleClass}`}>Enrolled Courses</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {courses.filter(c => purchasedIds.includes(c.id)).map(course => {
                   const pct = progress[course.id]?.completion || 0;
                   return (
                     <div 
                       key={course.id} 
-                      className="bg-slate-900 border-2 border-white/10 rounded-2xl p-6 flex flex-col justify-between gap-4"
+                      className={`rounded-2xl p-6 flex flex-col justify-between gap-4 border-2 ${cardClass}`}
                       tabIndex={0}
                       onFocus={() => speak(`Enrolled course: ${course.title}. Progress: ${pct} percent. Focus down to resume player.`)}
                     >
                       <div>
-                        <h3 className="text-base font-bold text-[#fbbf24]">{course.title}</h3>
-                        <p className="text-xs text-slate-400 mt-1 line-clamp-2">{course.description}</p>
+                        <h3 className={`text-base font-bold ${textTitleClass}`}>{course.title}</h3>
+                        <p className={`text-xs mt-1 line-clamp-2 ${isLight ? "text-slate-600" : isDark ? "text-slate-400" : "text-[#fbbf24]/85"}`}>{course.description}</p>
                       </div>
                       <div>
                         <button
@@ -517,12 +608,12 @@ export default function BlindDashboard() {
         {activeTab === "courses" && !selectedCourse && !activeCoursePlay && (
           <div className="flex flex-col gap-6 animate-fadeIn">
             <div>
-              <h1 className="text-2xl font-black text-[#fbbf24]">Explore Course Catalog</h1>
-              <p className="text-xs text-slate-400">Audio-described courses supporting full voice integration.</p>
+              <h1 className={`text-2xl font-black ${textTitleClass}`}>Explore Course Catalog</h1>
+              <p className="text-xs text-slate-550">Audio-described courses supporting full voice integration.</p>
             </div>
 
             {/* Keyboard-accessible categories */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-black border-2 border-white/10 p-3 rounded-xl">
+            <div className={`grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl border-2 ${cardClass}`}>
               {[
                 { id: "all", label: "📚 All Classes" },
                 { id: "language", label: "🤟 ASL Lessons" },
@@ -532,8 +623,14 @@ export default function BlindDashboard() {
                   key={cat.id}
                   onClick={() => { setCategory(cat.id); speak(`Filtered catalog by ${cat.label}`); }}
                   onFocus={() => speak(`Filter category: ${cat.label} button.`)}
-                  className={`py-3 px-4 rounded-xl text-xs font-black border-2 ${
-                    category === cat.id ? "bg-[#fbbf24] text-black border-[#fbbf24]" : "bg-slate-900 border-white/5 text-slate-300"
+                  className={`py-3 px-4 rounded-xl text-xs font-black border-2 transition-all ${
+                    category === cat.id 
+                      ? "bg-[#fbbf24] text-black border-[#fbbf24]" 
+                      : isLight 
+                        ? "bg-slate-200 border-transparent text-slate-700" 
+                        : isDark
+                          ? "bg-slate-900 border-white/5 text-slate-300"
+                          : "bg-black border-[#fbbf24]/30 text-[#fbbf24]"
                   }`}
                 >
                   {cat.label}
@@ -548,13 +645,13 @@ export default function BlindDashboard() {
                 return (
                   <div 
                     key={course.id}
-                    className="p-6 bg-slate-900 border-2 border-white/10 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-yellow-400 transition-all"
+                    className={`p-6 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-yellow-400 transition-all border-2 ${cardClass}`}
                     tabIndex={0}
                     onFocus={() => speak(`Course ${idx + 1}: ${course.title}. Instructor: ${course.instructor}. Level: ${course.level}. Duration: ${course.duration}. ${isOwned ? "Enrolled." : "Click to view details and buy."}`)}
                   >
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-[#fbbf24]">{course.title}</h3>
-                      <p className="text-xs text-slate-400 mt-1">{course.description}</p>
+                      <h3 className={`text-lg font-bold ${textTitleClass}`}>{course.title}</h3>
+                      <p className={`text-xs mt-1 ${isLight ? "text-slate-600" : isDark ? "text-slate-400" : "text-[#fbbf24]/85"}`}>{course.description}</p>
                       <div className="flex gap-4 text-[10px] font-bold text-slate-500 mt-2 uppercase">
                         <span>Instructor: {course.instructor}</span>
                         <span>Level: {course.level}</span>
@@ -565,7 +662,13 @@ export default function BlindDashboard() {
                       <button
                         onClick={() => setSelectedCourse(course)}
                         onFocus={() => speak(`View course details and lessons for ${course.title} button.`)}
-                        className="px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-xs font-bold text-white flex-1 sm:flex-none"
+                        className={`px-4 py-3 border rounded-xl text-xs font-bold flex-1 sm:flex-none ${
+                          isLight 
+                            ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" 
+                            : isDark
+                              ? "bg-slate-800 border-white/10 text-white hover:bg-slate-750"
+                              : "bg-black border-[#fbbf24] text-[#fbbf24] hover:bg-[#fbbf24]/10"
+                        }`}
                       >
                         Syllabus Details
                       </button>
@@ -590,8 +693,8 @@ export default function BlindDashboard() {
         {activeTab === "my-learning" && !selectedCourse && !activeCoursePlay && (
           <div className="flex flex-col gap-6 animate-fadeIn">
             <div>
-              <h1 className="text-2xl font-black text-[#fbbf24]">My Enrolled Courses</h1>
-              <p className="text-xs text-slate-400">Launch audio players or review quizzes.</p>
+              <h1 className={`text-2xl font-black ${textTitleClass}`}>My Enrolled Courses</h1>
+              <p className="text-xs text-slate-550">Launch audio players or review quizzes.</p>
             </div>
 
             <div className="flex flex-col gap-4">
@@ -600,13 +703,13 @@ export default function BlindDashboard() {
                 return (
                   <div 
                     key={course.id}
-                    className="p-6 bg-slate-900 border-2 border-white/10 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+                    className={`p-6 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-2 ${cardClass}`}
                     tabIndex={0}
                     onFocus={() => speak(`Enrolled Course: ${course.title}. You are ${pct} percent done.`)}
                   >
                     <div>
-                      <h3 className="text-base font-bold text-[#fbbf24]">{course.title}</h3>
-                      <p className="text-xs text-slate-400 mt-1">{course.instructor} · completion rate {pct}%</p>
+                      <h3 className={`text-base font-bold ${textTitleClass}`}>{course.title}</h3>
+                      <p className={`text-xs mt-1 ${isLight ? "text-slate-600" : isDark ? "text-slate-450" : "text-[#fbbf24]/85"}`}>{course.instructor} · completion rate {pct}%</p>
                     </div>
                     <button
                       onClick={() => { setActiveCoursePlay(course); setCurrentLessonIdx(0); speak(`Opening course player for ${course.title}.`); }}
@@ -628,30 +731,30 @@ export default function BlindDashboard() {
             <button
               onClick={() => setSelectedCourse(null)}
               onFocus={() => speak("Back to course catalog button.")}
-              className="self-start text-xs font-bold text-[#fbbf24] hover:underline"
+              className={`self-start text-xs font-bold ${isLight || isDark ? "text-slate-800" : "text-[#fbbf24]"} hover:underline`}
             >
               ◀ Back to catalog
             </button>
 
             <div 
-              className="bg-slate-950 border-2 border-[#fbbf24] p-8 rounded-3xl"
+              className={`p-8 rounded-3xl border-2 ${cardClass}`}
               tabIndex={0}
               onFocus={() => speak(`Syllabus overview. Course: ${selectedCourse.title}. Description: ${selectedCourse.description}. Level is ${selectedCourse.level}. Duration is ${selectedCourse.duration}.`)}
             >
-              <h1 className="text-2xl font-black text-[#fbbf24]">{selectedCourse.title}</h1>
-              <p className="text-xs text-slate-400 mt-2">{selectedCourse.description}</p>
+              <h1 className={`text-2xl font-black ${textTitleClass}`}>{selectedCourse.title}</h1>
+              <p className={`text-xs mt-2 ${isLight ? "text-slate-600" : isDark ? "text-slate-400" : "text-[#fbbf24]/85"}`}>{selectedCourse.description}</p>
             </div>
 
             <div className="flex flex-col gap-3">
-              <h2 className="text-lg font-bold text-[#fbbf24]">Syllabus lessons</h2>
+              <h2 className={`text-lg font-bold ${textTitleClass}`}>Syllabus lessons</h2>
               {selectedCourse.lessons.map((lesson, idx) => (
                 <div 
                   key={lesson.id} 
-                  className="p-4 bg-slate-900 border border-white/5 rounded-xl flex justify-between"
+                  className={`p-4 rounded-xl flex justify-between ${innerCardClass}`}
                   tabIndex={0}
                   onFocus={() => speak(`Lesson ${idx + 1}: ${lesson.title}. Duration: ${lesson.duration}`)}
                 >
-                  <span className="text-xs font-bold">0{idx + 1}. {lesson.title}</span>
+                  <span className={`text-xs font-bold ${isLight || isDark ? "text-slate-800" : "text-[#fbbf24]"}`}>0{idx + 1}. {lesson.title}</span>
                   <span className="text-xs text-slate-500">{lesson.duration}</span>
                 </div>
               ))}
@@ -681,24 +784,30 @@ export default function BlindDashboard() {
               <button
                 onClick={() => setActiveCoursePlay(null)}
                 onFocus={() => speak("Close course player button.")}
-                className="px-4 py-2 bg-red-950 border border-red-500 text-red-300 font-bold text-xs rounded-lg"
+                className={`px-4 py-2 font-bold text-xs rounded-lg border ${
+                  isLight 
+                    ? "bg-red-50 border-red-200 text-red-700 hover:bg-red-100" 
+                    : isDark 
+                      ? "bg-red-950 border-red-500/30 text-red-300 hover:bg-red-900"
+                      : "bg-black border-red-500 text-red-500 hover:bg-red-500/10"
+                }`}
               >
                 ✕ Close Player
               </button>
               <div className="text-right text-xs">
-                <span className="text-slate-400">Lesson {currentLessonIdx + 1} of {activeCoursePlay.lessons.length}</span>
-                <p className="text-[#fbbf24] font-black">{activeCoursePlay.lessons[currentLessonIdx].title}</p>
+                <span className="text-slate-450">Lesson {currentLessonIdx + 1} of {activeCoursePlay.lessons.length}</span>
+                <p className={`font-black ${isLight || isDark ? "text-slate-900" : "text-[#fbbf24]"}`}>{activeCoursePlay.lessons[currentLessonIdx].title}</p>
               </div>
             </div>
 
             {/* Speech Player controller triggers */}
-            <div className="bg-slate-900 border-2 border-white/10 p-8 rounded-2xl flex flex-col gap-4">
+            <div className={`p-8 rounded-2xl flex flex-col gap-4 border-2 ${cardClass}`}>
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[#fbbf24] animate-bounce">settings_voice</span>
-                <span className="text-xs font-bold text-[#fbbf24] uppercase">Narrator audio playback is active</span>
+                <span className={`material-symbols-outlined animate-bounce ${isLight || isDark ? "text-slate-800" : "text-[#fbbf24]"}`}>settings_voice</span>
+                <span className={`text-xs font-bold uppercase ${isLight || isDark ? "text-slate-700" : "text-[#fbbf24]"}`}>Narrator audio playback is active</span>
               </div>
               <p 
-                className="text-base text-slate-200 leading-relaxed font-semibold bg-black/60 p-6 rounded-xl border border-white/5"
+                className={`text-base leading-relaxed font-semibold p-6 rounded-xl border ${innerCardClass}`}
                 tabIndex={0}
                 onFocus={() => speak(`Lesson text narrator. Content: ${activeCoursePlay.lessons[currentLessonIdx].content}. Focus down to repeat or step lessons.`)}
               >
@@ -709,7 +818,13 @@ export default function BlindDashboard() {
                 <button
                   onClick={() => speak(activeCoursePlay.lessons[currentLessonIdx].content, true)}
                   onFocus={() => speak("Repeat audio narration button.")}
-                  className="py-3 bg-slate-800 border border-white/10 rounded-xl text-xs font-bold text-white"
+                  className={`py-3 border rounded-xl text-xs font-bold transition-all ${
+                    isLight 
+                      ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" 
+                      : isDark
+                        ? "bg-slate-800 border-white/10 text-white hover:bg-slate-750"
+                        : "bg-black border-[#fbbf24] text-[#fbbf24] hover:bg-[#fbbf24]/10"
+                  }`}
                 >
                   ↺ Repeat Audio
                 </button>
@@ -717,7 +832,13 @@ export default function BlindDashboard() {
                   disabled={currentLessonIdx === 0}
                   onClick={() => setCurrentLessonIdx(i => i - 1)}
                   onFocus={() => speak("Previous lesson button.")}
-                  className="py-3 bg-slate-800 border border-white/10 rounded-xl text-xs font-bold text-white disabled:opacity-30"
+                  className={`py-3 border rounded-xl text-xs font-bold transition-all ${
+                    isLight 
+                      ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" 
+                      : isDark
+                        ? "bg-slate-800 border-white/10 text-white hover:bg-slate-750"
+                        : "bg-black border-[#fbbf24] text-[#fbbf24] hover:bg-[#fbbf24]/10"
+                  } disabled:opacity-30`}
                 >
                   ◀ Previous Lesson
                 </button>
@@ -737,9 +858,9 @@ export default function BlindDashboard() {
             </div>
 
             {/* Auditory Quiz block */}
-            <div className="bg-slate-900 border-2 border-white/10 p-6 rounded-xl flex flex-col gap-4">
-              <h3 className="text-sm font-bold text-[#fbbf24] uppercase">Auditory Quiz check</h3>
-              <p className="text-xs font-bold text-slate-200 leading-relaxed">{activeCoursePlay.quiz.question}</p>
+            <div className={`p-6 rounded-xl flex flex-col gap-4 border-2 ${cardClass}`}>
+              <h3 className={`text-sm font-bold uppercase ${isLight || isDark ? "text-slate-800" : "text-[#fbbf24]"}`}>Auditory Quiz check</h3>
+              <p className={`text-xs font-bold leading-relaxed ${isLight || isDark ? "text-slate-700" : "text-slate-250"}`}>{activeCoursePlay.quiz.question}</p>
               
               <div className="flex flex-col gap-2">
                 {activeCoursePlay.quiz.options.map(opt => (
@@ -755,7 +876,13 @@ export default function BlindDashboard() {
                       }
                     }}
                     onFocus={() => speak(`Option: ${opt} button.`)}
-                    className="w-full py-3.5 px-4 bg-slate-950 hover:bg-slate-900 border border-white/10 hover:border-yellow-400 rounded-xl text-left text-xs text-slate-300 font-bold"
+                    className={`w-full py-3.5 px-4 border rounded-xl text-left text-xs font-bold transition-all ${
+                      isLight 
+                        ? "bg-white hover:bg-slate-50 border-slate-200 text-slate-750 hover:border-yellow-500" 
+                        : isDark
+                          ? "bg-slate-950 hover:bg-slate-900 border-white/10 text-slate-300 hover:border-yellow-400"
+                          : "bg-black hover:bg-[#fbbf24]/10 border-[#fbbf24] text-[#fbbf24]"
+                    }`}
                   >
                     {opt}
                   </button>
@@ -768,12 +895,12 @@ export default function BlindDashboard() {
         {/* 6. AI NARRATOR VOICE TUTOR */}
         {activeTab === "ai-tutor" && (
           <div className="flex flex-col gap-6 animate-fadeIn max-w-3xl mx-auto w-full h-[calc(100vh-140px)]">
-            <div className="border-b border-[#fbbf24] pb-4">
-              <h1 className="text-2xl font-black text-[#fbbf24]">AccessAI Audio Tutor</h1>
-              <p className="text-xs text-slate-400">Dicatate your question and AI responses will be narrated out loud.</p>
+            <div className={`border-b pb-4 ${isLight ? "border-slate-200" : isDark ? "border-white/10" : "border-[#fbbf24]"}`}>
+              <h1 className={`text-2xl font-black ${textTitleClass}`}>AccessAI Audio Tutor</h1>
+              <p className="text-xs text-slate-505">Dicatate your question and AI responses will be narrated out loud.</p>
             </div>
 
-            <div className="flex gap-2 bg-black border border-white/10 p-2 rounded-xl">
+            <div className={`flex gap-2 p-2 rounded-xl border ${innerCardClass}`}>
               {[
                 { id: "chat", label: "Auditory Chat", icon: "forum" },
                 { id: "homework", label: "Upload Code Help", icon: "school" }
@@ -782,8 +909,14 @@ export default function BlindDashboard() {
                   key={subT.id}
                   onClick={() => setAiTutorTab(subT.id)}
                   onFocus={() => speak(`Sub tab ${subT.label} button.`)}
-                  className={`px-4 py-2 text-xs font-bold rounded-lg ${
-                    aiTutorTab === subT.id ? "bg-[#fbbf24] text-black" : "text-slate-400"
+                  className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                    aiTutorTab === subT.id 
+                      ? "bg-[#fbbf24] text-black" 
+                      : isLight 
+                        ? "text-slate-500 hover:text-slate-900" 
+                        : isDark
+                          ? "text-slate-400 hover:text-white"
+                          : "text-[#fbbf24]/60 hover:text-[#fbbf24]"
                   }`}
                 >
                   {subT.label}
@@ -793,18 +926,18 @@ export default function BlindDashboard() {
 
             {aiTutorTab === "chat" && (
               <div className="flex-1 flex flex-col justify-between gap-4 overflow-hidden">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border-b border-white/10 pb-2">
+                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2 pb-2 border-b ${isLight ? "border-slate-200" : isDark ? "border-white/10" : "border-[#fbbf24]/50"}`}>
                   <button
                     onClick={() => handleQuickQuestion("Explain fingerspelling LL double letters")}
                     onFocus={() => speak("Ask prompt about double letters button.")}
-                    className="p-3 bg-slate-900 border border-white/5 rounded-xl text-xs text-left text-[#fbbf24] font-bold"
+                    className={`p-3 rounded-xl text-xs text-left font-bold ${innerCardClass} ${isLight || isDark ? "text-slate-800" : "text-[#fbbf24]"}`}
                   >
                     Prompt: Fingerspelling double letters?
                   </button>
                   <button
                     onClick={() => handleQuickQuestion("Generate auditory vocabulary quiz")}
                     onFocus={() => speak("Ask to generate custom quiz button.")}
-                    className="p-3 bg-slate-900 border border-white/5 rounded-xl text-xs text-left text-[#fbbf24] font-bold"
+                    className={`p-3 rounded-xl text-xs text-left font-bold ${innerCardClass} ${isLight || isDark ? "text-slate-800" : "text-[#fbbf24]"}`}
                   >
                     Prompt: Generate vocal quiz?
                   </button>
@@ -815,10 +948,14 @@ export default function BlindDashboard() {
                   {chatMessages.map((msg, idx) => (
                     <div key={idx} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
                       <div 
-                        className={`max-w-xl p-4 rounded-xl text-xs leading-relaxed ${
+                        className={`max-w-xl p-4 rounded-xl text-xs leading-relaxed border ${
                           msg.sender === "user" 
-                            ? "bg-[#fbbf24] text-black font-black" 
-                            : "bg-slate-900 border-2 border-white/10 text-slate-350"
+                            ? "bg-[#fbbf24] text-black font-black border-[#fbbf24]" 
+                            : isLight 
+                              ? "bg-slate-100 border-slate-200 text-slate-700" 
+                              : isDark
+                                ? "bg-slate-900 border-white/5 text-slate-350"
+                                : "bg-black border-2 border-[#fbbf24]/50 text-[#fbbf24]"
                         }`}
                         tabIndex={0}
                         onFocus={() => speak(`${msg.sender === "user" ? "You asked" : "AI tutor replied"}: ${msg.text}`)}
@@ -830,7 +967,13 @@ export default function BlindDashboard() {
                 </div>
 
                 {/* Chat text input */}
-                <div className="flex gap-3 bg-black border-2 border-[#fbbf24] p-3 rounded-2xl items-center">
+                <div className={`flex gap-3 p-3 rounded-2xl items-center border-2 ${
+                  isLight 
+                    ? "bg-white border-slate-300" 
+                    : isDark 
+                      ? "bg-[#121b2d]/50 border-white/10"
+                      : "bg-black border-[#fbbf24]"
+                }`}>
                   <button 
                     onClick={() => {
                       const next = !isVoiceChatActive;
@@ -838,8 +981,12 @@ export default function BlindDashboard() {
                       speak(next ? "Voice recording mic activated." : "Mic muted.");
                     }}
                     onFocus={() => speak("Voice dictation toggle mic button.")}
-                    className={`p-3 rounded-xl ${
-                      isVoiceChatActive ? "bg-emerald-600 text-white animate-pulse" : "bg-slate-800 text-slate-400"
+                    className={`p-3 rounded-xl transition-all ${
+                      isVoiceChatActive 
+                        ? "bg-emerald-600 text-white animate-pulse" 
+                        : isLight 
+                          ? "bg-slate-200 text-slate-650" 
+                          : "bg-slate-800 text-slate-400"
                     }`}
                   >
                     <span className="material-symbols-outlined !text-base">settings_voice</span>
@@ -850,7 +997,7 @@ export default function BlindDashboard() {
                     value={chatInput}
                     onChange={e => setChatInput(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && handleSendMessage()}
-                    className="flex-1 bg-transparent text-xs outline-none text-white placeholder-slate-600"
+                    className={`flex-1 bg-transparent text-xs outline-none placeholder-slate-500 ${isLight ? "text-slate-900" : isDark ? "text-white" : "text-[#fbbf24]"}`}
                   />
                   <button 
                     onClick={handleSendMessage} 
@@ -865,13 +1012,13 @@ export default function BlindDashboard() {
 
             {aiTutorTab === "homework" && (
               <div 
-                className="bg-slate-900 border-2 border-white/10 p-8 rounded-2xl flex flex-col gap-4 text-center cursor-pointer"
+                className={`p-8 rounded-2xl flex flex-col gap-4 text-center cursor-pointer border-2 ${cardClass}`}
                 onClick={() => speak("Audio file select dialog prompt loading.")}
                 tabIndex={0}
                 onFocus={() => speak("Upload homework or audio scripts. Press enter to upload.")}
               >
-                <span className="material-symbols-outlined !text-4xl text-[#fbbf24] animate-pulse">cloud_upload</span>
-                <p className="text-xs font-black">Press Enter to select file or drop text lessons logs</p>
+                <span className={`material-symbols-outlined !text-4xl animate-pulse ${isLight || isDark ? "text-slate-800" : "text-[#fbbf24]"}`}>cloud_upload</span>
+                <p className={`text-xs font-black ${isLight || isDark ? "text-slate-700" : "text-[#fbbf24]"}`}>Press Enter to select file or drop text lessons logs</p>
               </div>
             )}
           </div>
@@ -881,16 +1028,16 @@ export default function BlindDashboard() {
         {activeTab === "activity" && (
           <div className="flex flex-col gap-6 animate-fadeIn max-w-4xl mx-auto w-full">
             <div>
-              <h1 className="text-2xl font-black text-[#fbbf24]">Study Activity Records</h1>
-              <p className="text-xs text-slate-400">Verbal review logs of weekly completed minutes.</p>
+              <h1 className={`text-2xl font-black ${textTitleClass}`}>Study Activity Records</h1>
+              <p className="text-xs text-slate-550">Verbal review logs of weekly completed minutes.</p>
             </div>
 
             <div 
-              className="bg-slate-900 border-2 border-white/10 p-6 rounded-2xl flex flex-col gap-4"
+              className={`p-6 rounded-2xl flex flex-col gap-4 border-2 ${cardClass}`}
               tabIndex={0}
               onFocus={() => speak("Weekly minutes statistics. Monday: 15 minutes, Tuesday: 45 minutes, Wednesday: 30 minutes, Friday: 60 minutes. Total streak is maintained.")}
             >
-              <h3 className="text-xs font-bold text-[#fbbf24] uppercase">Auditory activity logs</h3>
+              <h3 className={`text-xs font-bold uppercase ${isLight || isDark ? "text-slate-700" : "text-[#fbbf24]"}`}>Auditory activity logs</h3>
               
               <div className="flex justify-between items-end h-40 px-4 mt-4">
                 {[
@@ -903,10 +1050,10 @@ export default function BlindDashboard() {
                   { day: "Sun", min: 40, h: "65%" }
                 ].map((bar, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-1.5 flex-1">
-                    <div className="relative w-6 bg-slate-950 border border-white/10 rounded-md h-28 flex items-end">
-                      <div className="w-full bg-[#fbbf24]" style={{ height: bar.h }} />
+                    <div className={`relative w-6 border rounded-md h-28 flex items-end ${innerCardClass}`}>
+                      <div className={`w-full ${isLight || isDark ? "bg-amber-500" : "bg-[#fbbf24]"}`} style={{ height: bar.h }} />
                     </div>
-                    <span className="text-[10px] text-slate-500 font-bold">{bar.day}</span>
+                    <span className="text-[10px] text-slate-550 font-bold">{bar.day}</span>
                   </div>
                 ))}
               </div>
@@ -914,7 +1061,7 @@ export default function BlindDashboard() {
 
             {/* Badges */}
             <div className="flex flex-col gap-4">
-              <h3 className="text-lg font-bold text-[#fbbf24]">Earned Badges</h3>
+              <h3 className={`text-lg font-bold ${textTitleClass}`}>Earned Badges</h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[
                   { title: "Quick Learner", desc: "First purchase completed", icon: "verified" },
@@ -923,12 +1070,12 @@ export default function BlindDashboard() {
                 ].map((badge, idx) => (
                   <div 
                     key={idx} 
-                    className="bg-slate-900 border border-white/10 p-5 rounded-2xl flex flex-col items-center gap-2 text-center"
+                    className={`p-5 rounded-2xl flex flex-col items-center gap-2 text-center border-2 ${cardClass}`}
                     tabIndex={0}
                     onFocus={() => speak(`Badge: ${badge.title}. Description: ${badge.desc}`)}
                   >
-                    <span className="material-symbols-outlined text-[#fbbf24] !text-2xl">{badge.icon}</span>
-                    <h4 className="text-xs font-bold">{badge.title}</h4>
+                    <span className={`material-symbols-outlined !text-2xl ${isLight || isDark ? "text-amber-500" : "text-[#fbbf24]"}`}>{badge.icon}</span>
+                    <h4 className={`text-xs font-bold ${textTitleClass}`}>{badge.title}</h4>
                   </div>
                 ))}
               </div>
@@ -940,28 +1087,28 @@ export default function BlindDashboard() {
         {activeTab === "profile" && (
           <div className="flex flex-col gap-6 animate-fadeIn max-w-4xl mx-auto w-full">
             <div 
-              className="bg-slate-900 border-2 border-white/10 p-8 rounded-3xl"
+              className={`p-8 rounded-3xl border-2 ${cardClass}`}
               tabIndex={0}
               onFocus={() => speak("User profile Aman Halkude. Joined June 2026. Credentials: 2 completed certificates.")}
             >
-              <h2 className="text-2xl font-black text-[#fbbf24]">Aman Halkude</h2>
-              <p className="text-xs text-slate-400 mt-1">Audio-assistance student profile.</p>
+              <h2 className={`text-2xl font-black ${textTitleClass}`}>Aman Halkude</h2>
+              <p className={`text-xs mt-1 ${isLight ? "text-slate-600" : isDark ? "text-slate-400" : "text-[#fbbf24]/85"}`}>Audio-assistance student profile.</p>
             </div>
 
             <div className="flex flex-col gap-4">
-              <h2 className="text-lg font-bold text-[#fbbf24]">My Certificates</h2>
+              <h2 className={`text-lg font-bold ${textTitleClass}`}>My Certificates</h2>
               {[
                 { id: "cert-1", title: "American Sign Language Alphabet", date: "June 25, 2026", code: "ACC-AI-ASL-8271" },
                 { id: "cert-2", title: "Basic ASL Sentences & Greetings", date: "June 26, 2026", code: "ACC-AI-ASL-9982" }
               ].map(cert => (
                 <div 
                   key={cert.id} 
-                  className="bg-slate-900 border-2 border-white/10 p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+                  className={`p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-2 ${cardClass}`}
                   tabIndex={0}
                   onFocus={() => speak(`Certificate for: ${cert.title}. Code: ${cert.code}. focused down to copy code.`)}
                 >
                   <div>
-                    <h3 className="text-base font-bold text-[#fbbf24]">{cert.title}</h3>
+                    <h3 className={`text-base font-bold ${textTitleClass}`}>{cert.title}</h3>
                     <p className="text-xs text-slate-500">ID: {cert.code} · Date: {cert.date}</p>
                   </div>
                   <button
@@ -981,22 +1128,28 @@ export default function BlindDashboard() {
         {activeTab === "settings" && (
           <div className="flex flex-col gap-6 animate-fadeIn max-w-2xl mx-auto w-full">
             <div>
-              <h1 className="text-2xl font-black text-[#fbbf24]">Accessibility Settings</h1>
-              <p className="text-xs text-slate-400">Configure speech options and high contrast guidance outlines.</p>
+              <h1 className={`text-2xl font-black ${textTitleClass}`}>Accessibility Settings</h1>
+              <p className="text-xs text-slate-550">Configure speech options and high contrast guidance outlines.</p>
             </div>
 
-            <div className="bg-slate-900 border-2 border-white/10 p-8 rounded-2xl flex flex-col gap-6">
+            <div className={`p-8 rounded-2xl flex flex-col gap-6 border-2 ${cardClass}`}>
               {/* TTS Speed */}
-              <div className="pb-6 border-b border-white/5 flex flex-col gap-3">
-                <h3 className="text-sm font-bold text-[#fbbf24]" tabIndex={0} onFocus={() => speak("TTS narration speed configuration. Select Slow, Normal, or Fast.")}>Audio Speech Speed</h3>
+              <div className="pb-6 border-b border-slate-200/40 flex flex-col gap-3">
+                <h3 className={`text-sm font-bold ${isLight || isDark ? "text-slate-800" : "text-[#fbbf24]"}`} tabIndex={0} onFocus={() => speak("TTS narration speed configuration. Select Slow, Normal, or Fast.")}>Audio Speech Speed</h3>
                 <div className="flex gap-2">
                   {["slow", "normal", "fast"].map(speed => (
                     <button
                       key={speed}
                       onClick={() => { setTtsSpeed(speed); speak(`Narration speed set to ${speed}.`); }}
                       onFocus={() => speak(`Set speed to ${speed} button.`)}
-                      className={`px-4 py-2.5 rounded-xl text-xs font-bold capitalize transition-all ${
-                        ttsSpeed === speed ? "bg-[#fbbf24] text-black" : "bg-slate-950 text-slate-400"
+                      className={`px-4 py-2.5 rounded-xl text-xs font-bold capitalize transition-all border ${
+                        ttsSpeed === speed 
+                          ? "bg-[#fbbf24] text-black border-[#fbbf24]" 
+                          : isLight 
+                            ? "bg-slate-200 border-transparent text-slate-700 hover:bg-slate-300" 
+                            : isDark
+                              ? "bg-slate-955 border-white/5 text-slate-400 hover:bg-slate-900"
+                              : "bg-black border-[#fbbf24]/30 text-[#fbbf24] hover:bg-[#fbbf24]/10"
                       }`}
                     >
                       {speed}
@@ -1006,19 +1159,26 @@ export default function BlindDashboard() {
               </div>
 
               {/* Contrast */}
-              <div className="pb-6 border-b border-white/5 flex flex-col gap-3">
-                <h3 className="text-sm font-bold text-[#fbbf24]" tabIndex={0} onFocus={() => speak("Contrast layout selector. Choose High Contrast or Standard Dark.")}>Interface Contrast Mode</h3>
+              <div className="pb-6 border-b border-slate-200/40 flex flex-col gap-3">
+                <h3 className={`text-sm font-bold ${isLight || isDark ? "text-slate-850" : "text-[#fbbf24]"}`} tabIndex={0} onFocus={() => speak("Contrast layout selector. Choose Light theme, Dark theme, or High Contrast.")}>Interface Contrast Mode</h3>
                 <div className="flex gap-2">
                   {[
-                    { id: "high-contrast", label: "Yellow High Contrast" },
-                    { id: "standard-dark", label: "Standard Dark" }
+                    { id: "light", label: "SaaS Light" },
+                    { id: "standard-dark", label: "Standard Dark" },
+                    { id: "high-contrast", label: "Yellow High Contrast" }
                   ].map(theme => (
                     <button
                       key={theme.id}
                       onClick={() => { setContrastTheme(theme.id); speak(`Contrast updated to ${theme.label}.`); }}
                       onFocus={() => speak(`Select ${theme.label} button.`)}
-                      className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                        contrastTheme === theme.id ? "bg-[#fbbf24] text-black" : "bg-slate-950 text-slate-400"
+                      className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                        contrastTheme === theme.id 
+                          ? "bg-[#fbbf24] text-black border-[#fbbf24]" 
+                          : isLight 
+                            ? "bg-slate-200 border-transparent text-slate-750 hover:bg-slate-300" 
+                            : isDark
+                              ? "bg-slate-955 border-white/5 text-slate-400 hover:bg-slate-900"
+                              : "bg-black border-[#fbbf24]/30 text-[#fbbf24] hover:bg-[#fbbf24]/10"
                       }`}
                     >
                       {theme.label}
@@ -1029,15 +1189,21 @@ export default function BlindDashboard() {
 
               {/* Font scaling */}
               <div className="flex flex-col gap-3">
-                <h3 className="text-sm font-bold text-[#fbbf24]" tabIndex={0} onFocus={() => speak("Text scaling options. Select extra large or extra extra large.")}>Content Font Size</h3>
+                <h3 className={`text-sm font-bold ${isLight || isDark ? "text-slate-800" : "text-[#fbbf24]"}`} tabIndex={0} onFocus={() => speak("Text scaling options. Select extra large or extra extra large.")}>Content Font Size</h3>
                 <div className="flex gap-2">
                   {["xl", "xxl"].map(fs => (
                     <button
                       key={fs}
                       onClick={() => { setFontSize(fs); speak(`Text scaling set to ${fs}.`); }}
                       onFocus={() => speak(`Adjust font to ${fs} button.`)}
-                      className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase transition-all ${
-                        fontSize === fs ? "bg-[#fbbf24] text-black" : "bg-slate-950 text-slate-400"
+                      className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase transition-all border ${
+                        fontSize === fs 
+                          ? "bg-[#fbbf24] text-black border-[#fbbf24]" 
+                          : isLight 
+                            ? "bg-slate-200 border-transparent text-slate-750 hover:bg-slate-300" 
+                            : isDark
+                              ? "bg-slate-955 border-white/5 text-slate-400 hover:bg-slate-900"
+                              : "bg-black border-[#fbbf24]/30 text-[#fbbf24] hover:bg-[#fbbf24]/10"
                       }`}
                     >
                       {fs}
