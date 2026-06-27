@@ -7,92 +7,92 @@ import { useVoiceAssistant } from "../hooks/useVoice";
 const MOCK_COURSES = [
   {
     id: "course-1",
-    title: "American Sign Language Alphabet",
-    description: "Learn to spell your name and master the basic letters (A-Z) in American Sign Language.",
-    video: "5K69_tq-0pQ",
-    category: "language",
-    instructor: "Sarah Jenkins, ASL Specialist",
-    duration: "1h 15m",
+    title: "Introduction to Python",
+    description: "Learn the fundamentals of Python programming, including variables, loops, and functions with motor-adaptive code editors.",
+    video: "rfscVS0vtbw",
+    category: "programming",
+    instructor: "Dr. Angela Yu, Coding Educator",
+    duration: "2h 15m",
     level: "Beginner",
-    rating: 4.8,
-    badge: "Audio-Described",
+    rating: 4.9,
+    badge: "Motor-Friendly",
     lessons: [
-      { id: "les-1-1", title: "Introduction to Fingerspelling", content: "Fingerspelling is the manual representation of letters. Start by keeping your wrist stable and your elbow near your body.", duration: "12 mins", video: "5K69_tq-0pQ" },
-      { id: "les-1-2", title: "Letters A to J Practice", content: "Master A, B, C, D, E, F, G, H, I, and J. Note the shape differences between A, E, and S which are common finger spelling pitfalls.", duration: "20 mins", video: "5K69_tq-0pQ" },
-      { id: "les-1-3", title: "Letters K to T Practice", content: "Practice letters K to T. Keep check of how K uses the thumb on the middle finger and P is just a downward-facing K.", duration: "20 mins", video: "5K69_tq-0pQ" },
-      { id: "les-1-4", title: "Letters U to Z & Double Letters", content: "Complete the alphabet. Z is traced in the air with your index finger. When spelling double letters, bounce or slide slightly outward.", duration: "23 mins", video: "5K69_tq-0pQ" }
+      { id: "les-1-1", title: "Python Setup & Variables", content: "Write your first Python print statement. Practice assigning variables and using standard screen keyboards.", duration: "15 mins", video: "rfscVS0vtbw" },
+      { id: "les-1-2", title: "Control Flow & Conditionals", content: "Learn if-else blocks. Indentation is key in Python. AccessAI simplifies indentation with layout guides.", duration: "25 mins", video: "rfscVS0vtbw" },
+      { id: "les-1-3", title: "Loops & Iterations", content: "Understand for and while loops. Loop control is demonstrated using step-by-step dwell tracing.", duration: "30 mins", video: "rfscVS0vtbw" },
+      { id: "les-1-4", title: "Functions & Logic", content: "Define reusable blocks of code using def. Pass parameters and return values easily.", duration: "35 mins", video: "rfscVS0vtbw" }
     ],
     quiz: {
-      question: "Which letter in ASL is signed by tracing the shape of the letter in the air with your index finger?",
-      options: ["A", "J", "X", "Z"],
-      answer: "Z"
+      question: "Which keyword is used to define a function in Python?",
+      options: ["function", "def", "func", "define"],
+      answer: "def"
     }
   },
   {
     id: "course-2",
-    title: "Basic ASL Sentences & Greetings",
-    description: "Essential greetings, common expressions, and simple conversational starters in sign language.",
-    video: "ianCxd71Uzg",
-    category: "language",
-    instructor: "Sarah Jenkins, ASL Specialist",
-    duration: "2h 30m",
+    title: "Java Programming Basics",
+    description: "Master object-oriented programming in Java. Build robust console applications using adaptive switch selectors.",
+    video: "A74TOX803D0",
+    category: "programming",
+    instructor: "John Baugh, Java Specialist",
+    duration: "3h 10m",
     level: "Beginner",
-    rating: 4.9,
-    badge: "Voice-Assistant Ready",
+    rating: 4.8,
+    badge: "Switch-Ready",
     lessons: [
-      { id: "les-2-1", title: "Meeting People & Basic Greetings", content: "Learn 'Hello', 'Good Morning', 'What's your name?', and 'Nice to meet you'. Remember to smile as facial expressions carry grammatical weight.", duration: "30 mins", video: "ianCxd71Uzg" },
-      { id: "les-2-2", title: "Expressing Emotions & Feelings", content: "Sign 'Happy', 'Sad', 'Tired', 'Fine', and 'Excited'. Facial expressions are critical—they form the vocal inflection of ASL.", duration: "45 mins", video: "ianCxd71Uzg" },
-      { id: "les-2-3", title: "Simple Inquiries & Question Shapes", content: "Asking questions in ASL requires specific eyebrow movements. Lower eyebrows for Wh-questions and raise them for Yes/No questions.", duration: "45 mins", video: "ianCxd71Uzg" },
-      { id: "les-2-4", title: "Practice Dialogue & Handshapes", content: "Interactive review. Tie all vocabulary together in a simple greeting dialogue. Make sure to establish a signing space.", duration: "30 mins", video: "ianCxd71Uzg" }
+      { id: "les-2-1", title: "Hello World & Java Syntax", content: "Write class definitions, main method entry point, and system output structures.", duration: "25 mins", video: "A74TOX803D0" },
+      { id: "les-2-2", title: "Object-Oriented Concepts", content: "Define classes, instantiate objects, and access properties using public getters and setters.", duration: "35 mins", video: "A74TOX803D0" },
+      { id: "les-2-3", title: "Inheritance & Polymorphism", content: "Extend parent classes to override methods. Practice typing inheritance keywords with gaze gestures.", duration: "40 mins", video: "A74TOX803D0" },
+      { id: "les-2-4", title: "Exception Handling", content: "Use try-catch blocks to capture runtime errors and handle program crashes safely.", duration: "30 mins", video: "A74TOX803D0" }
     ],
     quiz: {
-      question: "What eyebrow shape is grammatically correct when signing a WH-question in ASL?",
-      options: ["Eyebrows raised", "Eyebrows lowered/furrowed", "Eyebrows held neutral", "One eyebrow raised, one lowered"],
-      answer: "Eyebrows lowered/furrowed"
+      question: "Which keyword is used to establish inheritance between classes in Java?",
+      options: ["implements", "inherits", "extends", "super"],
+      answer: "extends"
     }
   },
   {
     id: "course-3",
-    title: "Sign Language: Numbers & Colors",
-    description: "Learn the fundamentals of counting, expressions, and identifying colors in ASL.",
-    video: "Raa0IvPnPhg",
-    category: "vocabulary",
-    instructor: "David Vance, Deaf Educator",
-    duration: "1h 45m",
+    title: "Database Management & SQL",
+    description: "Learn to design relational databases, write SQL queries, and manage database records with structured tables.",
+    video: "Dl8a13w4G90",
+    category: "databases",
+    instructor: "David Vance, DB Architect",
+    duration: "2h 45m",
     level: "Intermediate",
     rating: 4.7,
-    badge: "Audio-Described",
+    badge: "Dwell-Optimized",
     lessons: [
-      { id: "les-3-1", title: "Numbers 1-10 in Sign", duration: "25 mins", content: "Learn to sign numbers 1 to 10. Note that for numbers 1 to 5, your palm faces inward towards your body.", video: "Raa0IvPnPhg" },
-      { id: "les-3-2", title: "Numbers 11-20 & Counting Patterns", duration: "30 mins", content: "Flicking and tapping motions for numbers 11 through 20. Palm orientation flips outward for numbers starting from 11.", video: "Raa0IvPnPhg" },
-      { id: "les-3-3", title: "Visual Spectrum: Colors in Sign", duration: "25 mins", content: "Signing 'Red', 'Blue', 'Yellow', 'Green', 'Purple'. Colors often involve shaking the initial letter handshape.", video: "Raa0IvPnPhg" }
+      { id: "les-3-1", title: "Relational DB Foundations", duration: "20 mins", content: "Understand tables, rows, columns, and keys. Differentiate between primary keys and foreign keys.", video: "Dl8a13w4G90" },
+      { id: "les-3-2", title: "Writing SELECT Queries", duration: "30 mins", content: "Extract columns, filter records with WHERE clauses, and sort outputs using ORDER BY statements.", video: "Dl8a13w4G90" },
+      { id: "les-3-3", title: "SQL Joins Demystified", duration: "40 mins", content: "Combine records from multiple tables using INNER JOIN, LEFT JOIN, and RIGHT JOIN conditions.", video: "Dl8a13w4G90" }
     ],
     quiz: {
-      question: "Which way should your palm face when signing the numbers 1 through 5 in ASL?",
-      options: ["Facing outward towards the listener", "Facing inward towards yourself", "Facing sideways to the right", "Facing sideways to the left"],
-      answer: "Facing inward towards yourself"
+      question: "Which clause is used to filter records in a SQL SELECT query?",
+      options: ["GROUP BY", "HAVING", "WHERE", "ORDER BY"],
+      answer: "WHERE"
     }
   },
   {
     id: "course-4",
-    title: "Advanced Conversational Sign Language",
-    description: "Improve your signing speed, sentence syntax, and understand advanced non-manual markers.",
+    title: "Web Development Basics",
+    description: "Build responsive websites using modern HTML, CSS, and interactive JavaScript interfaces.",
     video: "0FcwzLiXpNY",
-    category: "syntax",
-    instructor: "David Vance, Deaf Educator",
-    duration: "3h 10m",
+    category: "development",
+    instructor: "Sarah Jenkins, Frontend Lead",
+    duration: "3h 40m",
     level: "Advanced",
     rating: 4.6,
-    badge: "Fluency Verified",
+    badge: "Voice-Controlled",
     lessons: [
-      { id: "les-4-1", title: "Non-Manual Signs & Facial Expressions", duration: "45 mins", content: "Learn to communicate structure and urgency. Learn mouth morphemes like 'cha' (large) and 'oo' (small).", video: "0FcwzLiXpNY" },
-      { id: "les-4-2", title: "ASL Grammar: Topic-Comment Structure", duration: "50 mins", content: "Understand subject-object syntax. In ASL, the topic is stated first with raised eyebrows, followed by the comment.", video: "0FcwzLiXpNY" },
-      { id: "les-4-3", title: "Directional Verbs & Classifiers", duration: "55 mins", content: "Show action visually using directional signs like 'help' or 'give' where the movement direction indicates who is giving/helping whom.", video: "0FcwzLiXpNY" }
+      { id: "les-4-1", title: "HTML5 Semantic Structure", duration: "30 mins", content: "Learn to lay out pages using header, nav, main, section, and footer elements.", video: "0FcwzLiXpNY" },
+      { id: "les-4-2", title: "CSS Styling & Flexbox", duration: "45 mins", content: "Style containers, fonts, and create responsive grid and flex layouts.", video: "0FcwzLiXpNY" },
+      { id: "les-4-3", title: "JavaScript DOM Manipulation", duration: "55 mins", content: "Select elements, listen to events, and dynamically modify text values.", video: "0FcwzLiXpNY" }
     ],
     quiz: {
-      question: "How is the topic established in an ASL Topic-Comment sentence structure?",
-      options: ["Signing it last", "Signing it first with lowered eyebrows", "Signing it first with raised eyebrows", "Spelling it letter-by-letter"],
-      answer: "Signing it first with raised eyebrows"
+      question: "Which HTML5 element represents the main content of a document?",
+      options: ["<content>", "<section>", "<main>", "<body>"],
+      answer: "<main>"
     }
   }
 ];
@@ -226,12 +226,12 @@ export default function BlindDashboard() {
           API.get(`/progress/${user?.uid}`)
         ]);
         if (cRes.data?.courses?.length > 0) {
-          const aslCourses = cRes.data.courses.filter(c => 
-            c.category === "language" || 
-            c.category === "vocabulary" || 
-            c.category === "syntax"
+          const progCourses = cRes.data.courses.filter(c => 
+            c.category === "programming" || 
+            c.category === "databases" || 
+            c.category === "development"
           );
-          if (aslCourses.length > 0) setCourses(aslCourses);
+          if (progCourses.length > 0) setCourses(progCourses);
         }
         if (pRes.data?.progress) {
           const pMap = {};
@@ -286,13 +286,16 @@ export default function BlindDashboard() {
     setChatInput("");
 
     setTimeout(() => {
-      let reply = "In ASL, handshapes combined with non-manual expressions translate grammatical syntax. Focus on letter orientation.";
-      if (chatInput.toLowerCase().includes("alphabet") || chatInput.toLowerCase().includes("abc")) {
-        reply = "The alphabet fingerspelling uses 1 hand. Make sure to hold your hand still when spelling names.";
-      } else if (chatInput.toLowerCase().includes("double") || chatInput.toLowerCase().includes("ll")) {
-        reply = "For double letters like LL or OO, bounce your hand twice or slide it slightly to the side.";
-      } else if (chatInput.toLowerCase().includes("quiz")) {
-        reply = " Auditory quiz generated: What palm direction is correct for numbers 1 to 5? Palm facing inward, or palm facing outward?";
+      let reply = "Understood. The audio tutor parses code syntax structures to give step-by-step programming advice.";
+      const query = chatInput.toLowerCase();
+      if (query.includes("python") || query.includes("code") || query.includes("programming")) {
+        reply = "Python is highly readable and great for vocal learners. Def is used to declare a function.";
+      } else if (query.includes("java") || query.includes("oop")) {
+        reply = "Java is class-based and object-oriented. Extends is the keyword used to establish class inheritance.";
+      } else if (query.includes("dbms") || query.includes("sql") || query.includes("database")) {
+        reply = "Database Management Systems (DBMS) organize data. Use WHERE clauses in SELECT queries to filter rows.";
+      } else if (query.includes("quiz")) {
+        reply = "Auditory quiz generated: Which keyword is used to define a function in Python? Options: function, def, func, or define.";
       }
       setChatMessages(prev => [...prev, { sender: "ai", text: reply }]);
       speak(reply, true);
@@ -327,10 +330,10 @@ export default function BlindDashboard() {
       const list = courses.map((c, i) => `Course ${i + 1}: ${c.title}`).join(". ");
       speak(`Here are the courses: ${list}. Say open course 1 to start.`, true);
     },
-    "open course 1": () => { setSelectedCourse(courses[0]); speak("Opening details for American Sign Language Alphabet."); },
-    "open course 2": () => { setSelectedCourse(courses[1]); speak("Opening details for Basic ASL Sentences."); },
-    "open course 3": () => { setSelectedCourse(courses[2]); speak("Opening details for Numbers and Colors."); },
-    "open course 4": () => { setSelectedCourse(courses[3]); speak("Opening details for Advanced Conversational ASL."); },
+    "open course 1": () => { setSelectedCourse(courses[0]); speak("Opening details for Introduction to Python."); },
+    "open course 2": () => { setSelectedCourse(courses[1]); speak("Opening details for Java Programming Basics."); },
+    "open course 3": () => { setSelectedCourse(courses[2]); speak("Opening details for Database Management and SQL."); },
+    "open course 4": () => { setSelectedCourse(courses[3]); speak("Opening details for Web Development Basics."); },
     "sign out": () => { speak("Signing out. Redirecting to landing page."); setTimeout(logout, 1200); },
     "stop": () => stop(),
     "help": () => speak("Commands: go to home, go to courses, go to learning, go to tutor, go to activity, go to settings, list courses, open course 1, stop, sign out.")
@@ -374,13 +377,13 @@ export default function BlindDashboard() {
 
           <nav className="flex flex-col gap-2">
             {[
-              { id: "home", label: "Home Dashboard", icon: "home", desc: "View daily stats and active courses." },
-              { id: "courses", label: "Course Library", icon: "grid_view", desc: "Explore catalog. Press to browse." },
-              { id: "my-learning", label: "My Learning", icon: "menu_book", desc: "View enrolled and continue lessons." },
-              { id: "ai-tutor", label: "Audio AI Tutor", icon: "smart_toy", desc: "Chat verbally or generate exam review." },
-              { id: "activity", label: "Activity Stats", icon: "analytics", desc: "Listen to weekly learning logs." },
-              { id: "profile", label: "Profile & Badges", icon: "account_circle", desc: "View completion credentials." },
-              { id: "settings", label: "Settings Adaptive", icon: "tune", desc: "Configure speech speeds and contrast themes." }
+              { id: "home", label: "Home Dashboard", icon: "home", desc: 'View daily stats and active courses. say "go to home".', shortcut: "go to home" },
+              { id: "courses", label: "Course Library", icon: "grid_view", desc: 'Explore catalog. say "go to courses".', shortcut: "go to courses" },
+              { id: "my-learning", label: "My Learning", icon: "menu_book", desc: 'View enrolled and continue lessons. say "go to learning".', shortcut: "go to learning" },
+              { id: "ai-tutor", label: "Audio AI Tutor", icon: "smart_toy", desc: 'Chat verbally or generate exam review. say "go to tutor".', shortcut: "go to tutor" },
+              { id: "activity", label: "Activity Stats", icon: "analytics", desc: 'Listen to weekly learning logs. say "go to activity".', shortcut: "go to activity" },
+              { id: "profile", label: "Profile & Badges", icon: "account_circle", desc: 'View completion credentials. say "go to profile".', shortcut: "go to profile" },
+              { id: "settings", label: "Settings Adaptive", icon: "tune", desc: 'Configure speech speeds and contrast themes. say "go to settings".', shortcut: "go to settings" }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -401,7 +404,10 @@ export default function BlindDashboard() {
                 }`}
               >
                 <span className="material-symbols-outlined !text-xl">{tab.icon}</span>
-                {tab.label}
+                <div className="flex flex-col">
+                  <span>{tab.label}</span>
+                  <span className="text-[10px] opacity-70 font-bold mt-0.5">say "{tab.shortcut}"</span>
+                </div>
               </button>
             ))}
           </nav>
@@ -613,11 +619,12 @@ export default function BlindDashboard() {
             </div>
 
             {/* Keyboard-accessible categories */}
-            <div className={`grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl border-2 ${cardClass}`}>
+            <div className={`grid grid-cols-1 sm:grid-cols-4 gap-3 p-3 rounded-xl border-2 ${cardClass}`}>
               {[
                 { id: "all", label: "📚 All Classes" },
-                { id: "language", label: "🤟 ASL Lessons" },
-                { id: "syntax", label: "✍️ ASL Grammar" }
+                { id: "programming", label: "💻 Python & Java" },
+                { id: "databases", label: "🗄️ Database & SQL" },
+                { id: "development", label: "🌐 Web Dev Basics" }
               ].map(cat => (
                 <button
                   key={cat.id}
@@ -928,14 +935,14 @@ export default function BlindDashboard() {
               <div className="flex-1 flex flex-col justify-between gap-4 overflow-hidden">
                 <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2 pb-2 border-b ${isLight ? "border-slate-200" : isDark ? "border-white/10" : "border-[#fbbf24]/50"}`}>
                   <button
-                    onClick={() => handleQuickQuestion("Explain fingerspelling LL double letters")}
-                    onFocus={() => speak("Ask prompt about double letters button.")}
+                    onClick={() => handleQuickQuestion("Explain Python def keyword and functions")}
+                    onFocus={() => speak("Ask prompt about Python functions button.")}
                     className={`p-3 rounded-xl text-xs text-left font-bold ${innerCardClass} ${isLight || isDark ? "text-slate-800" : "text-[#fbbf24]"}`}
                   >
-                    Prompt: Fingerspelling double letters?
+                    Prompt: Python def keyword?
                   </button>
                   <button
-                    onClick={() => handleQuickQuestion("Generate auditory vocabulary quiz")}
+                    onClick={() => handleQuickQuestion("Generate auditory programming quiz")}
                     onFocus={() => speak("Ask to generate custom quiz button.")}
                     className={`p-3 rounded-xl text-xs text-left font-bold ${innerCardClass} ${isLight || isDark ? "text-slate-800" : "text-[#fbbf24]"}`}
                   >
@@ -1066,7 +1073,7 @@ export default function BlindDashboard() {
                 {[
                   { title: "Quick Learner", desc: "First purchase completed", icon: "verified" },
                   { title: "Weekly Master", desc: "Maintained a 7-day streak", icon: "local_fire_department" },
-                  { title: "Speech Fluency", desc: "ASL quiz 100%", icon: "school" }
+                  { title: "Python Master", desc: "Python quiz 100%", icon: "school" }
                 ].map((badge, idx) => (
                   <div 
                     key={idx} 
@@ -1098,8 +1105,8 @@ export default function BlindDashboard() {
             <div className="flex flex-col gap-4">
               <h2 className={`text-lg font-bold ${textTitleClass}`}>My Certificates</h2>
               {[
-                { id: "cert-1", title: "American Sign Language Alphabet", date: "June 25, 2026", code: "ACC-AI-ASL-8271" },
-                { id: "cert-2", title: "Basic ASL Sentences & Greetings", date: "June 26, 2026", code: "ACC-AI-ASL-9982" }
+                { id: "cert-1", title: "Introduction to Python Programming", date: "June 25, 2026", code: "ACC-AI-PY-8271" },
+                { id: "cert-2", title: "Java Programming Basics", date: "June 26, 2026", code: "ACC-AI-JAV-9982" }
               ].map(cert => (
                 <div 
                   key={cert.id} 
