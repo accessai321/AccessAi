@@ -167,7 +167,7 @@ export default function BlindDashboard() {
 
   // Settings
   const [ttsSpeed, setTtsSpeed] = useState("normal"); // slow, normal, fast
-  const [contrastTheme, setContrastTheme] = useState("high-contrast"); // high-contrast, standard-dark, light
+  const [contrastTheme, setContrastTheme] = useState("light"); // high-contrast, standard-dark, light
   const [fontSize, setFontSize] = useState("xxl"); // xl, xxl
   const [voiceActive, setVoiceActive] = useState(true);
 
