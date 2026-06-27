@@ -184,7 +184,14 @@ export default function BlindDashboard() {
           API.get("/courses"),
           API.get(`/progress/${user?.uid}`)
         ]);
-        if (cRes.data?.courses?.length > 0) setCourses(cRes.data.courses);
+        if (cRes.data?.courses?.length > 0) {
+          const aslCourses = cRes.data.courses.filter(c => 
+            c.category === "language" || 
+            c.category === "vocabulary" || 
+            c.category === "syntax"
+          );
+          if (aslCourses.length > 0) setCourses(aslCourses);
+        }
         if (pRes.data?.progress) {
           const pMap = {};
           pRes.data.progress.forEach(p => { pMap[p.courseId] = p; });

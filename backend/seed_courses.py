@@ -39,6 +39,34 @@ courses = [
         "video": "0FcwzLiXpNY",
         "audio": "",
         "category": "language"
+    },
+    {
+        "title": "Introduction to Python",
+        "description": "Learn the fundamentals of Python programming, including variables, loops, and functions with motor-adaptive code editors.",
+        "video": "rfscVS0vtbw",
+        "audio": "",
+        "category": "programming"
+    },
+    {
+        "title": "Java Programming Basics",
+        "description": "Master object-oriented programming in Java. Build robust console applications using adaptive switch selectors.",
+        "video": "A74TOX803D0",
+        "audio": "",
+        "category": "programming"
+    },
+    {
+        "title": "Database Management & SQL",
+        "description": "Learn to design relational databases, write SQL queries, and manage database records with structured tables.",
+        "video": "Dl8a13w4G90",
+        "audio": "",
+        "category": "programming"
+    },
+    {
+        "title": "Web Development Basics",
+        "description": "Build responsive websites using modern HTML, CSS, and interactive JavaScript interfaces.",
+        "video": "0FcwzLiXpNY",
+        "audio": "",
+        "category": "programming"
     }
 ]
 
