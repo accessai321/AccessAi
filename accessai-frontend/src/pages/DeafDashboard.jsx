@@ -147,9 +147,7 @@ export default function DeafDashboard() {
   const [selectedOption, setSelectedOption] = useState("");
   const [quizCorrect, setQuizCorrect] = useState(null);
 
-  // Caption Settings state
-  const [captionSize, setCaptionSize] = useState("medium"); // small, medium, large
-  const [captionBg, setCaptionBg] = useState("black-trans"); // black-trans, yellow, none
+
   const [contrastTheme, setContrastTheme] = useState("light"); // light (white), dark, high-contrast
   const [pipInterpreter, setPipInterpreter] = useState(true);
 
@@ -723,17 +721,7 @@ export default function DeafDashboard() {
                     </div>
                   )}
 
-                  {/* Dynamic Subtitle overlay */}
-                  <div className={`absolute bottom-4 left-4 right-4 z-20 text-center p-4 rounded-xl flex items-center justify-center gap-3 ${
-                    captionBg === "black-trans" ? "bg-black/85 border border-white/10 text-white" : captionBg === "yellow" ? "bg-yellow-400 text-black border-none" : "bg-transparent text-white"
-                  }`}>
-                    <span className="bg-primary text-white font-bold text-[9px] px-1.5 py-0.5 rounded flex-shrink-0">CC</span>
-                    <p className={`font-semibold tracking-wide leading-relaxed ${
-                      captionSize === "small" ? "text-xs" : captionSize === "large" ? "text-lg" : "text-sm"
-                    }`}>
-                      [Interpreter]: {activeCoursePlay.lessons[currentLessonIdx].content}
-                    </p>
-                  </div>
+
                 </div>
 
                 {/* Lesson Navigation Controls */}
@@ -779,37 +767,7 @@ export default function DeafDashboard() {
                     </button>
                   </div>
 
-                  {/* Caption size toggle */}
-                  <div className="flex justify-between items-center text-xs">
-                    <span>Caption Font Size</span>
-                    <div className="flex gap-1.5">
-                      {["small", "medium", "large"].map(sz => (
-                        <button key={sz} onClick={() => setCaptionSize(sz)} className={`px-2.5 py-1 rounded text-[10px] font-bold capitalize ${
-                          captionSize === sz ? "bg-primary text-white" : "bg-slate-200 text-slate-500"
-                        }`}>
-                          {sz}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
 
-                  {/* Caption style */}
-                  <div className="flex justify-between items-center text-xs">
-                    <span>Caption Coloring</span>
-                    <div className="flex gap-1.5">
-                      {[
-                        { id: "black-trans", label: "Dark" },
-                        { id: "yellow", label: "Yellow" },
-                        { id: "none", label: "Transparent" }
-                      ].map(bgOpt => (
-                        <button key={bgOpt.id} onClick={() => setCaptionBg(bgOpt.id)} className={`px-2.5 py-1 rounded text-[10px] font-bold ${
-                          captionBg === bgOpt.id ? "bg-primary text-white" : "bg-slate-200 text-slate-500"
-                        }`}>
-                          {bgOpt.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
 
                 {/* Lesson Quiz Panel */}
@@ -1202,39 +1160,7 @@ export default function DeafDashboard() {
 
             {/* Config Forms */}
             <div className={`${cardClass} p-8 rounded-2xl flex flex-col gap-6`}>
-              {/* Caption settings */}
-              <div className="flex flex-col gap-3 pb-6 border-b border-slate-200/50">
-                <h3 className="text-sm font-bold">Deaf Accessibility</h3>
-                <div className="flex justify-between items-center text-xs mt-2">
-                  <span>Video Subtitle Font Size</span>
-                  <div className="flex gap-2">
-                    {["small", "medium", "large"].map(sz => (
-                      <button key={sz} onClick={() => setCaptionSize(sz)} className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize ${
-                        captionSize === sz ? "bg-primary text-white" : "bg-slate-200 text-slate-500"
-                      }`}>
-                        {sz}
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
-                <div className="flex justify-between items-center text-xs mt-2">
-                  <span>Video Subtitle Color Backdrop</span>
-                  <div className="flex gap-2">
-                    {[
-                      { id: "black-trans", label: "Dark Trans" },
-                      { id: "yellow", label: "Yellow background" },
-                      { id: "none", label: "Transparent background" }
-                    ].map(bgOpt => (
-                      <button key={bgOpt.id} onClick={() => setCaptionBg(bgOpt.id)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                        captionBg === bgOpt.id ? "bg-primary text-white" : "bg-slate-200 text-slate-500"
-                      }`}>
-                        {bgOpt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
 
               {/* Theme Settings */}
               <div className="flex flex-col gap-3 pb-6 border-b border-slate-200/50">
@@ -1249,10 +1175,6 @@ export default function DeafDashboard() {
                     ].map(themeOpt => (
                       <button key={themeOpt.id} onClick={() => {
                         setContrastTheme(themeOpt.id);
-                        if (themeOpt.id === "high-contrast") {
-                          setCaptionBg("yellow");
-                          setCaptionSize("large");
-                        }
                       }} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
                         contrastTheme === themeOpt.id ? "bg-primary text-white" : "bg-slate-200 text-slate-500"
                       }`}>
