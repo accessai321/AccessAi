@@ -33,7 +33,7 @@ const MOCK_COURSES = [
     id: "course-2",
     title: "Java Programming Basics",
     description: "Master object-oriented programming in Java. Build robust console applications using adaptive switch selectors.",
-    video: "A74TOX803D0",
+    video: "xk4_1vTe768",
     category: "programming",
     instructor: "John Baugh, Java Specialist",
     duration: "3h 10m",
@@ -41,10 +41,10 @@ const MOCK_COURSES = [
     rating: 4.8,
     badge: "Switch-Ready",
     lessons: [
-      { id: "les-2-1", title: "Hello World & Java Syntax", content: "Write class definitions, main method entry point, and system output structures.", duration: "25 mins", video: "A74TOX803D0" },
-      { id: "les-2-2", title: "Object-Oriented Concepts", content: "Define classes, instantiate objects, and access properties using public getters and setters.", duration: "35 mins", video: "A74TOX803D0" },
-      { id: "les-2-3", title: "Inheritance & Polymorphism", content: "Extend parent classes to override methods. Practice typing inheritance keywords with gaze gestures.", duration: "40 mins", video: "A74TOX803D0" },
-      { id: "les-2-4", title: "Exception Handling", content: "Use try-catch blocks to capture runtime errors and handle program crashes safely.", duration: "30 mins", video: "A74TOX803D0" }
+      { id: "les-2-1", title: "Hello World & Java Syntax", content: "Write class definitions, main method entry point, and system output structures.", duration: "25 mins", video: "xk4_1vTe768" },
+      { id: "les-2-2", title: "Object-Oriented Concepts", content: "Define classes, instantiate objects, and access properties using public getters and setters.", duration: "35 mins", video: "xk4_1vTe768" },
+      { id: "les-2-3", title: "Inheritance & Polymorphism", content: "Extend parent classes to override methods. Practice typing inheritance keywords with gaze gestures.", duration: "40 mins", video: "xk4_1vTe768" },
+      { id: "les-2-4", title: "Exception Handling", content: "Use try-catch blocks to capture runtime errors and handle program crashes safely.", duration: "30 mins", video: "xk4_1vTe768" }
     ],
     quiz: {
       question: "Which keyword is used to establish inheritance between classes in Java?",
@@ -56,7 +56,7 @@ const MOCK_COURSES = [
     id: "course-3",
     title: "Database Management & SQL",
     description: "Learn to design relational databases, write SQL queries, and manage database records with structured tables.",
-    video: "Dl8a13w4G90",
+    video: "HXV3zeQKqGY",
     category: "databases",
     instructor: "David Vance, DB Architect",
     duration: "2h 45m",
@@ -64,9 +64,9 @@ const MOCK_COURSES = [
     rating: 4.7,
     badge: "Dwell-Optimized",
     lessons: [
-      { id: "les-3-1", title: "Relational DB Foundations", duration: "20 mins", content: "Understand tables, rows, columns, and keys. Differentiate between primary keys and foreign keys.", video: "Dl8a13w4G90" },
-      { id: "les-3-2", title: "Writing SELECT Queries", duration: "30 mins", content: "Extract columns, filter records with WHERE clauses, and sort outputs using ORDER BY statements.", video: "Dl8a13w4G90" },
-      { id: "les-3-3", title: "SQL Joins Demystified", duration: "40 mins", content: "Combine records from multiple tables using INNER JOIN, LEFT JOIN, and RIGHT JOIN conditions.", video: "Dl8a13w4G90" }
+      { id: "les-3-1", title: "Relational DB Foundations", duration: "20 mins", content: "Understand tables, rows, columns, and keys. Differentiate between primary keys and foreign keys.", video: "HXV3zeQKqGY" },
+      { id: "les-3-2", title: "Writing SELECT Queries", duration: "30 mins", content: "Extract columns, filter records with WHERE clauses, and sort outputs using ORDER BY statements.", video: "HXV3zeQKqGY" },
+      { id: "les-3-3", title: "SQL Joins Demystified", duration: "40 mins", content: "Combine records from multiple tables using INNER JOIN, LEFT JOIN, and RIGHT JOIN conditions.", video: "HXV3zeQKqGY" }
     ],
     quiz: {
       question: "Which clause is used to filter records in a SQL SELECT query?",
@@ -78,7 +78,7 @@ const MOCK_COURSES = [
     id: "course-4",
     title: "Web Development Basics",
     description: "Build responsive websites using modern HTML, CSS, and interactive JavaScript interfaces.",
-    video: "0FcwzLiXpNY",
+    video: "kUMe1FH4CHE",
     category: "development",
     instructor: "Sarah Jenkins, Frontend Lead",
     duration: "3h 40m",
@@ -86,9 +86,9 @@ const MOCK_COURSES = [
     rating: 4.6,
     badge: "Voice-Controlled",
     lessons: [
-      { id: "les-4-1", title: "HTML5 Semantic Structure", duration: "30 mins", content: "Learn to lay out pages using header, nav, main, section, and footer elements.", video: "0FcwzLiXpNY" },
-      { id: "les-4-2", title: "CSS Styling & Flexbox", duration: "45 mins", content: "Style containers, fonts, and create responsive grid and flex layouts.", video: "0FcwzLiXpNY" },
-      { id: "les-4-3", title: "JavaScript DOM Manipulation", duration: "55 mins", content: "Select elements, listen to events, and dynamically modify text values.", video: "0FcwzLiXpNY" }
+      { id: "les-4-1", title: "HTML Page Structure", duration: "45 mins", content: "Create document skeletons, head metadata, and body containers for web pages.", video: "kUMe1FH4CHE" },
+      { id: "les-4-2", title: "Styling with CSS", duration: "50 mins", content: "Apply color schemes, fonts, and box-model padding using cascading style sheets.", video: "kUMe1FH4CHE" },
+      { id: "les-4-3", title: "JavaScript Interactivity", duration: "55 mins", content: "Add event listeners to DOM elements to trigger functions on button clicks.", video: "kUMe1FH4CHE" }
     ],
     quiz: {
       question: "Which HTML5 element represents the main content of a document?",
