@@ -110,6 +110,12 @@ export default function Landing() {
     });
   }, [speakText, resumeListening, stop, setAgentState]);
 
+  // Trigger greeting automatically on page load
+  useEffect(() => {
+    handleOrbClick();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const selectMode = useCallback((modeKey, playTTS = true) => {
     setSelectedWithRef(modeKey);
 
