@@ -725,7 +725,7 @@ export default function DeafDashboard() {
 
                   {/* Dynamic Subtitle overlay */}
                   <div className={`absolute bottom-4 left-4 right-4 z-20 text-center p-4 rounded-xl flex items-center justify-center gap-3 ${
-                    captionBg === "black-trans" ? "bg-black/85 border border-white/10" : captionBg === "yellow" ? "bg-yellow-400 text-black border-none" : "bg-transparent text-white"
+                    captionBg === "black-trans" ? "bg-black/85 border border-white/10 text-white" : captionBg === "yellow" ? "bg-yellow-400 text-black border-none" : "bg-transparent text-white"
                   }`}>
                     <span className="bg-primary text-white font-bold text-[9px] px-1.5 py-0.5 rounded flex-shrink-0">CC</span>
                     <p className={`font-semibold tracking-wide leading-relaxed ${
