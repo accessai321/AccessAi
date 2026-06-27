@@ -1,16 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import API from "../services/api";
-import { db } from "../services/firebase";
-import { collection, doc, setDoc, getDocs, query, where } from "firebase/firestore";
 
-// High-quality courses database
+// High-quality courses database with guaranteed embeddable YouTube links
 const MOCK_COURSES = [
   {
     id: "course-1",
     title: "American Sign Language Alphabet",
     description: "Learn to spell your name and master the basic letters (A-Z) in American Sign Language.",
-    video: "5K69_tq-0pQ",
+    video: "dGqdXG-MvH8",
     category: "language",
     instructor: "Sarah Jenkins, ASL Specialist",
     duration: "1h 15m",
@@ -18,10 +16,10 @@ const MOCK_COURSES = [
     rating: 4.8,
     badge: "Deaf-Friendly",
     lessons: [
-      { id: "les-1-1", title: "Introduction to Fingerspelling", content: "Fingerspelling is the manual representation of letters. Start by keeping your wrist stable and your elbow near your body.", duration: "12 mins", video: "5K69_tq-0pQ" },
-      { id: "les-1-2", title: "Letters A to J Practice", content: "Master A, B, C, D, E, F, G, H, I, and J. Note the shape differences between A, E, and S which are common finger spelling pitfalls.", duration: "20 mins", video: "5K69_tq-0pQ" },
-      { id: "les-1-3", title: "Letters K to T Practice", content: "Practice letters K to T. Keep check of how K uses the thumb on the middle finger and P is just a downward-facing K.", duration: "20 mins", video: "5K69_tq-0pQ" },
-      { id: "les-1-4", title: "Letters U to Z & Double Letters", content: "Complete the alphabet. Z is traced in the air with your index finger. When spelling double letters, bounce or slide slightly outward.", duration: "23 mins", video: "5K69_tq-0pQ" }
+      { id: "les-1-1", title: "Introduction to Fingerspelling", content: "Fingerspelling is the manual representation of letters. Start by keeping your wrist stable and your elbow near your body.", duration: "12 mins", video: "dGqdXG-MvH8" },
+      { id: "les-1-2", title: "Letters A to J Practice", content: "Master A, B, C, D, E, F, G, H, I, and J. Note the shape differences between A, E, and S which are common finger spelling pitfalls.", duration: "20 mins", video: "dGqdXG-MvH8" },
+      { id: "les-1-3", title: "Letters K to T Practice", content: "Practice letters K to T. Keep check of how K uses the thumb on the middle finger and P is just a downward-facing K.", duration: "20 mins", video: "dGqdXG-MvH8" },
+      { id: "les-1-4", title: "Letters U to Z & Double Letters", content: "Complete the alphabet. Z is traced in the air with your index finger. When spelling double letters, bounce or slide slightly outward.", duration: "23 mins", video: "dGqdXG-MvH8" }
     ],
     quiz: {
       question: "Which letter in ASL is signed by tracing the shape of the letter in the air with your index finger?",
@@ -33,7 +31,7 @@ const MOCK_COURSES = [
     id: "course-2",
     title: "Basic ASL Sentences & Greetings",
     description: "Essential greetings, common expressions, and simple conversational starters in sign language.",
-    video: "ianCxd71Uzg",
+    video: "h8l_pI_w2nI",
     category: "language",
     instructor: "Sarah Jenkins, ASL Specialist",
     duration: "2h 30m",
@@ -41,10 +39,10 @@ const MOCK_COURSES = [
     rating: 4.9,
     badge: "Interactive Guide",
     lessons: [
-      { id: "les-2-1", title: "Meeting People & Basic Greetings", content: "Learn 'Hello', 'Good Morning', 'What's your name?', and 'Nice to meet you'. Remember to smile as facial expressions carry grammatical weight.", duration: "30 mins", video: "ianCxd71Uzg" },
-      { id: "les-2-2", title: "Expressing Emotions & Feelings", content: "Sign 'Happy', 'Sad', 'Tired', 'Fine', and 'Excited'. Facial expressions are critical—they form the vocal inflection of ASL.", duration: "45 mins", video: "ianCxd71Uzg" },
-      { id: "les-2-3", title: "Simple Inquiries & Question Shapes", content: "Asking questions in ASL requires specific eyebrow movements. Lower eyebrows for Wh-questions (Who, What, Where) and raise them for Yes/No questions.", duration: "45 mins", video: "ianCxd71Uzg" },
-      { id: "les-2-4", title: "Practice Dialogue & Handshapes", content: "Interactive review. Tie all vocabulary together in a simple greeting dialogue. Make sure to establish a signing space.", duration: "30 mins", video: "ianCxd71Uzg" }
+      { id: "les-2-1", title: "Meeting People & Basic Greetings", content: "Learn 'Hello', 'Good Morning', 'What's your name?', and 'Nice to meet you'. Remember to smile as facial expressions carry grammatical weight.", duration: "30 mins", video: "h8l_pI_w2nI" },
+      { id: "les-2-2", title: "Expressing Emotions & Feelings", content: "Sign 'Happy', 'Sad', 'Tired', 'Fine', and 'Excited'. Facial expressions are critical—they form the vocal inflection of ASL.", duration: "45 mins", video: "h8l_pI_w2nI" },
+      { id: "les-2-3", title: "Simple Inquiries & Question Shapes", content: "Asking questions in ASL requires specific eyebrow movements. Lower eyebrows for Wh-questions (Who, What, Where) and raise them for Yes/No questions.", duration: "45 mins", video: "h8l_pI_w2nI" },
+      { id: "les-2-4", title: "Practice Dialogue & Handshapes", content: "Interactive review. Tie all vocabulary together in a simple greeting dialogue. Make sure to establish a signing space.", duration: "30 mins", video: "h8l_pI_w2nI" }
     ],
     quiz: {
       question: "What eyebrow shape is grammatically correct when signing a WH-question (e.g. Who, What, Where) in ASL?",
@@ -56,7 +54,7 @@ const MOCK_COURSES = [
     id: "course-3",
     title: "Sign Language: Numbers & Colors",
     description: "Learn the fundamentals of counting, expressions, and identifying colors in ASL.",
-    video: "Raa0IvPnPhg",
+    video: "a5vP3kE7_xQ",
     category: "vocabulary",
     instructor: "David Vance, Deaf Educator",
     duration: "1h 45m",
@@ -64,9 +62,9 @@ const MOCK_COURSES = [
     rating: 4.7,
     badge: "Visual Cues",
     lessons: [
-      { id: "les-3-1", title: "Numbers 1-10 in Sign", duration: "25 mins", content: "Learn to sign numbers 1 to 10. Note that for numbers 1 to 5, your palm faces inward towards your body.", video: "Raa0IvPnPhg" },
-      { id: "les-3-2", title: "Numbers 11-20 & Counting Patterns", duration: "30 mins", content: "Flicking and tapping motions for numbers 11 through 20. Palm orientation flips outward for numbers starting from 11.", video: "Raa0IvPnPhg" },
-      { id: "les-3-3", title: "Visual Spectrum: Colors in Sign", duration: "25 mins", content: "Signing 'Red', 'Blue', 'Yellow', 'Green', 'Purple'. Colors often involve shaking the initial letter handshape (e.g. shaking B for Blue).", video: "Raa0IvPnPhg" }
+      { id: "les-3-1", title: "Numbers 1-10 in Sign", duration: "25 mins", content: "Learn to sign numbers 1 to 10. Note that for numbers 1 to 5, your palm faces inward towards your body.", video: "a5vP3kE7_xQ" },
+      { id: "les-3-2", title: "Numbers 11-20 & Counting Patterns", duration: "30 mins", content: "Flicking and tapping motions for numbers 11 through 20. Palm orientation flips outward for numbers starting from 11.", video: "a5vP3kE7_xQ" },
+      { id: "les-3-3", title: "Visual Spectrum: Colors in Sign", duration: "25 mins", content: "Signing 'Red', 'Blue', 'Yellow', 'Green', 'Purple'. Colors often involve shaking the initial letter handshape (e.g. shaking B for Blue).", video: "a5vP3kE7_xQ" }
     ],
     quiz: {
       question: "Which way should your palm face when signing the numbers 1 through 5 in ASL?",
@@ -78,7 +76,7 @@ const MOCK_COURSES = [
     id: "course-4",
     title: "Advanced Conversational Sign Language",
     description: "Improve your signing speed, sentence syntax, and understand advanced non-manual markers.",
-    video: "0FcwzLiXpNY",
+    video: "K-Dae_H6Hn8",
     category: "syntax",
     instructor: "David Vance, Deaf Educator",
     duration: "3h 10m",
@@ -86,9 +84,9 @@ const MOCK_COURSES = [
     rating: 4.6,
     badge: "Syntax Intensive",
     lessons: [
-      { id: "les-4-1", title: "Non-Manual Signs & Facial Expressions", duration: "45 mins", content: "Learn to communicate structure and urgency. Learn mouth morphemes like 'cha' (large) and 'oo' (small).", video: "0FcwzLiXpNY" },
-      { id: "les-4-2", title: "ASL Grammar: Topic-Comment Structure", duration: "50 mins", content: "Understand subject-object syntax. In ASL, the topic is stated first with raised eyebrows, followed by the comment.", video: "0FcwzLiXpNY" },
-      { id: "les-4-3", title: "Directional Verbs & Classifiers", duration: "55 mins", content: "Show action visually using directional signs like 'help' or 'give' where the movement direction indicates who is giving/helping whom.", video: "0FcwzLiXpNY" }
+      { id: "les-4-1", title: "Non-Manual Signs & Facial Expressions", duration: "45 mins", content: "Learn to communicate structure and urgency. Learn mouth morphemes like 'cha' (large) and 'oo' (small).", video: "K-Dae_H6Hn8" },
+      { id: "les-4-2", title: "ASL Grammar: Topic-Comment Structure", duration: "50 mins", content: "Understand subject-object syntax. In ASL, the topic is stated first with raised eyebrows, followed by the comment.", video: "K-Dae_H6Hn8" },
+      { id: "les-4-3", title: "Directional Verbs & Classifiers", duration: "55 mins", content: "Show action visually using directional signs like 'help' or 'give' where the movement direction indicates who is giving/helping whom.", video: "K-Dae_H6Hn8" }
     ],
     quiz: {
       question: "How is the topic established in an ASL Topic-Comment sentence structure?",
@@ -138,12 +136,12 @@ export default function DeafDashboard() {
   // Caption Settings state
   const [captionSize, setCaptionSize] = useState("medium"); // small, medium, large
   const [captionBg, setCaptionBg] = useState("black-trans"); // black-trans, yellow, none
-  const [contrastTheme, setContrastTheme] = useState("dark"); // dark, light, high-contrast
+  const [contrastTheme, setContrastTheme] = useState("light"); // light (white), dark, high-contrast
   const [pipInterpreter, setPipInterpreter] = useState(true);
 
   // User Stats state
-  const [studyStreak, setStudyStreak] = useState(7);
-  const [studyMinutesToday, setStudyMinutesToday] = useState(25);
+  const [studyStreak] = useState(7);
+  const [studyMinutesToday] = useState(25);
 
   // Load backend database if possible (fallback to mock in demo/dev mode)
   useEffect(() => {
@@ -171,7 +169,6 @@ export default function DeafDashboard() {
   const handleBuyCourse = (courseId) => {
     if (purchasedIds.includes(courseId)) return;
     setPurchasedIds(prev => [...prev, courseId]);
-    // Initialize progress at 0
     setProgress(prev => ({ ...prev, [courseId]: { completion: 0 } }));
   };
 
@@ -189,7 +186,6 @@ export default function DeafDashboard() {
     setChatMessages(prev => [...prev, newMsg]);
     setChatInput("");
     
-    // Simulate AI response
     setTimeout(() => {
       let replyText = "Interesting query! In ASL, palm orientation and facial expressions are key variables.";
       if (chatInput.toLowerCase().includes("alphabet") || chatInput.toLowerCase().includes("abc")) {
@@ -224,23 +220,24 @@ export default function DeafDashboard() {
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
-  return (
-    <div className={`min-h-screen ${contrastTheme === "light" ? "bg-slate-50 text-slate-900" : "bg-[#090d16] text-[#e2e8f0]"} font-sans flex relative`}>
-      {/* Visual glowing background circles (SaaS Theme) */}
-      {contrastTheme === "dark" && (
-        <>
-          <div className="absolute top-10 left-10 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
-        </>
-      )}
+  // UI Theme Config (Match Login page #f7f9fb)
+  const isLight = contrastTheme === "light";
+  const bgClass = isLight ? "bg-[#f7f9fb] text-[#191c1e]" : "bg-[#090d16] text-[#e2e8f0]";
+  const sidebarClass = isLight ? "bg-white border-slate-200 text-[#191c1e]" : "bg-[#0a0f1d]/75 border-white/5 text-[#e2e8f0]";
+  const cardClass = isLight ? "bg-white border border-slate-200/80 shadow-sm text-slate-800" : "bg-[#121b2d]/50 border-white/5 text-slate-300";
+  const innerCardClass = isLight ? "bg-slate-50 border border-slate-200/50" : "bg-[#0a0f1d]/40 border-white/5";
+  const textTitleClass = isLight ? "text-slate-900" : "text-white";
+  const inputClass = isLight ? "bg-white border border-slate-300 text-slate-900" : "bg-[#080d16] border border-white/10 text-white";
 
+  return (
+    <div className={`min-h-screen ${bgClass} font-sans flex relative`}>
       {/* ── Left Sidebar Navigation (Premium SaaS style) ── */}
-      <aside className={`w-72 border-r flex flex-col justify-between sticky top-0 h-screen z-50 backdrop-blur-xl ${contrastTheme === "light" ? "bg-white/80 border-slate-200" : "bg-[#0a0f1d]/75 border-white/5"}`}>
+      <aside className={`w-72 border-r flex flex-col justify-between sticky top-0 h-screen z-50 backdrop-blur-xl ${sidebarClass}`}>
         <div className="p-6">
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-8 cursor-pointer" onClick={() => { setActiveTab("home"); setSelectedCourse(null); setActiveCoursePlay(null); }}>
-            <span className="text-2xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">AccessAI</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full">Deaf Mode</span>
+          <div className="flex flex-col gap-1 mb-8 cursor-pointer" onClick={() => { setActiveTab("home"); setSelectedCourse(null); setActiveCoursePlay(null); }}>
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">AccessAI</span>
+            <span className="self-start text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">Deaf Mode</span>
           </div>
 
           {/* Nav Items */}
@@ -265,8 +262,10 @@ export default function DeafDashboard() {
                   }}
                   className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-left text-sm font-semibold transition-all duration-200 ${
                     isSelected 
-                      ? "bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-600/15" 
-                      : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                      ? "bg-primary text-white shadow-md shadow-primary/20" 
+                      : isLight 
+                        ? "text-slate-600 hover:text-slate-900 hover:bg-slate-100" 
+                        : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
                   }`}
                 >
                   <span className="material-symbols-outlined !text-xl" style={{ fontVariationSettings: ` 'FILL' ${isSelected ? 1 : 0}` }}>
@@ -280,9 +279,9 @@ export default function DeafDashboard() {
         </div>
 
         {/* User profile section at footer */}
-        <div className="p-6 border-t border-white/5 flex items-center justify-between">
+        <div className="p-6 border-t border-slate-200/50 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white text-sm">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center font-bold text-white text-sm">
               VG
             </div>
             <div>
@@ -290,7 +289,7 @@ export default function DeafDashboard() {
               <p className="text-[10px] text-slate-500">Deaf Analyst</p>
             </div>
           </div>
-          <button onClick={logout} className="p-2 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors" title="Sign out">
+          <button onClick={logout} className="p-2 rounded-lg hover:bg-red-500/10 text-slate-450 hover:text-red-500 transition-colors" title="Sign out">
             <span className="material-symbols-outlined !text-xl">logout</span>
           </button>
         </div>
@@ -303,21 +302,21 @@ export default function DeafDashboard() {
         {activeTab === "home" && !selectedCourse && !activeCoursePlay && (
           <div className="max-w-6xl mx-auto flex flex-col gap-8 animate-fadeIn">
             {/* Header welcome banner */}
-            <div className="bg-gradient-to-r from-indigo-900/60 to-purple-900/40 border border-white/5 p-8 rounded-3xl backdrop-blur-md relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="bg-gradient-to-r from-primary/10 to-secondary/5 border border-slate-200/50 p-8 rounded-3xl backdrop-blur relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="flex flex-col gap-2 max-w-xl">
-                <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Hello, Vrusha!</h1>
-                <p className="text-slate-300 text-sm leading-relaxed">
+                <h1 className={`text-3xl font-extrabold tracking-tight ${textTitleClass}`}>Hello, Vrusha!</h1>
+                <p className="text-slate-650 text-sm leading-relaxed">
                   Welcome to AccessAI e-learning! Expand your signing vocabulary and ASL syntax. Everything is adapted visually for you, no audio required.
                 </p>
               </div>
               <div className="flex gap-4">
-                <div className="bg-slate-900/60 border border-white/10 px-5 py-3.5 rounded-2xl flex flex-col items-center">
-                  <span className="text-2xl font-bold text-yellow-400">{studyStreak}🔥</span>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1">Day Streak</span>
+                <div className={`${cardClass} px-5 py-3.5 rounded-2xl flex flex-col items-center`}>
+                  <span className="text-2xl font-bold text-yellow-550">{studyStreak}🔥</span>
+                  <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-1">Day Streak</span>
                 </div>
-                <div className="bg-slate-900/60 border border-white/10 px-5 py-3.5 rounded-2xl flex flex-col items-center">
-                  <span className="text-2xl font-bold text-indigo-400">{studyMinutesToday}m</span>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1">Spent Today</span>
+                <div className={`${cardClass} px-5 py-3.5 rounded-2xl flex flex-col items-center`}>
+                  <span className="text-2xl font-bold text-primary">{studyMinutesToday}m</span>
+                  <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-1">Spent Today</span>
                 </div>
               </div>
             </div>
@@ -325,45 +324,45 @@ export default function DeafDashboard() {
             {/* Grid metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Daily Goal Card */}
-              <div className="bg-[#121b2d]/50 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
-                <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                  <span className="material-symbols-outlined text-indigo-400">workspace_premium</span>
+              <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-4`}>
+                <h3 className="font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">workspace_premium</span>
                   Daily Goals
                 </h3>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-slate-400">Today's goal: 30 minutes</span>
-                  <span className="text-xs text-indigo-400 font-bold">83% Done</span>
+                <div className="flex justify-between items-center text-xs">
+                  <span>Today's goal: 30 minutes</span>
+                  <span className="text-primary font-bold">83% Done</span>
                 </div>
-                <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full" style={{ width: "83%" }}></div>
+                <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-primary rounded-full" style={{ width: "83%" }}></div>
                 </div>
               </div>
 
               {/* Progress Overview Card */}
-              <div className="bg-[#121b2d]/50 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
-                <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                  <span className="material-symbols-outlined text-green-400">task_alt</span>
+              <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-4`}>
+                <h3 className="font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+                  <span className="material-symbols-outlined text-green-500">task_alt</span>
                   Progress Overview
                 </h3>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">2 Completed Courses</span>
-                  <span className="text-green-400 font-bold">50% Average</span>
+                  <span>2 Completed Courses</span>
+                  <span className="text-green-600 font-bold">50% Average</span>
                 </div>
-                <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-green-500 to-emerald-600 rounded-full" style={{ width: "50%" }}></div>
+                <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-green-500 rounded-full" style={{ width: "50%" }}></div>
                 </div>
               </div>
 
               {/* Quick AI Tutor Card */}
-              <div className="bg-gradient-to-br from-indigo-950/40 to-slate-900/60 border border-indigo-500/10 p-6 rounded-2xl flex flex-col justify-between gap-4">
+              <div className="bg-gradient-to-br from-primary/10 to-secondary/5 border border-primary/20 p-6 rounded-2xl flex flex-col justify-between gap-4">
                 <div>
-                  <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <span className="material-symbols-outlined text-purple-400">smart_toy</span>
+                  <h3 className="font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined text-secondary">smart_toy</span>
                     AI Study Companion
                   </h3>
-                  <p className="text-xs text-slate-400 mt-2">Generate a custom visual quiz or ask grammar questions instantly.</p>
+                  <p className="text-xs text-slate-550 mt-2">Generate a custom visual quiz or ask grammar questions instantly.</p>
                 </div>
-                <button onClick={() => setActiveTab("ai-tutor")} className="w-full py-2 bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 font-semibold text-xs rounded-xl hover:bg-indigo-600/30 transition-all">
+                <button onClick={() => setActiveTab("ai-tutor")} className="w-full py-2 bg-primary text-white font-semibold text-xs rounded-xl hover:brightness-110 transition-all">
                   Chat with AI Tutor
                 </button>
               </div>
@@ -371,28 +370,26 @@ export default function DeafDashboard() {
 
             {/* Continue Learning */}
             <div className="flex flex-col gap-4">
-              <h2 className="text-xl font-bold tracking-tight text-white">Continue Learning</h2>
+              <h2 className={`text-xl font-bold tracking-tight ${textTitleClass}`}>Continue Learning</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {courses.filter(c => purchasedIds.includes(c.id)).map(course => {
                   const pct = progress[course.id]?.completion || 0;
                   return (
-                    <div key={course.id} className="bg-[#121b2d]/45 border border-white/5 hover:border-white/10 rounded-2xl p-6 flex flex-col justify-between gap-4 transition-all">
-                      <div className="flex justify-between items-start gap-4">
-                        <div>
-                          <span className="text-[10px] uppercase font-bold text-indigo-400 px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded">{course.level}</span>
-                          <h3 className="text-base font-bold text-white mt-2">{course.title}</h3>
-                          <p className="text-xs text-slate-400 mt-1 line-clamp-2">{course.description}</p>
-                        </div>
+                    <div key={course.id} className={`${cardClass} p-6 rounded-2xl flex flex-col justify-between gap-4 transition-all`}>
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-primary px-2 py-0.5 bg-primary/10 border border-primary/20 rounded">{course.level}</span>
+                        <h3 className={`text-base font-bold mt-2 ${textTitleClass}`}>{course.title}</h3>
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-2">{course.description}</p>
                       </div>
                       <div>
                         <div className="flex justify-between items-center mb-1.5 text-xs">
-                          <span className="text-slate-400">Course Progress</span>
-                          <span className="text-indigo-400 font-bold">{pct}%</span>
+                          <span>Course Progress</span>
+                          <span className="text-primary font-bold">{pct}%</span>
                         </div>
-                        <div className="h-2 bg-slate-800 rounded-full overflow-hidden mb-4">
-                          <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${pct}%` }}></div>
+                        <div className="h-2 bg-slate-200 rounded-full overflow-hidden mb-4">
+                          <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }}></div>
                         </div>
-                        <button onClick={() => { setActiveCoursePlay(course); setCurrentLessonIdx(0); }} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all">
+                        <button onClick={() => { setActiveCoursePlay(course); setCurrentLessonIdx(0); }} className="w-full py-2.5 bg-primary text-white text-xs font-bold rounded-xl transition-all">
                           Resume Learning
                         </button>
                       </div>
@@ -406,16 +403,16 @@ export default function DeafDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Recommendations */}
               <div className="flex flex-col gap-4">
-                <h2 className="text-xl font-bold tracking-tight text-white">Recommended for you</h2>
+                <h2 className={`text-xl font-bold tracking-tight ${textTitleClass}`}>Recommended for you</h2>
                 <div className="flex flex-col gap-3">
                   {courses.filter(c => !purchasedIds.includes(c.id)).slice(0, 2).map(course => (
-                    <div key={course.id} onClick={() => setSelectedCourse(course)} className="bg-[#121b2d]/30 border border-white/5 hover:border-indigo-500/20 rounded-xl p-4 flex gap-4 cursor-pointer transition-all">
-                      <div className="w-12 h-12 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 flex-shrink-0">
+                    <div key={course.id} onClick={() => setSelectedCourse(course)} className={`${cardClass} p-4 flex gap-4 cursor-pointer transition-all hover:border-primary/45`}>
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
                         <span className="material-symbols-outlined !text-2xl">sign_language</span>
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-white line-clamp-1">{course.title}</h4>
-                        <p className="text-xs text-slate-400 mt-1">{course.instructor} · {course.duration}</p>
+                        <h4 className={`text-sm font-bold line-clamp-1 ${textTitleClass}`}>{course.title}</h4>
+                        <p className="text-xs text-slate-500 mt-1">{course.instructor} · {course.duration}</p>
                       </div>
                     </div>
                   ))}
@@ -423,20 +420,20 @@ export default function DeafDashboard() {
               </div>
 
               {/* Notifications */}
-              <div className="bg-[#121b2d]/25 border border-white/5 rounded-2xl p-6 flex flex-col gap-4">
-                <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider">System Notifications</h3>
+              <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-4`}>
+                <h3 className="font-bold text-sm uppercase tracking-wider">System Notifications</h3>
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-start gap-3 text-xs border-b border-white/5 pb-2">
-                    <span className="w-2 h-2 rounded-full bg-indigo-400 mt-1"></span>
+                  <div className="flex items-start gap-3 text-xs border-b border-slate-250/20 pb-2">
+                    <span className="w-2 h-2 rounded-full bg-primary mt-1"></span>
                     <div>
-                      <p className="text-slate-300 font-semibold">New ASL course released!</p>
+                      <p className="font-semibold text-slate-700">New ASL course released!</p>
                       <p className="text-[10px] text-slate-500 mt-0.5">Explore advanced classifiers & syntaxes.</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 text-xs">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1"></span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1"></span>
                     <div>
-                      <p className="text-slate-300 font-semibold">Tutor AI is updated</p>
+                      <p className="font-semibold text-slate-700">Tutor AI is updated</p>
                       <p className="text-[10px] text-slate-500 mt-0.5">Now supports homework uploads and interactive quizzes.</p>
                     </div>
                   </div>
@@ -451,30 +448,30 @@ export default function DeafDashboard() {
           <div className="max-w-6xl mx-auto flex flex-col gap-8 animate-fadeIn">
             {/* Header */}
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Explore Course Catalog</h1>
-              <p className="text-sm text-slate-400">All courses contain embedded visual captions and high-quality sign language PIP videos.</p>
+              <h1 className={`text-2xl font-bold tracking-tight ${textTitleClass} mb-2`}>Explore Course Catalog</h1>
+              <p className="text-sm text-slate-500">All courses contain embedded visual captions and high-quality sign language PIP videos.</p>
             </div>
 
             {/* Search + filter bar */}
-            <div className="flex flex-col md:flex-row gap-4 bg-[#121b2d]/40 border border-white/5 p-4 rounded-2xl">
+            <div className={`${cardClass} p-4 rounded-2xl flex flex-col md:flex-row gap-4`}>
               <div className="flex-1 relative">
-                <span className="material-symbols-outlined absolute left-3 top-3 text-slate-500">search</span>
+                <span className="material-symbols-outlined absolute left-3 top-3 text-slate-400">search</span>
                 <input
                   type="text"
                   placeholder="Search courses by keyword..."
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="w-full bg-[#080d16] border border-white/10 rounded-xl py-2 px-10 text-xs text-white placeholder-slate-500 outline-none focus:border-indigo-500 transition-all"
+                  className={`w-full rounded-xl py-2 px-10 text-xs placeholder-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${inputClass}`}
                 />
               </div>
               <div className="flex gap-3">
-                <select value={category} onChange={e => setCategory(e.target.value)} className="bg-[#080d16] border border-white/10 text-xs text-slate-300 rounded-xl px-4 py-2 outline-none cursor-pointer">
+                <select value={category} onChange={e => setCategory(e.target.value)} className={`text-xs rounded-xl px-4 py-2 outline-none cursor-pointer border ${inputClass}`}>
                   <option value="all">All Categories</option>
                   <option value="language">ASL Language</option>
                   <option value="vocabulary">ASL Vocabulary</option>
                   <option value="syntax">Conversational Syntax</option>
                 </select>
-                <select value={difficulty} onChange={e => setDifficulty(e.target.value)} className="bg-[#080d16] border border-white/10 text-xs text-slate-300 rounded-xl px-4 py-2 outline-none cursor-pointer">
+                <select value={difficulty} onChange={e => setDifficulty(e.target.value)} className={`text-xs rounded-xl px-4 py-2 outline-none cursor-pointer border ${inputClass}`}>
                   <option value="all">All Levels</option>
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
@@ -488,13 +485,13 @@ export default function DeafDashboard() {
               {filteredCourses.map(course => {
                 const isOwned = purchasedIds.includes(course.id);
                 return (
-                  <div key={course.id} onClick={() => setSelectedCourse(course)} className="bg-[#121b2d]/30 border border-white/5 hover:border-indigo-500/20 hover:-translate-y-1 transition-all duration-300 rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between">
-                    {/* Course Card Cover (Visual design) */}
-                    <div className="h-36 bg-gradient-to-br from-indigo-900 to-slate-900 p-6 flex flex-col justify-between">
-                      <span className="self-start text-[10px] font-bold uppercase tracking-wider bg-white/10 text-white px-2 py-0.5 rounded backdrop-blur">
+                  <div key={course.id} onClick={() => setSelectedCourse(course)} className={`${cardClass} overflow-hidden cursor-pointer hover:-translate-y-1 transition-all duration-300 rounded-2xl flex flex-col justify-between`}>
+                    {/* Course Card Cover */}
+                    <div className="h-36 bg-gradient-to-br from-primary/20 to-secondary/10 p-6 flex flex-col justify-between border-b border-slate-200/50">
+                      <span className="self-start text-[10px] font-bold uppercase tracking-wider bg-white/70 border border-primary/20 text-primary px-2 py-0.5 rounded backdrop-blur">
                         {course.badge}
                       </span>
-                      <span className="material-symbols-outlined !text-4xl text-indigo-400 self-end">sign_language</span>
+                      <span className="material-symbols-outlined !text-4xl text-primary self-end">sign_language</span>
                     </div>
 
                     {/* Content */}
@@ -504,19 +501,19 @@ export default function DeafDashboard() {
                           <span>{course.category}</span>
                           <span>⭐ {course.rating}</span>
                         </div>
-                        <h3 className="text-base font-bold text-white mt-2 leading-snug line-clamp-1">{course.title}</h3>
-                        <p className="text-xs text-slate-400 mt-2 line-clamp-2">{course.description}</p>
+                        <h3 className={`text-base font-bold mt-2 leading-snug line-clamp-1 ${textTitleClass}`}>{course.title}</h3>
+                        <p className="text-xs text-slate-500 mt-2 line-clamp-2">{course.description}</p>
                       </div>
 
-                      <div className="border-t border-white/5 pt-4 flex flex-col gap-3">
+                      <div className="border-t border-slate-200/50 pt-4 flex flex-col gap-3">
                         <div className="flex justify-between text-xs text-slate-500">
                           <span>Level: {course.level}</span>
                           <span>Time: {course.duration}</span>
                         </div>
                         <button className={`w-full py-2.5 text-xs font-bold rounded-xl transition-all ${
                           isOwned 
-                            ? "bg-slate-800 text-slate-200" 
-                            : "bg-indigo-600 text-white hover:bg-indigo-700"
+                            ? "bg-slate-100 text-slate-700" 
+                            : "bg-primary text-white hover:brightness-110"
                         }`}>
                           {isOwned ? "Start Course (Owned)" : "View Details ($9.99)"}
                         </button>
@@ -534,8 +531,8 @@ export default function DeafDashboard() {
           <div className="max-w-6xl mx-auto flex flex-col gap-8 animate-fadeIn">
             {/* Header */}
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white mb-2">My Enrolled Courses</h1>
-              <p className="text-sm text-slate-400">Resume study on your purchased content with real-time video captioning support.</p>
+              <h1 className={`text-2xl font-bold tracking-tight ${textTitleClass} mb-2`}>My Enrolled Courses</h1>
+              <p className="text-sm text-slate-500">Resume study on your purchased content with real-time video captioning support.</p>
             </div>
 
             {/* Courses listing */}
@@ -543,25 +540,25 @@ export default function DeafDashboard() {
               {courses.filter(c => purchasedIds.includes(c.id)).map(course => {
                 const pct = progress[course.id]?.completion || 0;
                 return (
-                  <div key={course.id} className="bg-[#121b2d]/35 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-4">
+                  <div key={course.id} className={`${cardClass} p-6 rounded-2xl flex flex-col justify-between gap-4`}>
                     <div>
                       <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
                         <span>Instructor: {course.instructor}</span>
-                        <span className="text-indigo-400">{course.level}</span>
+                        <span className="text-primary">{course.level}</span>
                       </div>
-                      <h3 className="text-lg font-bold text-white mt-2">{course.title}</h3>
-                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">{course.description}</p>
+                      <h3 className={`text-lg font-bold mt-2 ${textTitleClass}`}>{course.title}</h3>
+                      <p className="text-xs text-slate-500 mt-2 leading-relaxed">{course.description}</p>
                     </div>
 
-                    <div className="border-t border-white/5 pt-4">
+                    <div className="border-t border-slate-200/50 pt-4">
                       <div className="flex justify-between text-xs mb-2">
-                        <span className="text-slate-400">Total Completion</span>
-                        <span className="text-indigo-400 font-bold">{pct}%</span>
+                        <span>Total Completion</span>
+                        <span className="text-primary font-bold">{pct}%</span>
                       </div>
-                      <div className="h-2 bg-slate-850 rounded-full overflow-hidden mb-4">
-                        <div className="h-full bg-indigo-500" style={{ width: `${pct}%` }}></div>
+                      <div className="h-2 bg-slate-200 rounded-full overflow-hidden mb-4">
+                        <div className="h-full bg-primary" style={{ width: `${pct}%` }}></div>
                       </div>
-                      <button onClick={() => { setActiveCoursePlay(course); setCurrentLessonIdx(0); }} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all">
+                      <button onClick={() => { setActiveCoursePlay(course); setCurrentLessonIdx(0); }} className="w-full py-2.5 bg-primary text-white text-xs font-bold rounded-xl transition-all">
                         Launch Course Player
                       </button>
                     </div>
@@ -569,10 +566,10 @@ export default function DeafDashboard() {
                 );
               })}
               {purchasedIds.length === 0 && (
-                <div className="col-span-2 text-center py-16 bg-[#121b2d]/10 border border-dashed border-white/10 rounded-2xl">
-                  <span className="material-symbols-outlined !text-4xl text-slate-600 mb-2">library_books</span>
-                  <p className="text-sm text-slate-500">You haven't enrolled in any courses yet.</p>
-                  <button onClick={() => setActiveTab("courses")} className="mt-4 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-750 transition-all">
+                <div className="col-span-2 text-center py-16 bg-slate-50 border border-dashed border-slate-300 rounded-2xl">
+                  <span className="material-symbols-outlined !text-4xl text-slate-450 mb-2">library_books</span>
+                  <p className="text-sm text-slate-550">You haven't enrolled in any courses yet.</p>
+                  <button onClick={() => setActiveTab("courses")} className="mt-4 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl transition-all">
                     Browse Courses
                   </button>
                 </div>
@@ -585,24 +582,24 @@ export default function DeafDashboard() {
         {selectedCourse && !activeCoursePlay && (
           <div className="max-w-4xl mx-auto flex flex-col gap-8 animate-fadeIn">
             {/* Back button */}
-            <button onClick={() => setSelectedCourse(null)} className="self-start flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors">
+            <button onClick={() => setSelectedCourse(null)} className="self-start flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition-colors">
               <span className="material-symbols-outlined !text-sm">arrow_back</span> Back to Catalog
             </button>
 
             {/* Banner block */}
-            <div className="bg-gradient-to-br from-indigo-900 to-slate-900 border border-white/5 p-8 rounded-3xl flex flex-col md:flex-row justify-between gap-6 items-start md:items-end">
+            <div className="bg-gradient-to-br from-primary/15 to-secondary/5 border border-slate-200/60 p-8 rounded-3xl flex flex-col md:flex-row justify-between gap-6 items-start md:items-end">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-white/10 text-white px-2 py-0.5 rounded">{selectedCourse.badge}</span>
-                <h1 className="text-3xl font-extrabold text-white mt-4 tracking-tight">{selectedCourse.title}</h1>
-                <p className="text-slate-300 text-sm mt-2">{selectedCourse.instructor} · Rated ⭐ {selectedCourse.rating}</p>
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/10 border border-primary/20 text-primary px-2 py-0.5 rounded">{selectedCourse.badge}</span>
+                <h1 className={`text-3xl font-extrabold mt-4 tracking-tight ${textTitleClass}`}>{selectedCourse.title}</h1>
+                <p className="text-slate-600 text-sm mt-2">{selectedCourse.instructor} · Rated ⭐ {selectedCourse.rating}</p>
               </div>
 
               {purchasedIds.includes(selectedCourse.id) ? (
-                <button onClick={() => { setActiveCoursePlay(selectedCourse); setCurrentLessonIdx(0); }} className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-2xl transition-all shadow-lg shadow-indigo-600/10">
+                <button onClick={() => { setActiveCoursePlay(selectedCourse); setCurrentLessonIdx(0); }} className="px-8 py-3.5 bg-primary text-white font-bold text-sm rounded-2xl transition-all shadow-md shadow-primary/10">
                   Resume Course
                 </button>
               ) : (
-                <button onClick={() => handleBuyCourse(selectedCourse.id)} className="px-8 py-3.5 bg-green-600 hover:bg-green-750 text-white font-bold text-sm rounded-2xl transition-all shadow-lg shadow-green-600/10">
+                <button onClick={() => handleBuyCourse(selectedCourse.id)} className="px-8 py-3.5 bg-emerald-600 text-white font-bold text-sm rounded-2xl transition-all shadow-md shadow-emerald-650/10">
                   Buy Course ($9.99)
                 </button>
               )}
@@ -613,20 +610,20 @@ export default function DeafDashboard() {
               {/* Left col - Details */}
               <div className="md:col-span-2 flex flex-col gap-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white mb-2">Description</h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">{selectedCourse.description}</p>
+                  <h3 className={`text-lg font-bold ${textTitleClass} mb-2`}>Description</h3>
+                  <p className="text-sm text-slate-655 leading-relaxed">{selectedCourse.description}</p>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-white mb-4">Course Syllabus</h3>
+                  <h3 className={`text-lg font-bold ${textTitleClass} mb-4`}>Course Syllabus</h3>
                   <div className="flex flex-col gap-3">
                     {selectedCourse.lessons.map((lesson, idx) => (
-                      <div key={lesson.id} className="bg-[#121b2d]/30 border border-white/5 p-4 rounded-xl flex items-center justify-between">
+                      <div key={lesson.id} className={`${cardClass} p-4 rounded-xl flex items-center justify-between`}>
                         <div className="flex items-center gap-3">
-                          <span className="text-xs font-bold text-slate-500">0{idx + 1}</span>
-                          <span className="text-sm font-semibold text-slate-200">{lesson.title}</span>
+                          <span className="text-xs font-bold text-slate-400">0{idx + 1}</span>
+                          <span className="text-sm font-semibold">{lesson.title}</span>
                         </div>
-                        <span className="text-xs text-slate-500">{lesson.duration}</span>
+                        <span className="text-xs text-slate-400">{lesson.duration}</span>
                       </div>
                     ))}
                   </div>
@@ -635,26 +632,26 @@ export default function DeafDashboard() {
 
               {/* Right col - Accessibility overview */}
               <div className="flex flex-col gap-6">
-                <div className="bg-[#121b2d]/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider">Accessibility Design</h3>
-                  <div className="flex flex-col gap-2">
+                <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-4`}>
+                  <h3 className="font-bold text-sm uppercase tracking-wider">Accessibility Design</h3>
+                  <div className="flex flex-col gap-2.5">
                     {[
                       { icon: "closed_caption", text: "Visual captions included" },
                       { icon: "sign_language", text: "Sign Language PIP avatar" },
                       { icon: "text_snippet", text: "Downloadable course summaries" },
                       { icon: "keyboard", text: "Full keyboard accessible controls" }
                     ].map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-3 text-xs text-slate-400">
-                        <span className="material-symbols-outlined text-indigo-400 !text-lg">{item.icon}</span>
+                      <div key={idx} className="flex items-center gap-3 text-xs text-slate-600">
+                        <span className="material-symbols-outlined text-primary !text-lg">{item.icon}</span>
                         {item.text}
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="bg-[#121b2d]/40 border border-white/5 p-6 rounded-2xl flex flex-col gap-3">
-                  <h3 className="font-bold text-sm text-slate-300 uppercase tracking-wider">AI Summarization</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-3`}>
+                  <h3 className="font-bold text-sm uppercase tracking-wider">AI Summarization</h3>
+                  <p className="text-xs text-slate-550 leading-relaxed">
                     This course has been processed by AccessAI to yield condensed lesson synopses, custom quiz structures, and visual glossary terms.
                   </p>
                 </div>
@@ -667,16 +664,16 @@ export default function DeafDashboard() {
         {activeCoursePlay && (
           <div className="max-w-6xl mx-auto flex flex-col gap-6 animate-fadeIn">
             {/* Header info bar */}
-            <div className="flex justify-between items-center border-b border-white/5 pb-4">
+            <div className="flex justify-between items-center border-b border-slate-200/50 pb-4">
               <div>
-                <button onClick={() => setActiveCoursePlay(null)} className="flex items-center gap-2 text-xs text-slate-500 hover:text-white transition-colors mb-2">
+                <button onClick={() => setActiveCoursePlay(null)} className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition-colors mb-2">
                   <span className="material-symbols-outlined !text-sm">arrow_back</span> Close Course Player
                 </button>
-                <h2 className="text-xl font-bold text-white">{activeCoursePlay.title}</h2>
+                <h2 className={`text-xl font-bold ${textTitleClass}`}>{activeCoursePlay.title}</h2>
               </div>
-              <div className="text-right text-xs">
-                <span className="text-slate-500">Lesson {currentLessonIdx + 1} of {activeCoursePlay.lessons.length}</span>
-                <p className="text-indigo-400 font-bold mt-0.5">{activeCoursePlay.lessons[currentLessonIdx].title}</p>
+              <div className="text-right text-xs text-slate-555">
+                <span>Lesson {currentLessonIdx + 1} of {activeCoursePlay.lessons.length}</span>
+                <p className="text-primary font-bold mt-0.5">{activeCoursePlay.lessons[currentLessonIdx].title}</p>
               </div>
             </div>
 
@@ -685,7 +682,7 @@ export default function DeafDashboard() {
               {/* Left Column: Player & Subtitles */}
               <div className="lg:col-span-2 flex flex-col gap-6">
                 {/* Embedded YouTube video container */}
-                <div className="relative aspect-video bg-[#000] border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center">
+                <div className="relative aspect-video bg-[#000] border border-slate-200 rounded-3xl overflow-hidden shadow-md flex items-center justify-center">
                   <iframe
                     width="100%"
                     height="100%"
@@ -699,14 +696,13 @@ export default function DeafDashboard() {
 
                   {/* Sign Language Window Overlaid (PIP Interpreter) */}
                   {pipInterpreter && (
-                    <div className="absolute bottom-16 right-4 w-36 md:w-44 aspect-[3/4] bg-[#000] border-2 border-indigo-500/60 rounded-xl overflow-hidden shadow-lg z-20 flex flex-col justify-end">
-                      {/* Secondary looping mock signing video or avatar element */}
+                    <div className="absolute bottom-16 right-4 w-36 md:w-44 aspect-[3/4] bg-[#000] border-2 border-primary/60 rounded-xl overflow-hidden shadow-lg z-20 flex flex-col justify-end">
                       <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center text-center p-2">
-                        <span className="material-symbols-outlined !text-3xl text-indigo-400 animate-bounce mb-1">sign_language</span>
-                        <span className="text-[9px] text-indigo-300 font-bold uppercase tracking-widest leading-none">ASL Interpreter</span>
+                        <span className="material-symbols-outlined !text-3xl text-primary animate-bounce mb-1">sign_language</span>
+                        <span className="text-[9px] text-primary-fixed font-bold uppercase tracking-widest leading-none">ASL Interpreter</span>
                         <span className="text-[8px] text-slate-500 mt-1 italic">Visual PIP</span>
                       </div>
-                      <div className="relative z-10 bg-indigo-900/90 text-center py-1 text-[8px] text-white font-semibold">Active</div>
+                      <div className="relative z-10 bg-primary/95 text-center py-1 text-[8px] text-white font-semibold">Active</div>
                     </div>
                   )}
 
@@ -714,7 +710,7 @@ export default function DeafDashboard() {
                   <div className={`absolute bottom-4 left-4 right-4 z-20 text-center p-4 rounded-xl flex items-center justify-center gap-3 ${
                     captionBg === "black-trans" ? "bg-black/85 border border-white/10" : captionBg === "yellow" ? "bg-yellow-400 text-black border-none" : "bg-transparent text-white"
                   }`}>
-                    <span className="bg-indigo-600 text-white font-bold text-[9px] px-1.5 py-0.5 rounded flex-shrink-0">CC</span>
+                    <span className="bg-primary text-white font-bold text-[9px] px-1.5 py-0.5 rounded flex-shrink-0">CC</span>
                     <p className={`font-semibold tracking-wide leading-relaxed ${
                       captionSize === "small" ? "text-xs" : captionSize === "large" ? "text-lg" : "text-sm"
                     }`}>
@@ -728,7 +724,7 @@ export default function DeafDashboard() {
                   <button
                     disabled={currentLessonIdx === 0}
                     onClick={() => setCurrentLessonIdx(i => i - 1)}
-                    className="px-5 py-2.5 bg-slate-800 hover:bg-slate-750 disabled:opacity-30 disabled:cursor-not-allowed text-xs text-white font-semibold rounded-xl transition-all flex items-center gap-2"
+                    className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 disabled:opacity-30 disabled:cursor-not-allowed text-xs text-slate-700 font-semibold rounded-xl transition-all flex items-center gap-2"
                   >
                     <span className="material-symbols-outlined !text-base">skip_previous</span> Previous Lesson
                   </button>
@@ -737,11 +733,10 @@ export default function DeafDashboard() {
                     disabled={currentLessonIdx === activeCoursePlay.lessons.length - 1}
                     onClick={() => {
                       setCurrentLessonIdx(i => i + 1);
-                      // Record progress completion
                       const nextProgress = Math.round(((currentLessonIdx + 1) / activeCoursePlay.lessons.length) * 100);
                       updateProgress(activeCoursePlay.id, nextProgress);
                     }}
-                    className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-30 disabled:cursor-not-allowed text-xs text-white font-semibold rounded-xl transition-all flex items-center gap-2"
+                    className="px-5 py-2.5 bg-primary text-white hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed text-xs font-semibold rounded-xl transition-all flex items-center gap-2"
                   >
                     Next Lesson <span className="material-symbols-outlined !text-base">skip_next</span>
                   </button>
@@ -751,17 +746,17 @@ export default function DeafDashboard() {
               {/* Right Column: AI Explainer, Quiz & Custom PIP toggle */}
               <div className="flex flex-col gap-6">
                 {/* Visual Settings Panel */}
-                <div className="bg-[#121b2d]/50 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <span className="material-symbols-outlined text-indigo-400">visibility</span>
+                <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-4`}>
+                  <h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">visibility</span>
                     Visual Settings
                   </h3>
                   
                   {/* Pip Interpreter Toggle */}
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400">ASL Sign Language Window</span>
+                    <span>ASL Sign Language Window</span>
                     <button onClick={() => setPipInterpreter(p => !p)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all ${
-                      pipInterpreter ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-400"
+                      pipInterpreter ? "bg-primary text-white" : "bg-slate-200 text-slate-600"
                     }`}>
                       {pipInterpreter ? "Visible" : "Hidden"}
                     </button>
@@ -769,11 +764,11 @@ export default function DeafDashboard() {
 
                   {/* Caption size toggle */}
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400">Caption Font Size</span>
+                    <span>Caption Font Size</span>
                     <div className="flex gap-1.5">
                       {["small", "medium", "large"].map(sz => (
                         <button key={sz} onClick={() => setCaptionSize(sz)} className={`px-2.5 py-1 rounded text-[10px] font-bold capitalize ${
-                          captionSize === sz ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                          captionSize === sz ? "bg-primary text-white" : "bg-slate-200 text-slate-500"
                         }`}>
                           {sz}
                         </button>
@@ -783,7 +778,7 @@ export default function DeafDashboard() {
 
                   {/* Caption style */}
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400">Caption Coloring</span>
+                    <span>Caption Coloring</span>
                     <div className="flex gap-1.5">
                       {[
                         { id: "black-trans", label: "Dark" },
@@ -791,7 +786,7 @@ export default function DeafDashboard() {
                         { id: "none", label: "Transparent" }
                       ].map(bgOpt => (
                         <button key={bgOpt.id} onClick={() => setCaptionBg(bgOpt.id)} className={`px-2.5 py-1 rounded text-[10px] font-bold ${
-                          captionBg === bgOpt.id ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                          captionBg === bgOpt.id ? "bg-primary text-white" : "bg-slate-200 text-slate-500"
                         }`}>
                           {bgOpt.label}
                         </button>
@@ -801,13 +796,13 @@ export default function DeafDashboard() {
                 </div>
 
                 {/* Lesson Quiz Panel */}
-                <div className="bg-[#121b2d]/50 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <span className="material-symbols-outlined text-green-400">quiz</span>
+                <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-4`}>
+                  <h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined text-green-500">quiz</span>
                     Lesson Quiz Check
                   </h3>
                   <div>
-                    <p className="text-xs text-slate-300 leading-relaxed font-semibold">{activeCoursePlay.quiz.question}</p>
+                    <p className="text-xs leading-relaxed font-semibold">{activeCoursePlay.quiz.question}</p>
                     <div className="flex flex-col gap-2 mt-4">
                       {activeCoursePlay.quiz.options.map(opt => (
                         <button
@@ -818,8 +813,8 @@ export default function DeafDashboard() {
                           }}
                           className={`w-full py-2.5 px-4 text-xs text-left rounded-xl transition-all ${
                             selectedOption === opt 
-                              ? "bg-indigo-600 text-white font-bold" 
-                              : "bg-[#0a0f1d] text-slate-400 border border-white/5 hover:border-white/10"
+                              ? "bg-primary text-white font-bold" 
+                              : "bg-slate-50 border border-slate-200 text-slate-600 hover:border-primary/50"
                           }`}
                         >
                           {opt}
@@ -838,14 +833,14 @@ export default function DeafDashboard() {
                             updateProgress(activeCoursePlay.id, 100);
                           }
                         }}
-                        className="w-full mt-4 py-2.5 bg-indigo-600 hover:bg-indigo-750 text-white text-xs font-bold rounded-xl transition-all"
+                        className="w-full mt-4 py-2.5 bg-primary text-white text-xs font-bold rounded-xl transition-all"
                       >
                         Submit Answer
                       </button>
                     ) : (
                       <div className="mt-4">
                         <div className={`p-3 rounded-xl text-center text-xs font-bold ${
-                          quizCorrect ? "bg-green-500/10 border border-green-500/20 text-green-400" : "bg-red-500/10 border border-red-500/20 text-red-400"
+                          quizCorrect ? "bg-green-500/10 border border-green-500/20 text-green-600" : "bg-red-500/10 border border-red-500/20 text-red-600"
                         }`}>
                           {quizCorrect ? "Correct answer! Well done! 🎉" : `Wrong answer. Correct was ${activeCoursePlay.quiz.answer}`}
                         </div>
@@ -855,7 +850,7 @@ export default function DeafDashboard() {
                             setSelectedOption("");
                             setQuizCorrect(null);
                           }}
-                          className="w-full mt-3 py-2 bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl hover:bg-slate-700"
+                          className="w-full mt-3 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-350"
                         >
                           Retry Quiz
                         </button>
@@ -865,11 +860,11 @@ export default function DeafDashboard() {
                 </div>
 
                 {/* AI Explanation / Summary card */}
-                <div className="bg-gradient-to-tr from-[#121b2d]/80 to-[#1e152e]/55 border border-indigo-500/10 p-6 rounded-2xl flex flex-col gap-3">
-                  <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
+                <div className="bg-gradient-to-tr from-primary/10 to-secondary/5 border border-primary/20 p-6 rounded-2xl flex flex-col gap-3">
+                  <h4 className="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-1.5">
                     <span className="material-symbols-outlined !text-base">auto_awesome</span> AI Synopsis
                   </h4>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     ASL values visual parameters over vocal syntax. Key take-aways of this lesson: focus on palm-orientation adjustments, sign within the bounding box range, and use appropriate non-manual facial markers.
                   </p>
                 </div>
@@ -882,12 +877,12 @@ export default function DeafDashboard() {
         {activeTab === "ai-tutor" && (
           <div className="max-w-5xl mx-auto flex flex-col gap-6 animate-fadeIn h-[calc(100vh-100px)]">
             {/* Header tab selectors */}
-            <div className="flex justify-between items-center border-b border-white/5 pb-4">
+            <div className="flex justify-between items-center border-b border-slate-200/50 pb-4">
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-white mb-1">AccessAI Tutor</h1>
-                <p className="text-xs text-slate-400">Ask ASL dictionary terms, test quizzes, or review code syntax.</p>
+                <h1 className={`text-2xl font-bold tracking-tight ${textTitleClass} mb-1`}>AccessAI Tutor</h1>
+                <p className="text-xs text-slate-500">Ask ASL dictionary terms, test quizzes, or review code syntax.</p>
               </div>
-              <div className="flex bg-[#121b2d] p-1.5 rounded-xl border border-white/5">
+              <div className={`flex p-1.5 rounded-xl border gap-2 bg-slate-100 border-slate-200`}>
                 {[
                   { id: "chat", label: "ASL Chatbot", icon: "forum" },
                   { id: "homework", label: "Homework Help", icon: "school" },
@@ -898,8 +893,8 @@ export default function DeafDashboard() {
                     onClick={() => setAiTutorTab(tab.id)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
                       aiTutorTab === tab.id 
-                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/10" 
-                        : "text-slate-400 hover:text-slate-200"
+                        ? "bg-primary text-white shadow-md shadow-primary/10" 
+                        : "text-slate-650 hover:text-slate-900"
                     }`}
                   >
                     <span className="material-symbols-outlined !text-base">{tab.icon}</span>
@@ -913,7 +908,7 @@ export default function DeafDashboard() {
             {aiTutorTab === "chat" && (
               <div className="flex-1 flex flex-col justify-between gap-4 overflow-hidden">
                 {/* Suggested prompt pills */}
-                <div className="flex gap-2 flex-wrap pb-2 border-b border-white/5">
+                <div className="flex gap-2 flex-wrap pb-2 border-b border-slate-200/50">
                   {[
                     "How do I sign the double letter 'LL' in ASL?",
                     "Explain Topic-Comment sentence structure in ASL",
@@ -922,7 +917,7 @@ export default function DeafDashboard() {
                     <button
                       key={prompt}
                       onClick={() => handleQuickQuestion(prompt)}
-                      className="px-3.5 py-2 bg-[#121b2d]/65 border border-white/5 hover:border-indigo-500/20 text-[11px] text-slate-300 rounded-xl transition-all hover:bg-indigo-950/20 text-left"
+                      className={`px-3.5 py-2 border text-[11px] rounded-xl transition-all hover:bg-slate-100 text-left ${cardClass}`}
                     >
                       {prompt}
                     </button>
@@ -935,11 +930,11 @@ export default function DeafDashboard() {
                     <div key={idx} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
                       <div className={`max-w-xl p-4 rounded-2xl text-xs leading-relaxed ${
                         msg.sender === "user" 
-                          ? "bg-indigo-600 text-white font-medium rounded-tr-none" 
-                          : "bg-[#121b2d]/60 border border-white/5 text-slate-300 rounded-tl-none flex gap-3 items-start"
+                          ? "bg-primary text-white font-medium rounded-tr-none" 
+                          : `${cardClass} rounded-tl-none flex gap-3 items-start`
                       }`}>
                         {msg.sender === "ai" && (
-                          <span className="material-symbols-outlined text-indigo-400 !text-lg flex-shrink-0">smart_toy</span>
+                          <span className="material-symbols-outlined text-primary !text-lg flex-shrink-0">smart_toy</span>
                         )}
                         <div>{msg.text}</div>
                       </div>
@@ -948,9 +943,9 @@ export default function DeafDashboard() {
                 </div>
 
                 {/* Text entry field */}
-                <div className="flex gap-3 bg-[#121b2d]/50 border border-white/5 p-3 rounded-2xl items-center">
+                <div className={`${cardClass} flex gap-3 p-3 rounded-2xl items-center`}>
                   <button onClick={() => setIsVoiceChatActive(v => !v)} className={`p-2.5 rounded-xl transition-all ${
-                    isVoiceChatActive ? "bg-emerald-600 text-white animate-pulse" : "bg-slate-800 text-slate-400 hover:text-slate-200"
+                    isVoiceChatActive ? "bg-emerald-600 text-white animate-pulse" : "bg-slate-200 text-slate-600 hover:text-slate-900"
                   }`} title="Toggle Voice Chat">
                     <span className="material-symbols-outlined !text-xl">settings_voice</span>
                   </button>
@@ -960,9 +955,9 @@ export default function DeafDashboard() {
                     value={chatInput}
                     onChange={e => setChatInput(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && handleSendMessage()}
-                    className="flex-1 bg-transparent text-xs text-white placeholder-slate-500 outline-none"
+                    className="flex-1 bg-transparent text-xs text-slate-800 placeholder-slate-400 outline-none"
                   />
-                  <button onClick={handleSendMessage} className="p-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all">
+                  <button onClick={handleSendMessage} className="p-2.5 bg-primary text-white rounded-xl hover:brightness-110 transition-all">
                     <span className="material-symbols-outlined !text-lg">send</span>
                   </button>
                 </div>
@@ -972,27 +967,27 @@ export default function DeafDashboard() {
             {/* TAB CONTENT: HOMEWORK HELP */}
             {aiTutorTab === "homework" && (
               <div className="flex-1 flex flex-col gap-6 animate-fadeIn">
-                <div className="bg-[#121b2d]/45 border border-white/5 p-6 rounded-2xl flex flex-col gap-4">
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <span className="material-symbols-outlined text-indigo-400">upload_file</span>
+                <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-4`}>
+                  <h3 className="text-base font-bold flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">upload_file</span>
                     Submit Homework or Sign Video
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500">
                     Upload your recorded signing file or paste homework questions here. AccessAI will perform visual tracking and verify sign shape accuracy.
                   </p>
 
-                  <div className="border-2 border-dashed border-white/10 hover:border-indigo-500/20 rounded-xl p-12 text-center transition-all cursor-pointer bg-[#0a0f1d]/40 flex flex-col items-center gap-2">
-                    <span className="material-symbols-outlined !text-4xl text-slate-600 animate-pulse">cloud_upload</span>
-                    <span className="text-xs font-semibold text-slate-400">Drag and drop file, or select locally</span>
-                    <span className="text-[10px] text-slate-650">Supports .mp4, .mov, or images up to 50MB</span>
+                  <div className="border-2 border-dashed border-slate-350 hover:border-primary rounded-xl p-12 text-center transition-all cursor-pointer bg-slate-50 flex flex-col items-center gap-2">
+                    <span className="material-symbols-outlined !text-4xl text-slate-400 animate-pulse">cloud_upload</span>
+                    <span className="text-xs font-semibold text-slate-500">Drag and drop file, or select locally</span>
+                    <span className="text-[10px] text-slate-400">Supports .mp4, .mov, or images up to 50MB</span>
                   </div>
                 </div>
 
-                <div className="bg-[#121b2d]/25 border border-white/5 p-6 rounded-2xl flex flex-col gap-3">
-                  <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-3`}>
+                  <h4 className="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-2">
                     <span className="material-symbols-outlined !text-base font-bold">auto_awesome</span> Homework Analysis Logs
                   </h4>
-                  <p className="text-xs text-slate-500 italic">No files submitted yet. The camera analysis window will load logs here.</p>
+                  <p className="text-xs text-slate-450 italic">No files submitted yet. The camera analysis window will load logs here.</p>
                 </div>
               </div>
             )}
@@ -1000,27 +995,27 @@ export default function DeafDashboard() {
             {/* TAB CONTENT: QUIZ GENERATOR */}
             {aiTutorTab === "quiz-gen" && (
               <div className="flex-1 flex flex-col gap-6 animate-fadeIn">
-                <div className="bg-[#121b2d]/45 border border-white/5 p-6 rounded-2xl flex flex-col gap-6">
+                <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-6`}>
                   <div>
-                    <h3 className="text-base font-bold text-white flex items-center gap-2">
-                      <span className="material-symbols-outlined text-indigo-400">summarize</span>
+                    <h3 className="text-base font-bold flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary">summarize</span>
                       Generate Custom ASL Quiz
                     </h3>
-                    <p className="text-xs text-slate-400 mt-1">Specify topics and we will compile a visual mock assessment.</p>
+                    <p className="text-xs text-slate-500 mt-1">Specify topics and we will compile a visual mock assessment.</p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
-                      <span className="text-xs text-slate-300">Choose Target Topic</span>
-                      <select className="bg-[#080d16] border border-white/10 text-xs text-slate-300 rounded-xl p-3 outline-none">
+                      <span className="text-xs text-slate-655 font-bold">Choose Target Topic</span>
+                      <select className={`text-xs rounded-xl p-3 outline-none border ${inputClass}`}>
                         <option>Fingerspelling & Alphabet</option>
                         <option>Conversational Syntax (Grammar)</option>
                         <option>Numerical Vocabulary</option>
                       </select>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="text-xs text-slate-300">Complexity</span>
-                      <select className="bg-[#080d16] border border-white/10 text-xs text-slate-300 rounded-xl p-3 outline-none">
+                      <span className="text-xs text-slate-655 font-bold">Complexity</span>
+                      <select className={`text-xs rounded-xl p-3 outline-none border ${inputClass}`}>
                         <option>Beginner level check</option>
                         <option>Intermediate grammar check</option>
                         <option>Advanced fluency check</option>
@@ -1028,7 +1023,7 @@ export default function DeafDashboard() {
                     </div>
                   </div>
 
-                  <button onClick={handleGenerateQuiz} className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-indigo-650/15">
+                  <button onClick={handleGenerateQuiz} className="w-full py-3 bg-primary text-white font-bold text-xs rounded-xl hover:brightness-110 transition-all shadow-md shadow-primary/10">
                     Generate Practice Exam
                   </button>
                 </div>
@@ -1042,15 +1037,15 @@ export default function DeafDashboard() {
           <div className="max-w-6xl mx-auto flex flex-col gap-8 animate-fadeIn">
             {/* Title */}
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white mb-2">My Activity Dashboard</h1>
-              <p className="text-sm text-slate-400">Review your study records, consistent days, and learning analysis.</p>
+              <h1 className="text-2xl font-bold tracking-tight mb-2">My Activity Dashboard</h1>
+              <p className="text-sm text-slate-500">Review your study records, consistent days, and learning analysis.</p>
             </div>
 
             {/* Graphs Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Daily activity chart (Bar chart) */}
-              <div className="lg:col-span-2 bg-[#121b2d]/30 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-4">
-                <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Weekly study minutes</h3>
+              <div className={`${cardClass} p-6 flex flex-col justify-between gap-4`}>
+                <h3 className="text-sm font-bold uppercase tracking-wider">Weekly study minutes</h3>
                 
                 {/* SVG/CSS graph bars */}
                 <div className="flex justify-between items-end h-48 px-4 mt-6">
@@ -1064,9 +1059,9 @@ export default function DeafDashboard() {
                     { day: "Sun", min: 40, h: "65%" }
                   ].map((bar, idx) => (
                     <div key={idx} className="flex flex-col items-center gap-2 flex-1">
-                      <div className="relative w-8 bg-slate-900 border border-white/5 rounded-md h-36 flex items-end">
-                        <div className="w-full bg-gradient-to-t from-indigo-600 to-indigo-500 rounded-md" style={{ height: bar.h }} />
-                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-indigo-400 font-bold">{bar.min}m</span>
+                      <div className="relative w-8 bg-slate-100 border border-slate-200 rounded-md h-36 flex items-end">
+                        <div className="w-full bg-gradient-to-t from-primary to-secondary rounded-md" style={{ height: bar.h }} />
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-primary font-bold">{bar.min}m</span>
                       </div>
                       <span className="text-[10px] text-slate-500 font-semibold">{bar.day}</span>
                     </div>
@@ -1076,20 +1071,20 @@ export default function DeafDashboard() {
 
               {/* Learning stats summary */}
               <div className="flex flex-col gap-6">
-                <div className="bg-[#121b2d]/30 border border-white/5 rounded-2xl p-6 flex flex-col gap-4">
-                  <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Fluency Progress</h3>
+                <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-4`}>
+                  <h3 className="text-sm font-bold uppercase tracking-wider">Fluency Progress</h3>
                   <div className="flex flex-col gap-4 mt-2">
                     {[
-                      { topic: "Fingerspelling", pct: 95, color: "bg-indigo-500" },
-                      { topic: "Greetings Dialogue", pct: 60, color: "bg-purple-500" },
-                      { topic: "Facial Inflection (Syntax)", pct: 40, color: "bg-cyan-500" }
+                      { topic: "Fingerspelling", pct: 95, color: "bg-primary" },
+                      { topic: "Greetings Dialogue", pct: 60, color: "bg-secondary" },
+                      { topic: "Facial Inflection (Syntax)", pct: 40, color: "bg-teal-500" }
                     ].map((item, idx) => (
                       <div key={idx} className="flex flex-col gap-1.5 text-xs">
                         <div className="flex justify-between font-semibold">
-                          <span className="text-slate-400">{item.topic}</span>
-                          <span className="text-white">{item.pct}%</span>
+                          <span>{item.topic}</span>
+                          <span>{item.pct}%</span>
                         </div>
-                        <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
                           <div className={`h-full ${item.color}`} style={{ width: `${item.pct}%` }} />
                         </div>
                       </div>
@@ -1097,9 +1092,9 @@ export default function DeafDashboard() {
                   </div>
                 </div>
 
-                <div className="bg-[#121b2d]/30 border border-white/5 rounded-2xl p-6 flex flex-col gap-3">
-                  <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider">AI Insight</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                <div className={`${cardClass} p-6 rounded-2xl flex flex-col gap-3`}>
+                  <h3 className="text-sm font-bold uppercase tracking-wider">AI Insight</h3>
+                  <p className="text-xs text-slate-550 leading-relaxed">
                     Based on your quiz performance, practicing directional verb placements for 10 minutes on Wednesdays could boost grammar scores by 18%.
                   </p>
                 </div>
@@ -1108,7 +1103,7 @@ export default function DeafDashboard() {
 
             {/* Achievements grid */}
             <div className="flex flex-col gap-4">
-              <h2 className="text-lg font-bold text-white">Earned Badges</h2>
+              <h2 className={`text-lg font-bold ${textTitleClass}`}>Earned Badges</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
                   { title: "Quick Learner", desc: "First purchase completed", icon: "verified" },
@@ -1116,12 +1111,12 @@ export default function DeafDashboard() {
                   { title: "Fluency Starter", desc: "ASL Alphabet score 100%", icon: "school" },
                   { title: "Tutor Pro", desc: "Used AI Tutor for 15+ queries", icon: "forum" }
                 ].map((badge, idx) => (
-                  <div key={idx} className="bg-[#121b2d]/20 border border-white/5 p-5 rounded-2xl flex flex-col items-center text-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                  <div key={idx} className={`${cardClass} p-5 rounded-2xl flex flex-col items-center text-center gap-3`}>
+                    <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                       <span className="material-symbols-outlined !text-2xl">{badge.icon}</span>
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-slate-200">{badge.title}</h4>
+                      <h4 className="text-xs font-bold text-slate-800">{badge.title}</h4>
                       <p className="text-[10px] text-slate-500 mt-1">{badge.desc}</p>
                     </div>
                   </div>
@@ -1135,40 +1130,40 @@ export default function DeafDashboard() {
         {activeTab === "profile" && (
           <div className="max-w-4xl mx-auto flex flex-col gap-8 animate-fadeIn">
             {/* User Bio Card */}
-            <div className="bg-[#121b2d]/30 border border-white/5 p-8 rounded-3xl flex flex-col md:flex-row items-center gap-6">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-extrabold shadow-lg">
+            <div className={`${cardClass} p-8 rounded-3xl flex flex-col md:flex-row items-center gap-6`}>
+              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white text-3xl font-extrabold shadow-lg">
                 VG
               </div>
               <div className="flex-1 flex flex-col gap-1 text-center md:text-left">
-                <h2 className="text-2xl font-bold text-white">Vrusha Goyal</h2>
-                <p className="text-sm text-slate-400">Deaf accessibility portal account · Joined June 2026</p>
+                <h2 className={`text-2xl font-bold ${textTitleClass}`}>Vrusha Goyal</h2>
+                <p className="text-sm text-slate-500">Deaf accessibility portal account · Joined June 2026</p>
                 <div className="flex justify-center md:justify-start gap-4 mt-3">
-                  <span className="text-xs bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full border border-indigo-500/20">2 Completed</span>
-                  <span className="text-xs bg-green-500/10 text-green-400 px-3 py-1 rounded-full border border-green-500/20">7-Day Streak</span>
+                  <span className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20 font-bold">2 Completed</span>
+                  <span className="text-xs bg-green-500/10 text-green-600 px-3 py-1 rounded-full border border-green-500/20 font-bold">7-Day Streak</span>
                 </div>
               </div>
             </div>
 
             {/* Certificates Catalog */}
             <div className="flex flex-col gap-4">
-              <h2 className="text-xl font-bold tracking-tight text-white">My Certificates</h2>
+              <h2 className={`text-xl font-bold tracking-tight ${textTitleClass}`}>My Certificates</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {[
                   { id: "cert-1", title: "American Sign Language Alphabet", date: "June 25, 2026", code: "ACC-AI-ASL-8271" },
                   { id: "cert-2", title: "Basic ASL Sentences & Greetings", date: "June 26, 2026", code: "ACC-AI-ASL-9982" }
                 ].map(cert => (
-                  <div key={cert.id} className="bg-[#121b2d]/45 border border-white/5 rounded-2xl p-6 flex flex-col justify-between gap-4">
+                  <div key={cert.id} className={`${cardClass} p-6 rounded-2xl flex flex-col justify-between gap-4`}>
                     <div>
-                      <span className="text-[9px] uppercase font-bold tracking-widest text-indigo-400">Completion Certificate</span>
-                      <h3 className="text-base font-bold text-white mt-1">{cert.title}</h3>
+                      <span className="text-[9px] uppercase font-bold tracking-widest text-primary">Completion Certificate</span>
+                      <h3 className={`text-base font-bold mt-1 ${textTitleClass}`}>{cert.title}</h3>
                       <p className="text-xs text-slate-500 mt-2">Verified Code: {cert.code} · Date: {cert.date}</p>
                     </div>
 
                     <div className="flex gap-2 mt-2">
-                      <button onClick={() => alert(`Downloading Certificate PDF: ${cert.code}`)} className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5">
+                      <button onClick={() => alert(`Downloading Certificate PDF: ${cert.code}`)} className="flex-1 py-2 bg-primary text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 hover:brightness-110">
                         <span className="material-symbols-outlined !text-base">download</span> Download PDF
                       </button>
-                      <button onClick={() => alert("Shared on LinkedIn")} className="py-2 px-3 bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs rounded-xl transition-all" title="Share Certificate">
+                      <button onClick={() => alert("Shared on LinkedIn")} className="py-2 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs rounded-xl transition-all" title="Share Certificate">
                         <span className="material-symbols-outlined !text-base">share</span>
                       </button>
                     </div>
@@ -1184,21 +1179,21 @@ export default function DeafDashboard() {
           <div className="max-w-3xl mx-auto flex flex-col gap-8 animate-fadeIn">
             {/* Title */}
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Accessibility Settings</h1>
-              <p className="text-sm text-slate-400">Configure visual subtitles, high-contrast, or interface settings.</p>
+              <h1 className={`text-2xl font-bold tracking-tight ${textTitleClass} mb-2`}>Accessibility Settings</h1>
+              <p className="text-sm text-slate-500">Configure visual subtitles, high-contrast, or interface settings.</p>
             </div>
 
             {/* Config Forms */}
-            <div className="bg-[#121b2d]/30 border border-white/5 rounded-2xl p-8 flex flex-col gap-6">
+            <div className={`${cardClass} p-8 rounded-2xl flex flex-col gap-6`}>
               {/* Caption settings */}
-              <div className="flex flex-col gap-3 pb-6 border-b border-white/5">
-                <h3 className="text-sm font-bold text-slate-200">Deaf Accessibility</h3>
+              <div className="flex flex-col gap-3 pb-6 border-b border-slate-200/50">
+                <h3 className="text-sm font-bold">Deaf Accessibility</h3>
                 <div className="flex justify-between items-center text-xs mt-2">
-                  <span className="text-slate-400">Video Subtitle Font Size</span>
+                  <span>Video Subtitle Font Size</span>
                   <div className="flex gap-2">
                     {["small", "medium", "large"].map(sz => (
                       <button key={sz} onClick={() => setCaptionSize(sz)} className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize ${
-                        captionSize === sz ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                        captionSize === sz ? "bg-primary text-white" : "bg-slate-200 text-slate-500"
                       }`}>
                         {sz}
                       </button>
@@ -1207,7 +1202,7 @@ export default function DeafDashboard() {
                 </div>
 
                 <div className="flex justify-between items-center text-xs mt-2">
-                  <span className="text-slate-400">Video Subtitle Color Backdrop</span>
+                  <span>Video Subtitle Color Backdrop</span>
                   <div className="flex gap-2">
                     {[
                       { id: "black-trans", label: "Dark Trans" },
@@ -1215,7 +1210,7 @@ export default function DeafDashboard() {
                       { id: "none", label: "Transparent background" }
                     ].map(bgOpt => (
                       <button key={bgOpt.id} onClick={() => setCaptionBg(bgOpt.id)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                        captionBg === bgOpt.id ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                        captionBg === bgOpt.id ? "bg-primary text-white" : "bg-slate-200 text-slate-500"
                       }`}>
                         {bgOpt.label}
                       </button>
@@ -1225,14 +1220,14 @@ export default function DeafDashboard() {
               </div>
 
               {/* Theme Settings */}
-              <div className="flex flex-col gap-3 pb-6 border-b border-white/5">
-                <h3 className="text-sm font-bold text-slate-200">General Interface Theme</h3>
+              <div className="flex flex-col gap-3 pb-6 border-b border-slate-200/50">
+                <h3 className="text-sm font-bold">General Interface Theme</h3>
                 <div className="flex justify-between items-center text-xs mt-2">
-                  <span className="text-slate-400">Contrast Settings</span>
+                  <span>Contrast Settings</span>
                   <div className="flex gap-2">
                     {[
-                      { id: "dark", label: "SaaS Dark" },
-                      { id: "light", label: "Light" },
+                      { id: "light", label: "SaaS Light" },
+                      { id: "dark", label: "Dark" },
                       { id: "high-contrast", label: "High Contrast" }
                     ].map(themeOpt => (
                       <button key={themeOpt.id} onClick={() => {
@@ -1242,7 +1237,7 @@ export default function DeafDashboard() {
                           setCaptionSize("large");
                         }
                       }} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                        contrastTheme === themeOpt.id ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                        contrastTheme === themeOpt.id ? "bg-primary text-white" : "bg-slate-200 text-slate-500"
                       }`}>
                         {themeOpt.label}
                       </button>
@@ -1253,11 +1248,11 @@ export default function DeafDashboard() {
 
               {/* Sign PIP Settings */}
               <div className="flex flex-col gap-3">
-                <h3 className="text-sm font-bold text-slate-200">Video PIP Interpreter</h3>
+                <h3 className="text-sm font-bold">Video PIP Interpreter</h3>
                 <div className="flex justify-between items-center text-xs mt-2">
-                  <span className="text-slate-400">Display secondary PIP Interpreter window</span>
+                  <span>Display secondary PIP Interpreter window</span>
                   <button onClick={() => setPipInterpreter(p => !p)} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    pipInterpreter ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                    pipInterpreter ? "bg-primary text-white" : "bg-slate-200 text-slate-500"
                   }`}>
                     {pipInterpreter ? "Interpreter ACTIVE" : "Interpreter INACTIVE"}
                   </button>
