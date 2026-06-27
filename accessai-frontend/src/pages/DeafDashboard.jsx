@@ -8,7 +8,7 @@ const MOCK_COURSES = [
     id: "course-1",
     title: "American Sign Language Alphabet",
     description: "Learn to spell your name and master the basic letters (A-Z) in American Sign Language.",
-    video: "dGqdXG-MvH8",
+    video: "5K69_tq-0pQ",
     category: "language",
     instructor: "Sarah Jenkins, ASL Specialist",
     duration: "1h 15m",
@@ -16,10 +16,10 @@ const MOCK_COURSES = [
     rating: 4.8,
     badge: "Deaf-Friendly",
     lessons: [
-      { id: "les-1-1", title: "Introduction to Fingerspelling", content: "Fingerspelling is the manual representation of letters. Start by keeping your wrist stable and your elbow near your body.", duration: "12 mins", video: "dGqdXG-MvH8" },
-      { id: "les-1-2", title: "Letters A to J Practice", content: "Master A, B, C, D, E, F, G, H, I, and J. Note the shape differences between A, E, and S which are common finger spelling pitfalls.", duration: "20 mins", video: "dGqdXG-MvH8" },
-      { id: "les-1-3", title: "Letters K to T Practice", content: "Practice letters K to T. Keep check of how K uses the thumb on the middle finger and P is just a downward-facing K.", duration: "20 mins", video: "dGqdXG-MvH8" },
-      { id: "les-1-4", title: "Letters U to Z & Double Letters", content: "Complete the alphabet. Z is traced in the air with your index finger. When spelling double letters, bounce or slide slightly outward.", duration: "23 mins", video: "dGqdXG-MvH8" }
+      { id: "les-1-1", title: "Introduction to Fingerspelling", content: "Fingerspelling is the manual representation of letters. Start by keeping your wrist stable and your elbow near your body.", duration: "12 mins", video: "5K69_tq-0pQ" },
+      { id: "les-1-2", title: "Letters A to J Practice", content: "Master A, B, C, D, E, F, G, H, I, and J. Note the shape differences between A, E, and S which are common finger spelling pitfalls.", duration: "20 mins", video: "5K69_tq-0pQ" },
+      { id: "les-1-3", title: "Letters K to T Practice", content: "Practice letters K to T. Keep check of how K uses the thumb on the middle finger and P is just a downward-facing K.", duration: "20 mins", video: "5K69_tq-0pQ" },
+      { id: "les-1-4", title: "Letters U to Z & Double Letters", content: "Complete the alphabet. Z is traced in the air with your index finger. When spelling double letters, bounce or slide slightly outward.", duration: "23 mins", video: "5K69_tq-0pQ" }
     ],
     quiz: {
       question: "Which letter in ASL is signed by tracing the shape of the letter in the air with your index finger?",
@@ -31,7 +31,7 @@ const MOCK_COURSES = [
     id: "course-2",
     title: "Basic ASL Sentences & Greetings",
     description: "Essential greetings, common expressions, and simple conversational starters in sign language.",
-    video: "h8l_pI_w2nI",
+    video: "ianCxd71Uzg",
     category: "language",
     instructor: "Sarah Jenkins, ASL Specialist",
     duration: "2h 30m",
@@ -39,10 +39,10 @@ const MOCK_COURSES = [
     rating: 4.9,
     badge: "Interactive Guide",
     lessons: [
-      { id: "les-2-1", title: "Meeting People & Basic Greetings", content: "Learn 'Hello', 'Good Morning', 'What's your name?', and 'Nice to meet you'. Remember to smile as facial expressions carry grammatical weight.", duration: "30 mins", video: "h8l_pI_w2nI" },
-      { id: "les-2-2", title: "Expressing Emotions & Feelings", content: "Sign 'Happy', 'Sad', 'Tired', 'Fine', and 'Excited'. Facial expressions are critical—they form the vocal inflection of ASL.", duration: "45 mins", video: "h8l_pI_w2nI" },
-      { id: "les-2-3", title: "Simple Inquiries & Question Shapes", content: "Asking questions in ASL requires specific eyebrow movements. Lower eyebrows for Wh-questions (Who, What, Where) and raise them for Yes/No questions.", duration: "45 mins", video: "h8l_pI_w2nI" },
-      { id: "les-2-4", title: "Practice Dialogue & Handshapes", content: "Interactive review. Tie all vocabulary together in a simple greeting dialogue. Make sure to establish a signing space.", duration: "30 mins", video: "h8l_pI_w2nI" }
+      { id: "les-2-1", title: "Meeting People & Basic Greetings", content: "Learn 'Hello', 'Good Morning', 'What's your name?', and 'Nice to meet you'. Remember to smile as facial expressions carry grammatical weight.", duration: "30 mins", video: "ianCxd71Uzg" },
+      { id: "les-2-2", title: "Expressing Emotions & Feelings", content: "Sign 'Happy', 'Sad', 'Tired', 'Fine', and 'Excited'. Facial expressions are critical—they form the vocal inflection of ASL.", duration: "45 mins", video: "ianCxd71Uzg" },
+      { id: "les-2-3", title: "Simple Inquiries & Question Shapes", content: "Asking questions in ASL requires specific eyebrow movements. Lower eyebrows for Wh-questions (Who, What, Where) and raise them for Yes/No questions.", duration: "45 mins", video: "ianCxd71Uzg" },
+      { id: "les-2-4", title: "Practice Dialogue & Handshapes", content: "Interactive review. Tie all vocabulary together in a simple greeting dialogue. Make sure to establish a signing space.", duration: "30 mins", video: "ianCxd71Uzg" }
     ],
     quiz: {
       question: "What eyebrow shape is grammatically correct when signing a WH-question (e.g. Who, What, Where) in ASL?",
@@ -54,7 +54,7 @@ const MOCK_COURSES = [
     id: "course-3",
     title: "Sign Language: Numbers & Colors",
     description: "Learn the fundamentals of counting, expressions, and identifying colors in ASL.",
-    video: "a5vP3kE7_xQ",
+    video: "Raa0IvPnPhg",
     category: "vocabulary",
     instructor: "David Vance, Deaf Educator",
     duration: "1h 45m",
@@ -62,9 +62,9 @@ const MOCK_COURSES = [
     rating: 4.7,
     badge: "Visual Cues",
     lessons: [
-      { id: "les-3-1", title: "Numbers 1-10 in Sign", duration: "25 mins", content: "Learn to sign numbers 1 to 10. Note that for numbers 1 to 5, your palm faces inward towards your body.", video: "a5vP3kE7_xQ" },
-      { id: "les-3-2", title: "Numbers 11-20 & Counting Patterns", duration: "30 mins", content: "Flicking and tapping motions for numbers 11 through 20. Palm orientation flips outward for numbers starting from 11.", video: "a5vP3kE7_xQ" },
-      { id: "les-3-3", title: "Visual Spectrum: Colors in Sign", duration: "25 mins", content: "Signing 'Red', 'Blue', 'Yellow', 'Green', 'Purple'. Colors often involve shaking the initial letter handshape (e.g. shaking B for Blue).", video: "a5vP3kE7_xQ" }
+      { id: "les-3-1", title: "Numbers 1-10 in Sign", duration: "25 mins", content: "Learn to sign numbers 1 to 10. Note that for numbers 1 to 5, your palm faces inward towards your body.", video: "Raa0IvPnPhg" },
+      { id: "les-3-2", title: "Numbers 11-20 & Counting Patterns", duration: "30 mins", content: "Flicking and tapping motions for numbers 11 through 20. Palm orientation flips outward for numbers starting from 11.", video: "Raa0IvPnPhg" },
+      { id: "les-3-3", title: "Visual Spectrum: Colors in Sign", duration: "25 mins", content: "Signing 'Red', 'Blue', 'Yellow', 'Green', 'Purple'. Colors often involve shaking the initial letter handshape (e.g. shaking B for Blue).", video: "Raa0IvPnPhg" }
     ],
     quiz: {
       question: "Which way should your palm face when signing the numbers 1 through 5 in ASL?",
@@ -76,7 +76,7 @@ const MOCK_COURSES = [
     id: "course-4",
     title: "Advanced Conversational Sign Language",
     description: "Improve your signing speed, sentence syntax, and understand advanced non-manual markers.",
-    video: "K-Dae_H6Hn8",
+    video: "0FcwzLiXpNY",
     category: "syntax",
     instructor: "David Vance, Deaf Educator",
     duration: "3h 10m",
@@ -84,9 +84,9 @@ const MOCK_COURSES = [
     rating: 4.6,
     badge: "Syntax Intensive",
     lessons: [
-      { id: "les-4-1", title: "Non-Manual Signs & Facial Expressions", duration: "45 mins", content: "Learn to communicate structure and urgency. Learn mouth morphemes like 'cha' (large) and 'oo' (small).", video: "K-Dae_H6Hn8" },
-      { id: "les-4-2", title: "ASL Grammar: Topic-Comment Structure", duration: "50 mins", content: "Understand subject-object syntax. In ASL, the topic is stated first with raised eyebrows, followed by the comment.", video: "K-Dae_H6Hn8" },
-      { id: "les-4-3", title: "Directional Verbs & Classifiers", duration: "55 mins", content: "Show action visually using directional signs like 'help' or 'give' where the movement direction indicates who is giving/helping whom.", video: "K-Dae_H6Hn8" }
+      { id: "les-4-1", title: "Non-Manual Signs & Facial Expressions", duration: "45 mins", content: "Learn to communicate structure and urgency. Learn mouth morphemes like 'cha' (large) and 'oo' (small).", video: "0FcwzLiXpNY" },
+      { id: "les-4-2", title: "ASL Grammar: Topic-Comment Structure", duration: "50 mins", content: "Understand subject-object syntax. In ASL, the topic is stated first with raised eyebrows, followed by the comment.", video: "0FcwzLiXpNY" },
+      { id: "les-4-3", title: "Directional Verbs & Classifiers", duration: "55 mins", content: "Show action visually using directional signs like 'help' or 'give' where the movement direction indicates who is giving/helping whom.", video: "0FcwzLiXpNY" }
     ],
     quiz: {
       question: "How is the topic established in an ASL Topic-Comment sentence structure?",
