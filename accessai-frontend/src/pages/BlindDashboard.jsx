@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import API from "../services/api";
 import { useVoiceAssistant } from "../hooks/useVoice";
@@ -139,9 +140,22 @@ function useVoiceCommands(commands, active) {
 export default function BlindDashboard() {
   const { user, logout, DEMO_MODE } = useAuth();
   const { speak, stop, speaking } = useTTS();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Navigation tab states
   const [activeTab, setActiveTab] = useState("home"); // home, courses, my-learning, ai-tutor, activity, profile, settings
+
+  // Sync activeTab state with URL subpaths
+  useEffect(() => {
+    const pathParts = location.pathname.split("/").filter(Boolean);
+    const tab = pathParts[1] || "home";
+    setActiveTab(tab);
+    if (tab !== "courses" && tab !== "my-learning") {
+      setSelectedCourse(null);
+      setActiveCoursePlay(null);
+    }
+  }, [location.pathname]);
   const [selectedCourse, setSelectedCourse] = useState(null); // Course detail modal
   const [activeCoursePlay, setActiveCoursePlay] = useState(null); // Course Player
   const [currentLessonIdx, setCurrentLessonIdx] = useState(0);
@@ -257,9 +271,7 @@ export default function BlindDashboard() {
 
   // Helper trigger to announce screen change
   const navigateTo = (tabName, announceText) => {
-    setActiveTab(tabName);
-    setSelectedCourse(null);
-    setActiveCoursePlay(null);
+    navigate(`/blind/${tabName === "home" ? "" : tabName}`);
     speak(announceText, true);
     setStatusMsg(announceText);
   };

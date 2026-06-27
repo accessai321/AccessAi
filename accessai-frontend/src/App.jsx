@@ -52,9 +52,9 @@ function AppRoutes() {
       />
 
       {/* Mode dashboards — protected */}
-      <Route path="/deaf"  element={<ProtectedRoute requiredMode="deaf"><DeafDashboard /></ProtectedRoute>} />
-      <Route path="/blind" element={<ProtectedRoute requiredMode="blind"><BlindDashboard /></ProtectedRoute>} />
-      <Route path="/motor" element={<ProtectedRoute requiredMode="motor"><MotorDashboard /></ProtectedRoute>} />
+      <Route path="/deaf/*"  element={<ProtectedRoute requiredMode="deaf"><DeafDashboard /></ProtectedRoute>} />
+      <Route path="/blind/*" element={<ProtectedRoute requiredMode="blind"><BlindDashboard /></ProtectedRoute>} />
+      <Route path="/motor/*" element={<ProtectedRoute requiredMode="motor"><MotorDashboard /></ProtectedRoute>} />
 
       {/* Mode specific login/signup routes */}
       <Route path="/deaf/login" element={<DeafLogin />} />

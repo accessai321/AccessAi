@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import API from "../services/api";
 import { useVoiceAssistant } from "../hooks/useVoice";
@@ -279,6 +280,19 @@ function DwellButton({ label, sublabel, icon, onClick, active = false, color = "
 export default function MotorDashboard() {
   const { user, logout, DEMO_MODE } = useAuth();
   const { speak, stop, speaking } = useTTS();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Sync activeTab state with URL subpaths
+  useEffect(() => {
+    const pathParts = location.pathname.split("/").filter(Boolean);
+    const tab = pathParts[1] || "home";
+    setActiveTab(tab);
+    if (tab !== "courses" && tab !== "my-learning") {
+      setSelectedCourse(null);
+      setActiveCoursePlay(null);
+    }
+  }, [location.pathname]);
 
   // UI Theme Config (Light theme optimized for motor mode readability)
   const bgClass = "bg-[#f8fafc] text-slate-800";
@@ -457,13 +471,13 @@ export default function MotorDashboard() {
 
   // Global voice shortcuts
   const { listening, transcript } = useVoiceCommands({
-    "go to home": () => { setActiveTab("home"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Home Dashboard."); },
-    "go to courses": () => { setActiveTab("courses"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Courses."); },
-    "go to learning": () => { setActiveTab("my-learning"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Enrolled Courses."); },
-    "go to tutor": () => { setActiveTab("ai-tutor"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to AI Tutor."); },
-    "go to activity": () => { setActiveTab("activity"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Activity Dashboard."); },
-    "go to profile": () => { setActiveTab("profile"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Profile."); },
-    "go to settings": () => { setActiveTab("settings"); setSelectedCourse(null); setActiveCoursePlay(null); speak("Navigating to Accessibility Settings."); },
+    "go to home": () => { navigate("/motor"); speak("Navigating to Home Dashboard."); },
+    "go to courses": () => { navigate("/motor/courses"); speak("Navigating to Courses."); },
+    "go to learning": () => { navigate("/motor/my-learning"); speak("Navigating to Enrolled Courses."); },
+    "go to tutor": () => { navigate("/motor/ai-tutor"); speak("Navigating to AI Tutor."); },
+    "go to activity": () => { navigate("/motor/activity"); speak("Navigating to Activity Dashboard."); },
+    "go to profile": () => { navigate("/motor/profile"); speak("Navigating to Profile."); },
+    "go to settings": () => { navigate("/motor/settings"); speak("Navigating to Accessibility Settings."); },
     "turn on dwell": () => { setDwellEnabled(true); speak("Dwell click timers activated."); },
     "turn off dwell": () => { setDwellEnabled(false); speak("Dwell click timers deactivated."); },
     "turn on switch": () => { setSwitchEnabled(true); speak("Switch navigation activated."); },
@@ -500,7 +514,7 @@ export default function MotorDashboard() {
         <div className="p-6 flex flex-col gap-8">
           {/* Logo & Mode pill */}
           <div 
-            onClick={() => { setActiveTab("home"); setSelectedCourse(null); setActiveCoursePlay(null); }}
+            onClick={() => navigate("/motor")}
             className="flex flex-col gap-2 cursor-pointer"
           >
             <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">AccessAI</span>
@@ -531,11 +545,7 @@ export default function MotorDashboard() {
                 dwellEnabled={dwellEnabled}
                 dwell={dwell}
                 speak={speak}
-                onClick={() => {
-                  setActiveTab(item.id);
-                  setSelectedCourse(null);
-                  setActiveCoursePlay(null);
-                }}
+                onClick={() => navigate(`/motor/${item.id === "home" ? "" : item.id}`)}
               />
             ))}
           </nav>

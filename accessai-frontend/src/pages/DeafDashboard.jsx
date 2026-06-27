@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import API from "../services/api";
 
@@ -98,9 +99,22 @@ const MOCK_COURSES = [
 
 export default function DeafDashboard() {
   const { user, logout, DEMO_MODE } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   
   // Navigation tabs state
   const [activeTab, setActiveTab] = useState("home"); // home, courses, my-learning, ai-tutor, activity, profile, settings
+
+  // Sync activeTab state with URL subpaths
+  useEffect(() => {
+    const pathParts = location.pathname.split("/").filter(Boolean);
+    const tab = pathParts[1] || "home";
+    setActiveTab(tab);
+    if (tab !== "courses" && tab !== "my-learning") {
+      setSelectedCourse(null);
+      setActiveCoursePlay(null);
+    }
+  }, [location.pathname]);
   
   // Nested views
   const [selectedCourse, setSelectedCourse] = useState(null); // Course details page
@@ -242,7 +256,7 @@ export default function DeafDashboard() {
       <aside className={`w-72 border-r flex flex-col justify-between sticky top-0 h-screen z-50 backdrop-blur-xl ${sidebarClass}`}>
         <div className="p-6">
           {/* Logo */}
-          <div className="flex flex-col gap-1 mb-8 cursor-pointer" onClick={() => { setActiveTab("home"); setSelectedCourse(null); setActiveCoursePlay(null); }}>
+          <div className="flex flex-col gap-1 mb-8 cursor-pointer" onClick={() => navigate("/deaf")}>
             <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">AccessAI</span>
             <span className="self-start text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">Deaf Mode</span>
           </div>
@@ -262,11 +276,7 @@ export default function DeafDashboard() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setSelectedCourse(null);
-                    setActiveCoursePlay(null);
-                  }}
+                  onClick={() => navigate(`/deaf/${item.id === "home" ? "" : item.id}`)}
                   className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-left text-sm font-semibold transition-all duration-200 ${
                     isSelected 
                       ? "bg-primary text-white shadow-md shadow-primary/20" 
