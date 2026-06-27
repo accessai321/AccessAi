@@ -351,6 +351,26 @@ export default function BlindDashboard() {
     "help": () => speak("Commands: go to home, go to courses, go to learning, go to tutor, go to activity, go to settings, list courses, open course 1, stop, sign out.")
   }, voiceActive && !speaking);
 
+  // Initial Greeting & Idle Prompt Logic
+  useEffect(() => {
+    // Greet immediately on dashboard load
+    const name = user?.displayName || "student";
+    speak(`Welcome ${name}. You are on the Home Dashboard. You have 2 active courses, a 7-day learning streak, and one lesson ready to continue. Say 'Courses', 'Continue Learning', 'AI Tutor', or 'Help' to begin.`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // Wait until assistant is not speaking to start idle timer
+    if (speaking) return;
+
+    // Start 15s idle timer
+    const idleTimer = setTimeout(() => {
+      speak("I'm still here. Say 'Help' to hear the options again.");
+    }, 15000);
+
+    return () => clearTimeout(idleTimer);
+  }, [speaking, transcript, speak]);
+
   return (
     <div 
       className={`min-h-screen ${bgClass} font-sans flex relative ${
