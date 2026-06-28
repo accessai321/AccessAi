@@ -32,6 +32,19 @@ export default function SignLearning({ isLight, cardClass, innerCardClass, textT
 
   const targetSign = TEACHABLE_SIGNS[currentSignIndex];
 
+  // Refs to prevent stale closures in the requestAnimationFrame loop
+  const isCorrectGestureRef = useRef(isCorrectGesture);
+  const targetSignRef = useRef(targetSign);
+
+  useEffect(() => {
+    isCorrectGestureRef.current = isCorrectGesture;
+  }, [isCorrectGesture]);
+
+  useEffect(() => {
+    targetSignRef.current = targetSign;
+  }, [targetSign]);
+
+
   // Initialize MediaPipe Gesture Recognizer
   useEffect(() => {
     async function initModel() {
@@ -137,7 +150,7 @@ export default function SignLearning({ isLight, cardClass, innerCardClass, textT
           setDetectionConfidence(score);
           
           // Check if this matches the target sign (case insensitive / normalized)
-          if (gestureName.toLowerCase() === targetSign.id.toLowerCase() && score > 0.7) {
+          if (gestureName.toLowerCase() === targetSignRef.current.id.toLowerCase() && score > 0.7) {
             // Correct gesture detected!
             handleCorrectGesture();
           }
@@ -155,15 +168,17 @@ export default function SignLearning({ isLight, cardClass, innerCardClass, textT
 
   // Handle correct gesture detected
   const handleCorrectGesture = () => {
-    if (isCorrectGesture) return; // Prevent double trigger
+    if (isCorrectGestureRef.current) return; // Prevent double trigger
     
     setIsCorrectGesture(true);
-    setSuccessMessage(`Perfect! You matched the ${targetSign.label} sign! (+10 pts)`);
+    isCorrectGestureRef.current = true; // Update ref immediately to prevent race conditions
+    setSuccessMessage(`Perfect! You matched the ${targetSignRef.current.label} sign! (+10 pts)`);
     setPoints(prev => prev + 10);
     
     // Auto-advance after 2.5 seconds
     correctTimerRef.current = setTimeout(() => {
       setIsCorrectGesture(false);
+      isCorrectGestureRef.current = false;
       setSuccessMessage("");
       setCurrentSignIndex(prev => (prev + 1) % TEACHABLE_SIGNS.length);
     }, 2500);
@@ -171,6 +186,7 @@ export default function SignLearning({ isLight, cardClass, innerCardClass, textT
 
   const nextSign = () => {
     setIsCorrectGesture(false);
+    isCorrectGestureRef.current = false;
     setSuccessMessage("");
     if (correctTimerRef.current) clearTimeout(correctTimerRef.current);
     setCurrentSignIndex(prev => (prev + 1) % TEACHABLE_SIGNS.length);
@@ -178,6 +194,7 @@ export default function SignLearning({ isLight, cardClass, innerCardClass, textT
 
   const prevSign = () => {
     setIsCorrectGesture(false);
+    isCorrectGestureRef.current = false;
     setSuccessMessage("");
     if (correctTimerRef.current) clearTimeout(correctTimerRef.current);
     setCurrentSignIndex(prev => (prev - 1 + TEACHABLE_SIGNS.length) % TEACHABLE_SIGNS.length);
