@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import API from "../services/api";
+import SignLearning from "../components/SignLearning";
+
 
 // High-quality courses database with guaranteed embeddable YouTube links
 const MOCK_COURSES = [
@@ -265,6 +267,7 @@ export default function DeafDashboard() {
               { id: "home", label: "Home Dashboard", icon: "home" },
               { id: "courses", label: "Course Library", icon: "grid_view" },
               { id: "my-learning", label: "My Learning", icon: "menu_book" },
+              { id: "learn-signs", label: "Learn Signs (Interactive)", icon: "pan_tool" },
               { id: "ai-tutor", label: "AI Tutor", icon: "smart_toy" },
               { id: "activity", label: "Activity Dashboard", icon: "analytics" },
               { id: "profile", label: "Profile & Certificates", icon: "account_circle" },
@@ -1199,6 +1202,16 @@ export default function DeafDashboard() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* 8. LEARN SIGNS (INTERACTIVE GESTURE RECOGNITION) */}
+        {activeTab === "learn-signs" && (
+          <SignLearning
+            isLight={isLight}
+            cardClass={cardClass}
+            innerCardClass={innerCardClass}
+            textTitleClass={textTitleClass}
+          />
         )}
       </main>
     </div>
